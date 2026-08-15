@@ -480,6 +480,22 @@ export class PermissionValidationService {
         userGitId?: string,
         contextName?: string,
     ): Promise<ValidationResult> {
+        // piku-cat personal-use fork divergence: never gate on per-user seat
+        // assignment. This is the counterpart to the always-valid licence in
+        // SelfHostedLicenseService — WITHOUT this, making the licence valid is a
+        // REGRESSION rather than an unlock: upstream's `!validation.valid` branch
+        // below is what lets an unlicensed CE install "allow everything", so a
+        // valid licence instead activates seat enforcement and every review by a
+        // user absent from the assigned-licence list is skipped with
+        // USER_NOT_LICENSED ("User Not Licensed — Assign seat to user" in the
+        // review timeline). A single-operator install has no seat roster to be on.
+        // The `: boolean` annotation is load-bearing — see the note in
+        // shouldLimitResources().
+        const pikuCatNoSeatGating: boolean = true;
+        if (pikuCatNoSeatGating) {
+            return { allowed: true };
+        }
+
         const validation =
             await this.licenseService.validateOrganizationLicense(
                 organizationAndTeamData,
