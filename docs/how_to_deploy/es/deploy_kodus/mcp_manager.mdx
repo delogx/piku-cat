@@ -1,6 +1,6 @@
 ---
 title: "MCP Manager"
-description: "Despliega MCP Manager para Kodus."
+description: "Despliega MCP Manager para piku-cat."
 icon: "puzzle-piece"
 tag: 'beta'
 ---
@@ -9,42 +9,42 @@ tag: 'beta'
 
 Model Context Protocol (MCP) es un estándar abierto que permite a las aplicaciones de LLM conectarse a
 herramientas externas y fuentes de datos a través de una interfaz de servidor consistente. Los servidores
-MCP publican esquemas de herramientas y endpoints para que clientes como Kodus/Kody puedan obtener
+MCP publican esquemas de herramientas y endpoints para que clientes como piku-cat/Piku puedan obtener
 contexto o ejecutar acciones durante un flujo de trabajo.
 
 ## Arquitectura de MCP Manager
 
 MCP Manager es el servicio backend que gestiona esas conexiones MCP para
-Kodus. Lleva un registro de los proveedores, integraciones y herramientas permitidas por
-workspace, y luego expone ese catálogo a la API de Kodus.
+piku-cat. Lleva un registro de los proveedores, integraciones y herramientas permitidas por
+workspace, y luego expone ese catálogo a la API de piku-cat.
 
-- Registro central de proveedores MCP (Kodus y personalizados)
+- Registro central de proveedores MCP (piku-cat y personalizados)
 - Almacena metadatos de integración (estado de conexión, URL MCP, herramientas permitidas)
 - Gestiona los flujos de autenticación específicos de cada proveedor y el descubrimiento de herramientas
-- Expone APIs que Kodus usa para listar e invocar herramientas MCP
+- Expone APIs que piku-cat usa para listar e invocar herramientas MCP
 
 ```mermaid
 graph TD
-    A[Kodus] --> B[MCP Manager]
+    A[piku-cat] --> B[MCP Manager]
     B --> C[Providers]
     C --> D[Kodus MCPs]
     C --> F[Custom]
 ```
 
-## Plugins en Kodus
+## Plugins en piku-cat
 
-Todo lo registrado en MCP Manager aparece en la pantalla de **Plugins** de Kodus,
+Todo lo registrado en MCP Manager aparece en la pantalla de **Plugins** de piku-cat,
 para que tu equipo pueda instalar, gestionar y habilitar los MCPs disponibles para cada
 workspace.
 
-<img src="/images/kodus_plugins.png" alt="Pantalla de plugins de Kodus mostrando MCPs del MCP Manager" />
+<img src="/images/kodus_plugins.png" alt="Pantalla de plugins de piku-cat mostrando MCPs del MCP Manager" />
 
 ## Proveedores
 
-### Proveedor Kodus
+### Proveedor piku-cat
 
-El proveedor Kodus agrupa los MCPs de primera parte gestionados por Kodus, incluyendo el
-Kodus MCP, Context7 MCP y Kodus Docs MCP.
+El proveedor piku-cat agrupa los MCPs de primera parte gestionados por piku-cat, incluyendo el
+Kodus MCP, Context7 MCP y piku-cat Docs MCP.
 
 ### Proveedores personalizados
 

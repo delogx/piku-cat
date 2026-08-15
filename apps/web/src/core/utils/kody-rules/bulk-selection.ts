@@ -1,5 +1,5 @@
 /**
- * Pure helpers for managing bulk-selection state of Kody Rules.
+ * Pure helpers for managing bulk-selection state of Piku Rules.
  *
  * The selection lives as a `Set<string>` of rule UUIDs in page state.
  * Keeping the toggling/selection logic in a small pure module makes it

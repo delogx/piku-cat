@@ -1,6 +1,6 @@
 ---
 title: "Instalación"
-description: "Despliega Kodus en una máquina virtual genérica."
+description: "Despliega piku-cat en una máquina virtual genérica."
 icon: "plug"
 ---
 
@@ -25,7 +25,7 @@ API_HOST=0.0.0.0                              # Host de la API (0.0.0.0 para des
 
 # Solo necesario si quieres usar las funcionalidades de MCP.
 API_KODUS_SERVICE_MCP_MANAGER=http://kodus-mcp-manager:3101 # URL del MCP Manager
-API_KODUS_MCP_SERVER_URL=http://kodus-api.yourdomain.com/mcp # URL del servidor MCP de Kodus
+API_KODUS_MCP_SERVER_URL=http://kodus-api.yourdomain.com/mcp # URL del servidor MCP de piku-cat
 ```
 
 ### Configuración del proveedor LLM
@@ -152,7 +152,7 @@ proveedores; para la autenticación básica basada en token, solo necesitas la U
   Solo necesario si deseas usar MCP Manager.
 </Info>
 
-MCP Manager es el servicio que conecta Kody con herramientas externas y las expone
+MCP Manager es el servicio que conecta Piku con herramientas externas y las expone
 en la pantalla de Plugins. Consulta nuestra [documentación de MCP Manager](/how_to_deploy/es/deploy_kodus/mcp_manager)
 para más información.
 
@@ -177,11 +177,11 @@ API_MCP_MANAGER_ENCRYPTION_SECRET=
 
 ### Configuración de servicios externos (opcional)
 
-Estos servicios son opcionales pero mejoran significativamente la calidad de la revisión de código de Kodus. Cada uno requiere crear una cuenta y generar una clave de API.
+Estos servicios son opcionales pero mejoran significativamente la calidad de la revisión de código de piku-cat. Cada uno requiere crear una cuenta y generar una clave de API.
 
 <AccordionGroup>
   <Accordion title="E2B — Sandbox de ejecución de código">
-    E2B proporciona un sandbox seguro que Kodus usa para ejecutar y validar código durante las revisiones.
+    E2B proporciona un sandbox seguro que piku-cat usa para ejecutar y validar código durante las revisiones.
 
     1. Crea una cuenta en [e2b.dev](https://e2b.dev)
     2. Genera una clave de API en tu panel de control
@@ -193,7 +193,7 @@ Estos servicios son opcionales pero mejoran significativamente la calidad de la 
   </Accordion>
 
   <Accordion title="MorphLLM — Modelo de edición de código">
-    MorphLLM es un modelo especializado para la edición de código rápida y precisa. Kodus lo utiliza para aplicar sugerencias de revisión con mayor precisión.
+    MorphLLM es un modelo especializado para la edición de código rápida y precisa. piku-cat lo utiliza para aplicar sugerencias de revisión con mayor precisión.
 
     1. Crea una cuenta en [morphllm.com](https://morphllm.com)
     2. Genera una clave de API en tu panel de control

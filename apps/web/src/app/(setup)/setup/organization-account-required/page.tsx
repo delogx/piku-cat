@@ -41,7 +41,7 @@ export default function App() {
                         </svg>
 
                         <p>
-                            Kody feels like having a senior dev reviewing every
+                            Piku feels like having a senior dev reviewing every
                             pull request—clear, actionable feedback on quality,
                             security, and performance, right in Git.
                         </p>
@@ -82,7 +82,7 @@ export default function App() {
                         </p>
 
                         <p className="text-text-secondary text-sm">
-                            Kodus only works when installed on a GitHub
+                            piku-cat only works when installed on a GitHub
                             organization.
                         </p>
                     </div>

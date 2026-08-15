@@ -21,7 +21,8 @@ import { Injectable } from '@nestjs/common';
  */
 @Injectable()
 export class KodyRulesValidationService {
-    public readonly MAX_KODY_RULES = 10;
+    // piku-cat fork: free-tier cap lifted (personal-use permission from Kodus, see NOTICE).
+    public readonly MAX_KODY_RULES = Number.MAX_SAFE_INTEGER;
     private readonly isCloud: boolean;
 
     constructor(

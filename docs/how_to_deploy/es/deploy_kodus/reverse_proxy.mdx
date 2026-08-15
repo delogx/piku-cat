@@ -1,6 +1,6 @@
 ---
 title: "Proxy inverso"
-description: "Configura un proxy inverso para Kodus."
+description: "Configura un proxy inverso para piku-cat."
 icon: "server" 
 tags: ["reverse-proxy", "nginx"]
 ---
@@ -9,18 +9,18 @@ tags: ["reverse-proxy", "nginx"]
 Paso opcional: Solo necesario si no usarás ningún balanceador de carga o servidor proxy.
 </Info>
 
-Para hacer que tu instancia de Kodus sea accesible desde sistemas externos (necesario para los webhooks de revisión de código y el acceso público), deberás configurar un proxy inverso con Nginx.
+Para hacer que tu instancia de piku-cat sea accesible desde sistemas externos (necesario para los webhooks de revisión de código y el acceso público), deberás configurar un proxy inverso con Nginx.
 
 Aquí hay una configuración de Nginx de ejemplo para dos subdominios:
 
 ```nginx
-# Bloque de servidor para la aplicación web de Kodus
+# Bloque de servidor para la aplicación web de piku-cat
 server {
     listen 80;
     server_name kodus-web.yourdomain.com; # Reemplaza con el dominio real de tu aplicación web
 
     location / {
-        proxy_pass http://localhost:3000; # Apunta al contenedor de la aplicación web de Kodus
+        proxy_pass http://localhost:3000; # Apunta al contenedor de la aplicación web de piku-cat
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -35,13 +35,13 @@ server {
     }
 }
 
-# Bloque de servidor para la API de Kodus
+# Bloque de servidor para la API de piku-cat
 server {
     listen 80;
     server_name kodus-api.yourdomain.com; # Reemplaza con el dominio real de tu API
 
     location ~ ^/(github|gitlab|bitbucket|azure-repos)/webhook {
-        proxy_pass http://localhost:3332; # Apunta al servicio de Webhooks de Kodus
+        proxy_pass http://localhost:3332; # Apunta al servicio de Webhooks de piku-cat
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -53,7 +53,7 @@ server {
     }
 
     location / {
-        proxy_pass http://localhost:3001; # Apunta al servicio de API de Kodus
+        proxy_pass http://localhost:3001; # Apunta al servicio de API de piku-cat
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

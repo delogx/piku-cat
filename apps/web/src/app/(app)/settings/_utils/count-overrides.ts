@@ -33,7 +33,7 @@ const CODE_REVIEW_ROUTE_OVERRIDE_PATH_PREFIXES: Record<string, string[]> = {
         // `ideRulesSyncEnabled` is intentionally NOT counted: it's an
         // import action toggle ("am I auto-syncing right now?"), not a
         // rule-shaping configuration. Counting it as an override made
-        // the Kody Rules nav badge show "1" on repos that hadn't actually
+        // the Piku Rules nav badge show "1" on repos that hadn't actually
         // customised any rule policy, which read as "1 custom rule" to
         // users.
         "kodyKnowledgeApproval",

@@ -21,10 +21,10 @@ function IdeRulesSyncFailedEmail({
     correlationId,
 }: IdeRulesSyncFailedEmailProps) {
     return (
-        <BrandLayout preview={`Kody could not sync IDE rules in ${repoName}`}>
+        <BrandLayout preview={`Piku could not sync IDE rules in ${repoName}`}>
             <Heading style={baseHeading}>IDE rule sync failed</Heading>
             <Text style={baseText}>
-                Kody could not finish syncing IDE rules from{' '}
+                Piku could not finish syncing IDE rules from{' '}
                 <strong>{repoName}</strong>.
             </Text>
             <Text style={baseText}>

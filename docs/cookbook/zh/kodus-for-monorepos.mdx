@@ -1,5 +1,5 @@
 ---
-title: "Kodus 用于 Monorepo"
+title: "piku-cat 用于 Monorepo"
 description: "配置目录级规则、路径特定覆盖和规则继承，以在 monorepo 中获得精确的代码审查。"
 icon: "folder-tree"
 ---
@@ -10,7 +10,7 @@ icon: "folder-tree"
 
 ## 策略概述
 
-Kodus 支持三个配置级别，自然映射到 monorepo：
+piku-cat 支持三个配置级别，自然映射到 monorepo：
 
 | 级别 | 适用于 | 示例 |
 |------|--------|------|
@@ -39,7 +39,7 @@ monorepo/
 前往**代码审查设置** → **代码库** → 点击目录进行配置。
 
 每个目录可以有自己的：
-- **Kody 规则**（文件级和 PR 级）
+- **Piku 规则**（文件级和 PR 级）
 - **审查选项**（启用哪些分析类型）
 - **建议控制**（严重性过滤器、最大建议数）
 - **忽略路径**
@@ -86,7 +86,7 @@ monorepo/
 
 ## 步骤 4 — 使用记忆处理跨领域约定
 
-某些约定适用于所有地方。将它们作为记忆教给 Kody：
+某些约定适用于所有地方。将它们作为记忆教给 Piku：
 
 ```
 @kody remember: in this monorepo, all packages use ESM imports.

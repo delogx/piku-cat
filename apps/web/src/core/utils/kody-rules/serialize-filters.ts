@@ -1,5 +1,5 @@
 /**
- * Pure helpers for serializing/parsing the Kody Rules list filters into
+ * Pure helpers for serializing/parsing the Piku Rules list filters into
  * URL query string params. Used to make filter state bookmarkable and to
  * survive page reloads. Keeping the helpers pure makes the round-trip
  * trivially testable.
@@ -16,7 +16,7 @@ import type { InferredRuleOrigin } from "./infer-origin";
 const ALLOWED_ORIGINS: ReadonlySet<InferredRuleOrigin> = new Set([
     "Auto-sync",
     "Onboarding",
-    "Kody-generated",
+    "Piku-generated",
     "Library",
     "MCP/Agent",
     "CLI",

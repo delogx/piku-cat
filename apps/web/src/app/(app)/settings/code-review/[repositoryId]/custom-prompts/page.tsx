@@ -74,7 +74,7 @@ function buildPromptSections(defaults: PromptDefaults): PromptSectionConfig[] {
                     label: "Base instruction",
                     helperText: "Used for all suggestions (max 2000).",
                     placeholder:
-                        "Describe what Kody should analyze and suggest... Use @ to insert MCP tools for dynamic data.",
+                        "Describe what Piku should analyze and suggest... Use @ to insert MCP tools for dynamic data.",
                     defaultValue: defaults.generation?.main ?? "",
                 },
             ],
@@ -82,7 +82,7 @@ function buildPromptSections(defaults: PromptDefaults): PromptSectionConfig[] {
         {
             fieldName: "v2PromptOverrides.categories",
             title: "Category Prompts",
-            description: "Set the prompt Kody uses for each category.",
+            description: "Set the prompt Piku uses for each category.",
             contentClassName: "grid grid-cols-1 gap-6",
             fields: [
                 {

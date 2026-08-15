@@ -32,7 +32,7 @@ import type { PublicConfig } from "@config/publicConfig";
 function buildTasks(cfg: PublicConfig) {
     return [
         {
-            label: "Create a Kody Rule",
+            label: "Create a Piku Rule",
             key: "get-started/create-kody-rule",
             href: "/settings/code-review/global/kody-rules",
         },
@@ -52,7 +52,7 @@ function buildTasks(cfg: PublicConfig) {
             href: cfg.supportDocsUrl as `https://${string}`,
         },
         {
-            label: "Invite a teammate to Kodus",
+            label: "Invite a teammate to piku-cat",
             key: "get-started/invite-teammate",
             href: "/settings/subscription?tab=admins",
         },

@@ -1,6 +1,6 @@
 ---
 title: "Synthetic — オープンソースコーディングモデルの定額サブスクリプション"
-description: "Kimi、DeepSeek、Qwen Coder、GLMなどをバンドルしたSynthetic.newのサブスクリプションベースAPIをKodusに接続する方法を学びます。"
+description: "Kimi、DeepSeek、Qwen Coder、GLMなどをバンドルしたSynthetic.newのサブスクリプションベースAPIをpiku-catに接続する方法を学びます。"
 icon: "infinity"
 ---
 
@@ -10,7 +10,7 @@ Synthetic は、専用インフラでオープンソースコーディング LLM
 
 コーディングを多く行う開発者向けに、Claude の $20/月 および $200/月 プランの直接代替として位置づけられています：同じ価格帯、数倍高いレート制限、そしてオープンソースモデルの選択肢があります。
 
-Kodus は OpenAI 互換エンドポイントを通じて Synthetic に到達するため、アダプターの変更は不要です — BYOK クレデンシャルだけです。
+piku-cat は OpenAI 互換エンドポイントを通じて Synthetic に到達するため、アダプターの変更は不要です — BYOK クレデンシャルだけです。
 
 ## プランの概要
 
@@ -50,13 +50,13 @@ Synthetic は HuggingFace スタイルのプレフィックス（`hf:org/model`�
 2. [synthetic.new/pricing](https://synthetic.new/pricing) でプランにサブスクライブします。
 3. 開発者コンソールを開いて APIキーを作成します。キーをすぐにコピーします — 完全なキーを再度見ることはできません。
 
-## Kodus で Synthetic を設定する
+## piku-cat で Synthetic を設定する
 
-主なフローは Kodus Cloud での BYOK です。セルフホストインストールでは、第2のオプションとして環境変数を使用できます。
+主なフローは piku-cat Cloud での BYOK です。セルフホストインストールでは、第2のオプションとして環境変数を使用できます。
 
-### オプション1 — Kodus Cloud での BYOK（推奨）
+### オプション1 — piku-cat Cloud での BYOK（推奨）
 
-1. Kodus ウェブ UI で、**設定 → BYOK** を開きます（[app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)）。
+1. piku-cat ウェブ UI で、**設定 → BYOK** を開きます（[app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)）。
 2. Synthetic はキュレートされたカタログにはありません — モデルリストの下部にある **Configure manually** をクリックします。メインモデルの代わりにフォールバックを設定する場合は URL に `?slot=fallback` を使用します。
 3. ウィザードを入力します：
 
@@ -68,19 +68,19 @@ Synthetic は HuggingFace スタイルのプレフィックス（`hf:org/model`�
    | **APIキー** | Synthetic APIキー |
    | **Max Concurrent Requests** | 大きな PR の5時間バジェットに収まるよう `3〜5` から始める（Advanced settings 内） |
 
-4. **Test & save** をクリックします。Kodus はエンドポイントをプローブし、成功時に設定を保存します。401 はキーが間違っていることを意味し、404 は通常ベース URL またはモデルパスが間違っていることを意味します。
+4. **Test & save** をクリックします。piku-cat はエンドポイントをプローブし、成功時に設定を保存します。401 はキーが間違っていることを意味し、404 は通常ベース URL またはモデルパスが間違っていることを意味します。
 
 <Tip>
   500メッセージ/5時間のバジェットはサブスクリプション単位で、PR 単位ではありません。継続的なレビューを行うチームには、1つの大きなマルチファイル PR がウィンドウを消費しないよう `Max Concurrent Requests` を十分に低く保つか、複数のサブスクリプションに作業を分散させてください。
 </Tip>
 
 <Note>
-  Synthetic を**メイン**として設定し、OpenAI または Anthropic キーを**フォールバック**として保持します — 5時間ウィンドウが一杯になったとき、Kodus は自動的にフェイルオーバーしてレビューが継続されます。
+  Synthetic を**メイン**として設定し、OpenAI または Anthropic キーを**フォールバック**として保持します — 5時間ウィンドウが一杯になったとき、piku-cat は自動的にフェイルオーバーしてレビューが継続されます。
 </Note>
 
 ### オプション2 — セルフホスト（環境変数）
 
-固定モード（単一グローバルプロバイダー、組織ごとの BYOK なし）で Kodus を実行している場合は、API とワーカーコンテナの `.env` で Synthetic を設定します：
+固定モード（単一グローバルプロバイダー、組織ごとの BYOK なし）で piku-cat を実行している場合は、API とワーカーコンテナの `.env` で Synthetic を設定します：
 
 ```env
 # Synthetic configuration (Fixed Mode)
@@ -90,7 +90,7 @@ API_OPEN_AI_API_KEY="your-synthetic-api-key"
 ```
 
 <Note>
-  このパスは意図的に BYOK を無効にしているセルフホスト Kodus インストールにのみ必要です。セルフホストインスタンスで BYOK が有効な場合は、**オプション1**を優先してください — UI ベースのフローはクラウドと同じです。
+  このパスは意図的に BYOK を無効にしているセルフホスト piku-cat インストールにのみ必要です。セルフホストインスタンスで BYOK が有効な場合は、**オプション1**を優先してください — UI ベースのフローはクラウドと同じです。
 </Note>
 
 `.env` を編集後、API とワーカーコンテナを再起動して確認します：
@@ -130,7 +130,7 @@ docker-compose logs api worker | grep -iE "synthetic|api\.synthetic"
 
   <Accordion title="最初の呼び出しで長いコールドスタート">
     - 一部の大きなモデルは、非アクティブ期間後に最初に使用されるときにコールドスタートする場合があります。
-    - 最初の呼び出しのレイテンシが Kodus のヘルスチェックをブロックしている場合は、PR を開く前に小さなテストリクエストを発行してモデルをウォームアップします。
+    - 最初の呼び出しのレイテンシが piku-cat のヘルスチェックをブロックしている場合は、PR を開く前に小さなテストリクエストを発行してモデルをウォームアップします。
   </Accordion>
 
   <Accordion title="接続エラー">

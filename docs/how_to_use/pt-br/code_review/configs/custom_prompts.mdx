@@ -1,9 +1,9 @@
 ---
 title: "Prompts Personalizados"
-description: "Personalize os prompts de revisão de Kody para cada categoria e a forma como as sugestões são escritas, de acordo com as necessidades da sua equipe"
+description: "Personalize os prompts de revisão de Piku para cada categoria e a forma como as sugestões são escritas, de acordo com as necessidades da sua equipe"
 ---
 
-Os Prompts Personalizados oferecem controle total sobre como Kody analisa seu código e comunica os achados. Adapte o que a IA busca em cada categoria de revisão e como ela apresenta sugestões para corresponder aos padrões e ao estilo de comunicação da sua equipe.
+Os Prompts Personalizados oferecem controle total sobre como Piku analisa seu código e comunica os achados. Adapte o que a IA busca em cada categoria de revisão e como ela apresenta sugestões para corresponder aos padrões e ao estilo de comunicação da sua equipe.
 
 <Card
   title="Acessar Configurações de Prompts Personalizados"
@@ -17,16 +17,16 @@ Os Prompts Personalizados oferecem controle total sobre como Kody analisa seu c�
 
 <CardGroup cols={2}>
   <Card title="Padrões Específicos da Equipe" icon="users">
-    Alinhe as revisões de Kody com os padrões de codificação únicos, padrões arquiteturais e boas práticas da sua equipe
+    Alinhe as revisões de Piku com os padrões de codificação únicos, padrões arquiteturais e boas práticas da sua equipe
   </Card>
   <Card title="Otimização de Modelo" icon="brain">
     Crie prompts otimizados para os pontos fortes do seu modelo de IA específico ao usar BYOK
   </Card>
   <Card title="Controle de Foco" icon="bullseye">
-    Direcione a atenção de Kody para os problemas mais relevantes para o seu projeto e reduza o ruído
+    Direcione a atenção de Piku para os problemas mais relevantes para o seu projeto e reduza o ruído
   </Card>
   <Card title="Estilo de Comunicação" icon="comments">
-    Personalize como Kody apresenta sugestões — detalhadas para problemas críticos ou concisas para problemas menores
+    Personalize como Piku apresenta sugestões — detalhadas para problemas críticos ou concisas para problemas menores
   </Card>
 </CardGroup>
 
@@ -36,7 +36,7 @@ Os Prompts Personalizados operam em dois níveis:
 
 ### Prompts de Categoria
 
-Definem o que Kody busca em cada categoria de revisão:
+Definem o que Piku busca em cada categoria de revisão:
 
 <Tabs>
   <Tab title="Bug">
@@ -84,16 +84,16 @@ Definem o que Kody busca em cada categoria de revisão:
 
 ### Prompts de Sugestão
 
-Controlam como Kody comunica cada sugestão individual. Isso personaliza o formato e o tom da mensagem que aparece nos comentários do PR, como:
+Controlam como Piku comunica cada sugestão individual. Isso personaliza o formato e o tom da mensagem que aparece nos comentários do PR, como:
 
 ```
 The new file 'create-or-update-issues-parameter.dto.ts' does not follow 
-the company's naming convention. According to the Kody Rules, all new files 
+the company's naming convention. According to the Piku Rules, all new files 
 must use camelCase. Please rename the file to 'createOrUpdateIssuesParameter.dto.ts' 
 to adhere to the standard.
 ```
 
-Seu prompt personalizado instrui Kody sobre como escrever mensagens de sugestão. O prompt recebe contexto sobre o nível de severidade, descrição do problema, código sugerido e se é uma violação de Kody Rules. Kody usa esse contexto junto com seu prompt para gerar mensagens apropriadas para cada sugestão.
+Seu prompt personalizado instrui Piku sobre como escrever mensagens de sugestão. O prompt recebe contexto sobre o nível de severidade, descrição do problema, código sugerido e se é uma violação de Piku Rules. Piku usa esse contexto junto com seu prompt para gerar mensagens apropriadas para cada sugestão.
 
 Você pode personalizar o tom, o nível de detalhe e o estilo de comunicação com base nas necessidades da sua equipe — desde explicações detalhadas para problemas críticos até feedback conciso para problemas menores.
 
@@ -109,18 +109,18 @@ v2PromptOverrides:
     categories:
         descriptions:
             bug: |
-                What Kody should look for in the Bug category.
+                What Piku should look for in the Bug category.
             performance: |
-                What Kody should look for in the Performance category.
+                What Piku should look for in the Performance category.
             security: |
-                What Kody should look for in the Security category.
+                What Piku should look for in the Security category.
 ```
 
 Esses quatro são os que a interface web expõe, e cada um tem limite de 2000 caracteres. Não há
 override de prompt para a categoria Business Logic.
 
 O arquivo de config aceita mais um grupo que a interface não mostra — a rubrica de severidade
-que o Kody usa para classificar um achado:
+que o Piku usa para classificar um achado:
 
 ```yaml
 v2PromptOverrides:
@@ -134,7 +134,7 @@ v2PromptOverrides:
 ```
 
 <Warning>
-  Isso muda como o Kody *classifica* os achados, não só como ele os redige — uma rubrica ruim
+  Isso muda como o Piku *classifica* os achados, não só como ele os redige — uma rubrica ruim
   pode silenciar ou inflar severidades em todas as revisões sem avisar. Parta dos padrões que já
   vêm no
   [`default-kodus-config.yml`](https://github.com/kodustech/kodus-ai/blob/main/default-kodus-config.yml)
@@ -153,12 +153,12 @@ O arquivo só é lido depois que `kodusConfigFileOverridesWebPreferences` estive
 
 ## Referências Externas
 
-Todos os prompts personalizados — de Categoria, Sugestão e Resumo de PR — suportam referências a arquivos reais das bases de código que Kody pode acessar. Quando você salva uma atualização, Kody detecta automaticamente as referências externas e as resolve para revisões futuras.
+Todos os prompts personalizados — de Categoria, Sugestão e Resumo de PR — suportam referências a arquivos reais das bases de código que Piku pode acessar. Quando você salva uma atualização, Piku detecta automaticamente as referências externas e as resolve para revisões futuras.
 
-- Use `@file:caminho/para/arquivo.ts` para apontar para arquivos no repositório que você está editando; Kody tentará localizar o caminho localmente primeiro.
+- Use `@file:caminho/para/arquivo.ts` para apontar para arquivos no repositório que você está editando; Piku tentará localizar o caminho localmente primeiro.
 - Inclua `@repo:org/projeto` ao referenciar arquivos de outro repositório ou ao editar prompts no nível global.
 - Prefira caminhos precisos no estilo blob em vez de placeholders para que o modelo encontre o arquivo correto de forma confiável.
-- Após salvar, Kody processa as referências em segundo plano. Verifique o indicador de status ao lado do editor de prompts para confirmar quando a resolução for concluída.
+- Após salvar, Piku processa as referências em segundo plano. Verifique o indicador de status ao lado do editor de prompts para confirmar quando a resolução for concluída.
 
 ## Boas Práticas
 
@@ -279,7 +279,7 @@ Diferencie os formatos de sugestão apenas quando há uma razão real:
 <Tabs>
   <Tab title="Bom: Diferença Significativa">
     ```
-    Para violações de Kody Rules, use um tom mais rígido:
+    Para violações de Piku Rules, use um tom mais rígido:
     "**Padrão da Equipe**: [problema]. Obrigatório: [código]"
     
     Para sugestões padrão, use um tom mais amigável:
@@ -293,7 +293,7 @@ Diferencie os formatos de sugestão apenas quando há uma razão real:
   
   <Tab title="Ruim: Rótulo Superficial">
     ```
-    Para Kody Rules, adicione o prefixo "[RULE]" antes do problema.
+    Para Piku Rules, adicione o prefixo "[RULE]" antes do problema.
     Para sugestões, adicione o prefixo "[SUGGESTION]" antes do problema.
     Caso contrário, formate-os da mesma forma.
     ```
@@ -319,7 +319,7 @@ Diferencie os formatos de sugestão apenas quando há uma razão real:
     - Missing patient consent verification
     ```
     
-    **Benefício:** Kody captura problemas específicos de conformidade que revisões de segurança genéricas podem perder.
+    **Benefício:** Piku captura problemas específicos de conformidade que revisões de segurança genéricas podem perder.
   </Accordion>
 
   <Accordion title="Otimização de Stack Tecnológica">
@@ -411,13 +411,13 @@ Diferencie os formatos de sugestão apenas quando há uma razão real:
   </Accordion>
 
   <Accordion title="Tom Diferente para Regras vs Sugestões">
-    **Cenário:** Kody Rules são requisitos obrigatórios, sugestões são recomendações
+    **Cenário:** Piku Rules são requisitos obrigatórios, sugestões são recomendações
     
     **Prompt de Sugestão Personalizado:**
     ```
     Use different tones based on the type:
     
-    For Kody Rules violations:
+    For Piku Rules violations:
     - Start with "**Team Standard Violation**" in bold
     - State the problem
     - Add "This violates documented team standards."
@@ -447,7 +447,7 @@ Diferencie os formatos de sugestão apenas quando há uma razão real:
   </Accordion>
 
   <Accordion title="Problemas Esperados Não São Encontrados">
-    **Sintomas:** Kody não captura problemas que deveria
+    **Sintomas:** Piku não captura problemas que deveria
     
     **Soluções:**
     - Revise seu prompt para ver se está muito restrito ou muito específico em exemplos
@@ -510,7 +510,7 @@ Diferencie os formatos de sugestão apenas quando há uma razão real:
   </Accordion>
 
   <Accordion title="Qual é a diferença entre prompts de Categoria e prompts de Sugestão?">
-    **Prompts de Categoria** controlam o que Kody analisa em cada categoria de revisão. **Prompts de Sugestão** controlam como Kody apresenta os achados para sua equipe. Você pode personalizar ambos de forma independente.
+    **Prompts de Categoria** controlam o que Piku analisa em cada categoria de revisão. **Prompts de Sugestão** controlam como Piku apresenta os achados para sua equipe. Você pode personalizar ambos de forma independente.
   </Accordion>
 
   <Accordion title="Posso usar markdown em prompts de sugestão?">
@@ -518,10 +518,10 @@ Diferencie os formatos de sugestão apenas quando há uma razão real:
   </Accordion>
 
   <Accordion title="O que acontece se meu template de sugestão tiver erros de sintaxe?">
-    Kody voltará ao formato de sugestão padrão e notificará você sobre o erro nas configurações.
+    Piku voltará ao formato de sugestão padrão e notificará você sobre o erro nas configurações.
   </Accordion>
 
-  <Accordion title="Os prompts de sugestão funcionam tanto para Kody Rules quanto para sugestões padrão?">
+  <Accordion title="Os prompts de sugestão funcionam tanto para Piku Rules quanto para sugestões padrão?">
     Sim. Use a variável `isKodyRule` para criar mensagens diferentes para regras vs sugestões no mesmo prompt.
   </Accordion>
 </AccordionGroup>

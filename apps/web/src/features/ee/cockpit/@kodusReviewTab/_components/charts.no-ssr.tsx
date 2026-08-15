@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { Skeleton } from "@components/ui/skeleton";
 
-// The Kodus Review tab is the cockpit's default landing tab, so its charts
+// The piku-cat Review tab is the cockpit's default landing tab, so its charts
 // gate first paint. Each of these pulls in recharts (heavy); loading them via
 // `next/dynamic({ ssr: false })` keeps recharts out of the initial route
 // bundle and streams a skeleton until the chart hydrates — same pattern the

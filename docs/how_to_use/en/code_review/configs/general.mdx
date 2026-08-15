@@ -6,7 +6,7 @@ description: "The core review settings — cadence, PR workflow, skip conditions
 ## Core Settings
 
 <Note>
-  Kodus has three config levels: Global, Repository, and Directory. Learn how they work in <a href="/how_to_use/en/code_review/configs/inheritance_overrides">Config Inheritance & Overrides</a>.
+  piku-cat has three config levels: Global, Repository, and Directory. Learn how they work in <a href="/how_to_use/en/code_review/configs/inheritance_overrides">Config Inheritance & Overrides</a>.
 </Note>
 
 ### Config Priority
@@ -16,7 +16,7 @@ repository instead of the web UI.
 
 <Warning>
   **The file is ignored until you opt in.** By default `kodusConfigFileOverridesWebPreferences`
-  is `false`, which means Kody never reads `kodus-config.yml` — committing the file alone does
+  is `false`, which means Piku never reads `kodus-config.yml` — committing the file alone does
   nothing.
 
   Turn it on first in **Settings → Code Review → the repository → General**, or set
@@ -116,7 +116,7 @@ customMessages:
 
 ### Automated Review
 
-Kody can review PRs automatically when opened, or only when you comment `@kody start-review`.
+Piku can review PRs automatically when opened, or only when you comment `@kody start-review`.
 
 <Info>
   This affects the **initial review** only. For subsequent commits, see Review Cadence below.
@@ -124,7 +124,7 @@ Kody can review PRs automatically when opened, or only when you comment `@kody s
 
 #### Review Cadence
 
-How Kody handles reviews on subsequent commits:
+How Piku handles reviews on subsequent commits:
 
 <Tabs>
   <Tab title="Automatic">
@@ -145,12 +145,12 @@ How Kody handles reviews on subsequent commits:
 ### PR Workflow
 
 #### Auto-approve PRs
-Kody approves PRs when no issues are found.
+Piku approves PRs when no issues are found.
 
 **Platforms:** GitHub, GitLab, Bitbucket
 
 #### Request Changes
-Kody requests changes when finding critical issues.
+Piku requests changes when finding critical issues.
 
 **Platforms:** GitHub, Bitbucket
 
@@ -165,7 +165,7 @@ Kody requests changes when finding critical issues.
 <Info>
   **Empty (the default) means every base branch is reviewed** — there is no built-in
   `dev`/`release`/`master` list. Add entries only when you want to *narrow* the scope: once the
-  list is non-empty, Kody reviews only PRs targeting those branches (your repository's default
+  list is non-empty, Piku reviews only PRs targeting those branches (your repository's default
   branch is always included).
 
   Entries are matched against the PR's **target** branch and support a small pattern syntax:
@@ -187,7 +187,7 @@ skip them until the PR is marked ready.
 
 ## Analysis Types
 
-Kody reviews across four categories. Enable or disable each one under **Analysis Types**, or via
+Piku reviews across four categories. Enable or disable each one under **Analysis Types**, or via
 `reviewOptions` in `kodus-config.yml`.
 
 - **Bug** — logic errors, race conditions, null dereferences, edge cases, and incorrect behavior.
@@ -198,6 +198,6 @@ Kody reviews across four categories. Enable or disable each one under **Analysis
   [Business Logic Validation](/how_to_use/en/code_review/business_logic_validation).
 
 <Note>
-  Kody Rules are **not** one of these categories — they always run, independently of
-  `reviewOptions`. See [Kody Rules](/how_to_use/en/code_review/configs/kody_rules).
+  Piku Rules are **not** one of these categories — they always run, independently of
+  `reviewOptions`. See [Piku Rules](/how_to_use/en/code_review/configs/kody_rules).
 </Note>

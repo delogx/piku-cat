@@ -35,10 +35,10 @@ const AREA_META: Record<
             "The main review agents that read the diff and find issues — usually the bulk of every review.",
     },
     kody_rules: {
-        label: "Kody Rules",
+        label: "Piku Rules",
         color: CHART_COLORS.primary,
         description:
-            "Checking the diff against your Kody Rules and generating rule-based findings.",
+            "Checking the diff against your Piku Rules and generating rule-based findings.",
     },
     cross_file: {
         label: "Cross-file context",

@@ -180,7 +180,7 @@ function CommunityCard() {
                     <CardTitle>Community Edition</CardTitle>
                 </div>
                 <CardDescription className="text-pretty">
-                    You&apos;re running Kodus in self-hosted mode without a
+                    You&apos;re running piku-cat in self-hosted mode without a
                     license. Don&apos;t have a key yet? Request a trial and
                     we&apos;ll send you one to activate below.
                 </CardDescription>
@@ -222,7 +222,7 @@ function ActivateKeyCard({
                 <CardDescription>
                     {isLicensed
                         ? "Replace your current key with a new one."
-                        : "Paste the license key you received from Kodus."}
+                        : "Paste the license key you received from piku-cat."}
                 </CardDescription>
             </CardHeader>
 

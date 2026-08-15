@@ -117,7 +117,7 @@ function Identity() {
                 className="rounded-full ring-1 ring-[var(--border)]"
             />
             <span className="text-[13px] font-medium text-[var(--text)]">
-                Kody
+                Piku
             </span>
         </div>
     );

@@ -6,7 +6,7 @@ import { PermissionValidationService } from '@libs/ee/shared/services/permission
 import { KODUS_TRIAL_MODEL } from '@libs/llm/byok-to-vercel';
 
 /**
- * The Kodus-funded model for Kody Rules generation when there's no BYOK:
+ * The Kodus-funded model for Piku Rules generation when there's no BYOK:
  * DeepSeek V4 Flash hosted on Fireworks (`API_FIREWORKS_API_KEY`), routed by
  * `byokToVercelModel`'s `accounts/fireworks/models/` prefix detection. Gemini
  * is dead (project denied access) and must never be used here — see item 9 of
@@ -15,7 +15,7 @@ import { KODUS_TRIAL_MODEL } from '@libs/llm/byok-to-vercel';
 export const KODY_RULES_KODUS_MODEL = KODUS_TRIAL_MODEL;
 
 /**
- * Resolved model policy for a Kody Rules generation run.
+ * Resolved model policy for a Piku Rules generation run.
  *
  * `generate: false` means the run must be skipped (no model the org is
  * entitled to). `byokConfig`/`modelOverride` feed `byokToVercelModel`:
@@ -31,7 +31,7 @@ export interface KodyRulesModelPolicy {
 }
 
 /**
- * Decides which model (if any) a Kody Rules generation run may use.
+ * Decides which model (if any) a Piku Rules generation run may use.
  *
  * Policy (see docs/plans/fix-kody-rules-generation.md). The Kodus-funded model
  * is ALWAYS the Fireworks-hosted DeepSeek V4 Flash — Gemini is dead and must
@@ -73,7 +73,7 @@ export async function resolveKodyRulesModelPolicy(
     return {
         generate: false,
         skipReason: subscriptionStatus
-            ? `no BYOK configured on '${subscriptionStatus}' plan — Kody Rules generation requires BYOK outside the trial`
-            : 'no BYOK configured and no active trial — Kody Rules generation skipped',
+            ? `no BYOK configured on '${subscriptionStatus}' plan — Piku Rules generation requires BYOK outside the trial`
+            : 'no BYOK configured and no active trial — Piku Rules generation skipped',
     };
 }

@@ -1,15 +1,15 @@
 ---
 title: "Configuração Self-Hosted"
-description: "Conecte o Kodus CLI à sua instância self-hosted do Kodus."
+description: "Conecte o Kodus CLI à sua instância self-hosted do piku-cat."
 ---
 
-Se você estiver executando o Kodus na sua própria infraestrutura, o CLI funciona da mesma forma — você só precisa apontá-lo para a sua API.
+Se você estiver executando o piku-cat na sua própria infraestrutura, o CLI funciona da mesma forma — você só precisa apontá-lo para a sua API.
 
 ## Conectar à Sua Instância
 
 <Steps>
   <Step title="Definir a URL da API">
-    Informe ao CLI onde sua API do Kodus está. Escolha um método:
+    Informe ao CLI onde sua API do piku-cat está. Escolha um método:
 
     <Tabs>
       <Tab title="Variável de Ambiente (Recomendado)">
@@ -55,7 +55,7 @@ Se você estiver executando o Kodus na sua própria infraestrutura, o CLI funcio
   <Step title="Autenticar">
     <Tabs>
       <Tab title="Chave de Equipe (Recomendado)">
-        Gere uma chave de equipe no painel do Kodus self-hosted e configure-a:
+        Gere uma chave de equipe no painel do piku-cat self-hosted e configure-a:
 
         ```bash
         kodus auth team-key --key kodus_xxxxx
@@ -177,7 +177,7 @@ Para instâncias self-hosted em pipelines CI/CD, defina a URL da API e a autenti
 <Tabs>
   <Tab title="GitHub Actions">
     ```yaml
-    - name: Kodus Review
+    - name: piku-cat Review
       env:
         KODUS_API_URL: ${{ secrets.KODUS_API_URL }}
         KODUS_TEAM_KEY: ${{ secrets.KODUS_TEAM_KEY }}

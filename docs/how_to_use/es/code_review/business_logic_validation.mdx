@@ -5,12 +5,12 @@ description: "Compara tu pull request con reglas de negocio o especificaciones u
 
 ## Descripción General
 
-La Validación de Lógica de Negocio te permite confirmar que un pull request implementa el comportamiento esperado descrito en una especificación, documento o ticket. Kody analiza el diff del PR, incorpora el contexto de negocio referenciado y señala las discrepancias antes de que hagas el merge.
+La Validación de Lógica de Negocio te permite confirmar que un pull request implementa el comportamiento esperado descrito en una especificación, documento o ticket. Piku analiza el diff del PR, incorpora el contexto de negocio referenciado y señala las discrepancias antes de que hagas el merge.
 
 <img src="https://kodus.io/wp-content/uploads/2025/10/business-logic.gif" alt="Ejemplo de uso de la validación de lógica de negocio" />
 
 ## Requisitos Previos
-- Si deseas que Kody **obtenga automáticamente el contexto de la tarea** desde herramientas como Jira, Linear, Notion o ClickUp, el plugin correspondiente debe estar conectado en la página de [Plugins](/how_to_use/es/code_review/plugins) de tu workspace.
+- Si deseas que Piku **obtenga automáticamente el contexto de la tarea** desde herramientas como Jira, Linear, Notion o ClickUp, el plugin correspondiente debe estar conectado en la página de [Plugins](/how_to_use/es/code_review/plugins) de tu workspace.
 - Cualquier enlace que compartas (Jira, Slack, Google Docs, etc.) debe ser accesible a través de los plugins instalados en tu workspace.
 - Siempre puedes **proporcionar la especificación en línea** sin ningún plugin — simplemente pega los requisitos directamente en el comentario del PR.
 
@@ -29,20 +29,20 @@ reviewOptions:
 
 Ve a **Configuración de Code Review** → **Repositorio** → **General** → **Tipos de Análisis** y activa **Lógica de Negocio**.
 
-Cuando está habilitada, Kody ejecuta la validación de lógica de negocio automáticamente durante cada revisión de PR, además del comando bajo demanda.
+Cuando está habilitada, Piku ejecuta la validación de lógica de negocio automáticamente durante cada revisión de PR, además del comando bajo demanda.
 
 ## Ejecución Bajo Demanda
 
 También puedes activar la validación manualmente en cualquier momento:
 
 1. Abre el cuadro de comentarios principal del PR (fuera de las sugerencias de código en línea).
-2. Menciona a Kody y agrega el comando de validación: `@kody -v business-logic ...`.
-3. Proporciona el contenido de la especificación en línea o pega un enlace que Kody pueda obtener a través de los plugins disponibles.
-4. Envía el comentario y espera la respuesta de Kody en el mismo hilo.
+2. Menciona a Piku y agrega el comando de validación: `@kody -v business-logic ...`.
+3. Proporciona el contenido de la especificación en línea o pega un enlace que Piku pueda obtener a través de los plugins disponibles.
+4. Envía el comentario y espera la respuesta de Piku en el mismo hilo.
 
 El comando solo se activa desde el cuadro de conversación principal; las respuestas dentro de sugerencias en línea son ignoradas.
 
-Puedes volver a ejecutar la validación en cualquier momento — simplemente publica el comando nuevamente en un nuevo comentario. Los seguimientos deben ser un comando nuevo; responder directamente al mensaje de Kody en la interfaz de Git no está soportado.
+Puedes volver a ejecutar la validación en cualquier momento — simplemente publica el comando nuevamente en un nuevo comentario. Los seguimientos deben ser un comando nuevo; responder directamente al mensaje de Piku en la interfaz de Git no está soportado.
 
 ### Ejemplos
 
@@ -53,7 +53,7 @@ Puedes volver a ejecutar la validación en cualquier momento — simplemente pub
 - Conversación de Slack: `@kody -v business-logic https://kodustech.slack.com/archives/C070E5E97DE/p1727814000000000`
 - Especificación en línea: `@kody -v business-logic Regla XYZ — los pedidos superiores a $500 deben emitir créditos de cashback.`
 
-## Qué Hace Kody
+## Qué Hace Piku
 
 1. **Obtiene el diff del PR** y los metadatos del pull request.
 2. **Recupera el contexto de la tarea** — desde la herramienta de gestión de tareas vinculada (Jira, Linear, etc.) o desde el texto en línea que proporcionaste.
@@ -61,11 +61,11 @@ Puedes volver a ejecutar la validación en cualquier momento — simplemente pub
 4. **Compara la implementación con los requisitos** — verifica cada criterio de aceptación contra el diff del PR.
 5. **Reporta los hallazgos** con niveles de severidad y trazabilidad de requisitos.
 
-Si Kody no puede acceder al recurso o carece de permisos, lo indicará para que puedas ajustar el acceso o proporcionar la información de otra manera.
+Si Piku no puede acceder al recurso o carece de permisos, lo indicará para que puedas ajustar el acceso o proporcionar la información de otra manera.
 
 ## Calidad del Contexto de la Tarea
 
-Kody clasifica automáticamente la calidad del contexto de la tarea antes del análisis, lo cual afecta la profundidad de la validación:
+Piku clasifica automáticamente la calidad del contexto de la tarea antes del análisis, lo cual afecta la profundidad de la validación:
 
 | Calidad | Descripción | Comportamiento del Análisis |
 |---------|-------------|----------------------------|
@@ -92,18 +92,18 @@ Cada hallazgo es **rastreable a un requisito específico** del contexto de la ta
 - **Ausente en el código** — Lo que falta o está mal en el diff del PR
 - **Acción sugerida** — Una acción de implementación concreta
 
-Kody no inventa requisitos. Si un hallazgo no puede rastrearse a una oración específica en la tarea, no se reporta.
+Piku no inventa requisitos. Si un hallazgo no puede rastrearse a una oración específica en la tarea, no se reporta.
 
 ### Detección de Desajuste de Alcance
 
-Si el diff del PR parece estar trabajando en un dominio diferente al de la propia tarea, Kody detecta esto como un **desajuste de alcance** y lo reporta como el hallazgo principal, en lugar de producir un análisis de brechas engañoso.
+Si el diff del PR parece estar trabajando en un dominio diferente al de la propia tarea, Piku detecta esto como un **desajuste de alcance** y lo reporta como el hallazgo principal, en lugar de producir un análisis de brechas engañoso.
 
 ### Ejemplo de Resultado
 
 ```markdown
 ## Validación de Reglas de Negocio
 
-**Tarea:** KC-1441 - Reglas Kody con alcance de equipo
+**Tarea:** KC-1441 - Reglas Piku con alcance de equipo
 **Enlace de la Tarea:** https://kodustech.atlassian.net/browse/KC-1441
 **Estado:** Problemas Encontrados
 **Confianza:** alta
@@ -130,7 +130,7 @@ con alcance al equipo.
 - CA #2: "Ruta de facturación multi-workspace" — Implementado en `billing.service.ts:118`
 
 ---
-*Análisis realizado por el Validador de Reglas de Negocio de Kodus AI*
+*Análisis realizado por el Validador de Reglas de Negocio de piku-cat AI*
 ```
 
 ## Consejos

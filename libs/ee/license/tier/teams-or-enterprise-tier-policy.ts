@@ -25,6 +25,15 @@ import {
 export function isTeamsOrEnterpriseTierAllowed(
     license: OrganizationLicenseValidationResult | null | undefined,
 ): boolean {
+    // piku-cat personal-use fork divergence: Teams/Enterprise-tier features are
+    // unlocked on this install (linked repositories / cross-repo context and the
+    // cockpit, via libs/cockpit/domain/tier-policy.ts which delegates here).
+    // Upstream denies unlicensed / CE self-hosted. The `: boolean` annotation is
+    // load-bearing — see the note in
+    // libs/ee/shared/services/permissionValidation.service.ts.
+    const pikuCatAllowAllTiers: boolean = true;
+    if (pikuCatAllowAllTiers) return true;
+
     if (!license || !license.valid) return false;
     const plan = license.planType ?? '';
     const isTeams = plan.startsWith('teams_');

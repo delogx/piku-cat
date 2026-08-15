@@ -1,5 +1,5 @@
 ---
-title: "Kodus + sprint workflow"
+title: "piku-cat + sprint workflow"
 description: "Integrate business logic validation into your sprint cycle so every PR is validated against task requirements before merge."
 icon: "arrows-spin"
 ---
@@ -17,7 +17,7 @@ Task created (Jira/Linear/Notion)
     ↓
 Developer implements → Opens PR
     ↓
-Kodus automatically:
+piku-cat automatically:
   1. Fetches task context from the linked tool
   2. Compares PR diff against acceptance criteria
   3. Reports missing/partial implementations
@@ -36,7 +36,7 @@ Go to **Settings** → **Plugins** and connect your tool:
 - **Notion** — for teams using Notion as a task tracker
 - **ClickUp** — for teams using ClickUp
 
-Once connected, Kodus can automatically fetch task context during reviews.
+Once connected, piku-cat can automatically fetch task context during reviews.
 
 ## Step 2 — Enable business logic validation
 
@@ -49,7 +49,7 @@ reviewOptions:
 
 ## Step 3 — Write good acceptance criteria
 
-The quality of validation depends entirely on the quality of your task descriptions. Kodus classifies task context as:
+The quality of validation depends entirely on the quality of your task descriptions. piku-cat classifies task context as:
 
 | Quality | What it means | What to do |
 |---------|--------------|------------|
@@ -110,7 +110,7 @@ Instructions:
 
 After setup, every PR in your sprint gets:
 
-1. **Code quality review** — security, performance, style (standard Kodus)
+1. **Code quality review** — security, performance, style (standard piku-cat)
 2. **Business logic validation** — are all acceptance criteria implemented?
 3. **Scope mismatch detection** — is this PR even working on the right task?
 
@@ -120,6 +120,6 @@ QA finds fewer gaps, sprint demos go smoother, and "I thought that was done" bec
 
 - Encourage the team to write numbered acceptance criteria — they get the best validation
 - Use on-demand validation during development, not just at review time
-- If a PR intentionally doesn't cover all criteria (phased delivery), note it in the PR description so Kody can account for it
+- If a PR intentionally doesn't cover all criteria (phased delivery), note it in the PR description so Piku can account for it
 
 For details, see [Business Logic Validation](/how_to_use/en/code_review/business_logic_validation).

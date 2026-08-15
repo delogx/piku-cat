@@ -1,6 +1,6 @@
 ---
 title: "PR review for compliance (SOC2, HIPAA)"
-description: "Configure Kody Rules and Memories to enforce audit trail, data handling, and access control requirements."
+description: "Configure Piku Rules and Memories to enforce audit trail, data handling, and access control requirements."
 icon: "file-shield"
 ---
 
@@ -12,7 +12,7 @@ This cookbook sets up rules that enforce compliance requirements on every PR.
 
 ## Step 1 — Define your compliance Memories
 
-Start by teaching Kody the high-level compliance principles:
+Start by teaching Piku the high-level compliance principles:
 
 ```
 @kody remember: we are SOC2 compliant. All data access must be logged
@@ -147,4 +147,4 @@ Instructions:
 - [ ] Rules are set at organization level for consistency
 - [ ] A test PR verified the rules fire correctly
 
-For more on configuring rules, see [Kody Rules](/how_to_use/en/code_review/configs/kody_rules).
+For more on configuring rules, see [Piku Rules](/how_to_use/en/code_review/configs/kody_rules).

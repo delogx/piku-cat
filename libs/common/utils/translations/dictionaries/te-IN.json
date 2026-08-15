@@ -10,9 +10,9 @@
         "partialErrorsNotice": "\n\n> ⚠️ Note: some checks couldn't be completed in this run, so auto-approval (when enabled) was skipped. Check the details at {{dashboardUrl}} and then comment `@kody review` on this PR to retry once the issue is resolved.\n"
     },
     "pullRequestSummaryMarkdown": {
-        "title": "PR సారాంశం (వ్యాఖ్య [Kody](https://kodus.io) ద్వారా సృష్టించబడింది 🤖)",
+        "title": "PR సారాంశం (వ్యాఖ్య [Piku](https://kodus.io) ద్వారా సృష్టించబడింది 🤖)",
         "codeReviewStarted": "కోడ్ సమీక్ష ప్రారంభమైంది! 🚀",
-        "description": "✋ హాయ్, టీమ్! నేను ఇప్పటికే మార్చిన ఫైళ్లను చూస్తున్నాను మరియు ప్రతిదీ క్రమంలో ఉందని నిర్ధారించడానికి సమీక్షను ప్రారంభిస్తున్నాను. మీకు మరిన్ని వివరాలు అవసరమైతే, నేను ఇక్కడ ఉన్నాను! [Kody](https://kodus.io)",
+        "description": "✋ హాయ్, టీమ్! నేను ఇప్పటికే మార్చిన ఫైళ్లను చూస్తున్నాను మరియు ప్రతిదీ క్రమంలో ఉందని నిర్ధారించడానికి సమీక్షను ప్రారంభిస్తున్నాను. మీకు మరిన్ని వివరాలు అవసరమైతే, నేను ఇక్కడ ఉన్నాను! [Piku](https://kodus.io)",
         "changedFiles": "📂 మార్చిన ఫైళ్లు",
         "filesTable": [
             "ఫైల్",

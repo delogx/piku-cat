@@ -93,7 +93,7 @@ export function BrandLayout({ preview, children }: Props) {
             <Body style={main}>
                 <Container style={container}>
                     <Section style={header}>
-                        <Img src={LOGO_URL} alt="Kodus" style={logo} />
+                        <Img src={LOGO_URL} alt="piku-cat" style={logo} />
                     </Section>
                     <Section style={card}>
                         {children}

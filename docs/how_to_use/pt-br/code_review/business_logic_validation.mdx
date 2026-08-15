@@ -5,12 +5,12 @@ description: "Compare seu pull request com regras de negócio ou especificaçõe
 
 ## Visão Geral
 
-A Validação de Regras de Negócio permite confirmar que um pull request implementa o comportamento esperado descrito em uma especificação, documento ou ticket. Kody analisa o diff do PR, incorpora o contexto de negócio referenciado e sinaliza divergências antes do merge.
+A Validação de Regras de Negócio permite confirmar que um pull request implementa o comportamento esperado descrito em uma especificação, documento ou ticket. Piku analisa o diff do PR, incorpora o contexto de negócio referenciado e sinaliza divergências antes do merge.
 
 <img src="https://kodus.io/wp-content/uploads/2025/10/business-logic.gif" alt="Example of using business logic validation" />
 
 ## Pré-requisitos
-- Se você deseja que Kody **busque automaticamente o contexto da tarefa** de ferramentas como Jira, Linear, Notion ou ClickUp, o plugin correspondente deve estar conectado na página de [Plugins](/how_to_use/pt-br/code_review/plugins) do seu workspace.
+- Se você deseja que Piku **busque automaticamente o contexto da tarefa** de ferramentas como Jira, Linear, Notion ou ClickUp, o plugin correspondente deve estar conectado na página de [Plugins](/how_to_use/pt-br/code_review/plugins) do seu workspace.
 - Qualquer link que você compartilhar (Jira, Slack, Google Docs, etc.) deve estar acessível pelos plugins instalados no seu workspace.
 - Você sempre pode **fornecer a especificação diretamente** sem nenhum plugin — basta colar os requisitos no comentário do PR.
 
@@ -29,20 +29,20 @@ reviewOptions:
 
 Acesse **Configurações de Code Review** → **Repositório** → **Geral** → **Tipos de Análise** e ative **Business Logic**.
 
-Quando habilitada, Kody executa a validação de regras de negócio automaticamente em cada revisão de PR, além do comando sob demanda.
+Quando habilitada, Piku executa a validação de regras de negócio automaticamente em cada revisão de PR, além do comando sob demanda.
 
 ## Execução Sob Demanda
 
 Você também pode acionar a validação manualmente a qualquer momento:
 
 1. Abra a caixa de comentário principal do PR (fora das sugestões de código inline).
-2. Mencione Kody e adicione o comando de validação: `@kody -v business-logic ...`.
-3. Forneça o conteúdo da especificação diretamente ou cole um link que Kody possa buscar via plugins disponíveis.
-4. Envie o comentário e aguarde a resposta de Kody na mesma thread.
+2. Mencione Piku e adicione o comando de validação: `@kody -v business-logic ...`.
+3. Forneça o conteúdo da especificação diretamente ou cole um link que Piku possa buscar via plugins disponíveis.
+4. Envie o comentário e aguarde a resposta de Piku na mesma thread.
 
 O comando só é acionado a partir da caixa de conversa principal; respostas dentro de sugestões inline são ignoradas.
 
-Você pode executar a validação novamente a qualquer momento — basta postar o comando em um novo comentário. As execuções posteriores devem ser um novo comando; responder diretamente à mensagem de Kody na interface Git não é suportado.
+Você pode executar a validação novamente a qualquer momento — basta postar o comando em um novo comentário. As execuções posteriores devem ser um novo comando; responder diretamente à mensagem de Piku na interface Git não é suportado.
 
 ### Exemplos
 
@@ -53,7 +53,7 @@ Você pode executar a validação novamente a qualquer momento — basta postar 
 - Conversa Slack: `@kody -v business-logic https://kodustech.slack.com/archives/C070E5E97DE/p1727814000000000`
 - Trecho de spec inline: `@kody -v business-logic Regra XYZ — pedidos acima de R$500 devem emitir créditos de cashback.`
 
-## O Que Kody Faz
+## O Que Piku Faz
 
 1. **Busca o diff do PR** e os metadados do pull request.
 2. **Recupera o contexto da tarefa** — da ferramenta de gestão de tarefas vinculada (Jira, Linear, etc.) ou do texto inline fornecido.
@@ -61,11 +61,11 @@ Você pode executar a validação novamente a qualquer momento — basta postar 
 4. **Compara a implementação com os requisitos** — verifica cada critério de aceite em relação ao diff do PR.
 5. **Reporta os achados** com níveis de severidade e rastreabilidade dos requisitos.
 
-Se Kody não conseguir acessar o recurso ou não tiver permissões, ela informará para que você ajuste o acesso ou forneça as informações de outra forma.
+Se Piku não conseguir acessar o recurso ou não tiver permissões, ela informará para que você ajuste o acesso ou forneça as informações de outra forma.
 
 ## Qualidade do Contexto da Tarefa
 
-Kody classifica automaticamente a qualidade do contexto da tarefa antes da análise, o que afeta a profundidade da validação:
+Piku classifica automaticamente a qualidade do contexto da tarefa antes da análise, o que afeta a profundidade da validação:
 
 | Qualidade | Descrição | Comportamento da Análise |
 |---------|-------------|-------------------|
@@ -92,18 +92,18 @@ Cada achado é **rastreável a um requisito específico** do contexto da tarefa.
 - **Ausente no código** — O que está faltando ou incorreto no diff do PR
 - **Ação sugerida** — Uma ação de implementação concreta
 
-Kody não inventa requisitos. Se um achado não puder ser rastreado a uma frase específica na tarefa, ele não é reportado.
+Piku não inventa requisitos. Se um achado não puder ser rastreado a uma frase específica na tarefa, ele não é reportado.
 
 ### Detecção de Divergência de Escopo
 
-Se o diff do PR parece estar trabalhando em um domínio diferente da própria tarefa, Kody detecta isso como uma **divergência de escopo** e a reporta como o achado principal, em vez de produzir uma análise de lacunas enganosa.
+Se o diff do PR parece estar trabalhando em um domínio diferente da própria tarefa, Piku detecta isso como uma **divergência de escopo** e a reporta como o achado principal, em vez de produzir uma análise de lacunas enganosa.
 
 ### Exemplo de Resultado
 
 ```markdown
 ## Business Rules Validation
 
-**Task:** KC-1441 - Team-scoped Kody rules
+**Task:** KC-1441 - Team-scoped Piku rules
 **Task Link:** https://kodustech.atlassian.net/browse/KC-1441
 **Status:** Issues Found
 **Confidence:** high
@@ -130,7 +130,7 @@ scoped to team.
 - AC #2: "Multi-workspace billing path" — Implemented in `billing.service.ts:118`
 
 ---
-*Analysis performed by Kodus AI Business Rules Validator*
+*Analysis performed by piku-cat AI Business Rules Validator*
 ```
 
 ## Dicas

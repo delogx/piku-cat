@@ -75,7 +75,13 @@ describe("PluginsGrid — free plan cap", () => {
         expect(screen.getByText("Default")).toBeInTheDocument();
     });
 
-    it("locks connected plugins beyond the 3-plugin cap and shows the upgrade banner", () => {
+    // piku-cat personal-use fork divergence: there is no plugin cap any more, so
+    // nothing is ever locked and the upgrade banner never renders.
+    // useMCPPluginsLimit returns `limited: false` unconditionally (see
+    // apps/web/src/lib/services/mcp-manager/use-mcp-plugins-limit.ts), which
+    // makes computeLockedPluginIds return an empty set. Upstream locked the 4th
+    // connected plugin here and showed "1 of your plugins is locked".
+    it("piku-cat fork: does not lock plugins beyond the upstream 3-plugin cap", () => {
         const plugins = [
             plugin("exa", {
                 isConnected: true,
@@ -97,9 +103,8 @@ describe("PluginsGrid — free plan cap", () => {
 
         renderOnFreePlan(plugins, ["exa", "osv", "docs", "issues"]);
 
-        expect(screen.getByText(/1 of your plugins is locked/i)).toBeInTheDocument();
-        expect(screen.getAllByText("Locked")).toHaveLength(1);
-        expect(screen.getAllByText("Installed")).toHaveLength(3);
+        expect(screen.queryByText(/locked/i)).not.toBeInTheDocument();
+        expect(screen.getAllByText("Installed")).toHaveLength(4);
     });
 
     it("does not lock or show the banner when connected count is within the cap", () => {
@@ -119,7 +124,10 @@ describe("PluginsGrid — free plan cap", () => {
         expect(screen.queryByText(/locked/i)).not.toBeInTheDocument();
     });
 
-    it("fires captureGateHit exactly once when locked plugins are present", () => {
+    // piku-cat personal-use fork divergence: no plugin is ever locked, so the
+    // gate-hit effect (which returns early when lockedIds is empty) never fires.
+    // Upstream fired it exactly once for the locked 4th plugin.
+    it("piku-cat fork: never fires captureGateHit — no plugin is locked", () => {
         const plugins = [
             plugin("exa", {
                 isConnected: true,
@@ -141,9 +149,6 @@ describe("PluginsGrid — free plan cap", () => {
 
         renderOnFreePlan(plugins, ["exa", "osv", "docs", "issues"]);
 
-        expect(captureGateHit).toHaveBeenCalledTimes(1);
-        expect(captureGateHit).toHaveBeenCalledWith(
-            expect.objectContaining({ feature: "mcp_plugins" }),
-        );
+        expect(captureGateHit).not.toHaveBeenCalled();
     });
 });

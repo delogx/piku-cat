@@ -4,7 +4,7 @@ description: "自托管心跳发送的内容、收集的原因以及如何禁用
 icon: "satellite-dish"
 ---
 
-每个自托管的 Kodus 实例每天向 `https://telemetry.kodus.io` 发送
+每个自托管的 piku-cat 实例每天向 `https://telemetry.kodus.io` 发送
 **一次匿名心跳**。负载仅包含聚合计数器和运行时元数据 — 永远不包含
 代码、身份信息或任何可以追溯到您或您的用户的内容。
 
@@ -70,10 +70,10 @@ receiver 强制 5 KB 的 body 限制,并拒绝文档 schema 之外的任何字�
 
 匿名心跳让我们能够回答其他方式无法回答的关于自托管用户的问题:
 
-- 哪些版本的 Kodus 仍在使用,新版本被采用的速度有多快
+- 哪些版本的 piku-cat 仍在使用,新版本被采用的速度有多快
 - 运维人员如何部署(Docker / Kubernetes / bare metal),以便我们优先
   支持人们实际使用的平台
-- Kody Rules 等功能是否触达自托管用户
+- Piku Rules 等功能是否触达自托管用户
 - 流量信号(整个集群审查的 PR、连接的仓库)用于容量规划决策
 
 这**无法**让我们识别任何特定的实例、客户或用户。我们不会基于遥测
@@ -87,7 +87,7 @@ receiver 强制 5 KB 的 body 限制,并拒绝文档 schema 之外的任何字�
 pnpm run telemetry:preview
 ```
 
-此命令启动一个最小的 Kodus 上下文,运行 cron 使用的同一收集器,并将
+此命令启动一个最小的 piku-cat 上下文,运行 cron 使用的同一收集器,并将
 JSON 打印到 stdout — 不发送任何内容。可以通过 `jq` 管道来探索:
 
 ```bash

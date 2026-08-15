@@ -97,7 +97,7 @@ export const AwaitingList = ({ teamId }: { teamId: string }) => {
                     <Badge
                         variant="helper"
                         className="shrink-0 whitespace-nowrap"
-                        title="Kody was triggered but skipped this PR by configuration (no license, BYOK, or manual/paused cadence)">
+                        title="Piku was triggered but skipped this PR by configuration (no license, BYOK, or manual/paused cadence)">
                         Skipped
                     </Badge>
                 </div>

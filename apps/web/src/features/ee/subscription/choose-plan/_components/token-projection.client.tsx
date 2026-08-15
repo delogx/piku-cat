@@ -344,12 +344,12 @@ export function TokenProjectionEmptyState({
                                     </span>
                                     <span className="text-text-tertiary">
                                         {" "}
-                                        · Keep using Kody to get your estimate
+                                        · Keep using Piku to get your estimate
                                     </span>
                                 </>
                             ) : (
                                 <span className="text-text-tertiary">
-                                    Let Kody review a few PRs to see your
+                                    Let Piku review a few PRs to see your
                                     estimated cost
                                 </span>
                             )}

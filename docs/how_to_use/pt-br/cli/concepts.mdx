@@ -41,9 +41,9 @@ Escolha um por máquina. O CLI detecta automaticamente o que está disponível.
 
 Veja [Primeiros Passos](getting_started) para a árvore de decisão completa.
 
-## Kody Rules
+## Piku Rules
 
-Uma **Kody Rule** é uma regra estruturada que o revisor do Kodus aplica durante cada revisão, com escopo para um repositório ou global para sua equipe.
+Uma **Piku Rule** é uma regra estruturada que o revisor do piku-cat aplica durante cada revisão, com escopo para um repositório ou global para sua equipe.
 
 ```
 Rule
@@ -55,13 +55,13 @@ Rule
 └── repo-id        <uuid> | global
 ```
 
-As regras se sobrepõem à revisão geral do Kodus — a IA as usa como critérios adicionais, não como substitutos.
+As regras se sobrepõem à revisão geral do piku-cat — a IA as usa como critérios adicionais, não como substitutos.
 
 Gerencie regras pelo painel ou pelo CLI com `kodus rules create|update|view`. O CLI é útil quando você quer regras em controle de versão (gere-as a partir de um script, faça check-in em um repositório, reaplicar na provisionamento).
 
 ## Configurações de Repositório
 
-Cada repositório no Kodus tem configurações que governam como as revisões se comportam: arquivos ignorados, padrões de branch base, filtros de título, alternâncias de recursos. Elas ficam no backend do Kodus e são espelhadas em qualquer lugar onde o repositório é revisado (PRs na web, revisões CLI, loops de agentes).
+Cada repositório no piku-cat tem configurações que governam como as revisões se comportam: arquivos ignorados, padrões de branch base, filtros de título, alternâncias de recursos. Elas ficam no backend do piku-cat e são espelhadas em qualquer lugar onde o repositório é revisado (PRs na web, revisões CLI, loops de agentes).
 
 Pelo CLI:
 
@@ -78,7 +78,7 @@ kodus config repo open                 # Ir para o painel web
 
 ## Configuração Centralizada
 
-Normalmente, as configurações de cada repositório ficam no Kodus. A **Configuração Centralizada** permite que uma equipe armazene essas configurações em um único repositório git como fonte de verdade — cada alteração se torna um pull request contra esse repositório, dando-lhe histórico de revisão e versão sobre sua configuração de revisão.
+Normalmente, as configurações de cada repositório ficam no piku-cat. A **Configuração Centralizada** permite que uma equipe armazene essas configurações em um único repositório git como fonte de verdade — cada alteração se torna um pull request contra esse repositório, dando-lhe histórico de revisão e versão sobre sua configuração de revisão.
 
 Habilitar, sincronizar ou inspecionar estado:
 
@@ -89,7 +89,7 @@ kodus config centralized sync
 kodus config centralized disable
 ```
 
-Use a Configuração Centralizada quando sua equipe quiser controle auditável e versionado sobre as configurações de revisão. Mantenha o padrão (configurações por repositório no Kodus) quando essa cerimônia for desnecessária.
+Use a Configuração Centralizada quando sua equipe quiser controle auditável e versionado sobre as configurações de revisão. Mantenha o padrão (configurações por repositório no piku-cat) quando essa cerimônia for desnecessária.
 
 ## Validação de Negócio
 

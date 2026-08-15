@@ -23,7 +23,7 @@ const ADDITIONAL_FILTER_FIELDS: Record<
 > = {
     "kodyRule.number": {
         meta: {
-            name: "Kody Rule ID",
+            name: "Piku Rule ID",
             filters: {
                 "is": true,
                 "is-not": true,

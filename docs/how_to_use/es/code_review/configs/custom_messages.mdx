@@ -1,27 +1,27 @@
 ---
 title: "Mensajes Personalizados"
-description: "Configura mensajes de inicio y fin de revisión personalizados para Kody"
+description: "Configura mensajes de inicio y fin de revisión personalizados para Piku"
 ---
 
 ## Descripción General
 
-Personaliza los mensajes que Kody envía al comienzo y al final de las revisiones de código. Esta función te permite adaptar el estilo de comunicación y agregar contexto o instrucciones específicas para tu equipo.
+Personaliza los mensajes que Piku envía al comienzo y al final de las revisiones de código. Esta función te permite adaptar el estilo de comunicación y agregar contexto o instrucciones específicas para tu equipo.
 
 ## Comportamiento Predeterminado
 
-Cuando no has personalizado ningún mensaje, Kody funciona de la siguiente manera:
+Cuando no has personalizado ningún mensaje, Piku funciona de la siguiente manera:
 
-1. **Mensaje Inicial**: Kody envía un mensaje estándar de inicio de revisión
-2. **Sugerencias**: Kody proporciona todas las sugerencias de revisión de código
-3. **Mensaje Final**: Kody actualiza el mensaje inicial con un resumen de la revisión
+1. **Mensaje Inicial**: Piku envía un mensaje estándar de inicio de revisión
+2. **Sugerencias**: Piku proporciona todas las sugerencias de revisión de código
+3. **Mensaje Final**: Piku actualiza el mensaje inicial con un resumen de la revisión
 
 ## Comportamiento con Mensajes Personalizados
 
-Una vez que editas el mensaje de inicio o de fin de revisión por primera vez, el comportamiento de Kody cambia a:
+Una vez que editas el mensaje de inicio o de fin de revisión por primera vez, el comportamiento de Piku cambia a:
 
-1. **Mensaje Inicial**: Kody envía tu mensaje de inicio de revisión personalizado
-2. **Sugerencias**: Kody proporciona todas las sugerencias de revisión de código
-3. **Mensaje Final**: Kody envía tu mensaje de fin de revisión personalizado (sin actualizar el mensaje inicial)
+1. **Mensaje Inicial**: Piku envía tu mensaje de inicio de revisión personalizado
+2. **Sugerencias**: Piku proporciona todas las sugerencias de revisión de código
+3. **Mensaje Final**: Piku envía tu mensaje de fin de revisión personalizado (sin actualizar el mensaje inicial)
 
 Esto crea una línea de tiempo completa: **Mensaje Inicial → Sugerencias → Mensaje Final**
 
@@ -29,23 +29,23 @@ Esto crea una línea de tiempo completa: **Mensaje Inicial → Sugerencias → M
 
 ### Comportamiento del Mensaje
 
-Usa el menú desplegable **Comportamiento del mensaje** para decidir cuándo Kody debe publicar tus mensajes
+Usa el menú desplegable **Comportamiento del mensaje** para decidir cuándo Piku debe publicar tus mensajes
 de inicio y fin personalizados:
 
 - **Importante:** Los mensajes solo se envían cuando realmente se ejecuta una revisión.  
   Si tu cadencia de revisión es **Manual**, los mensajes se publican solo cuando alguien ejecuta `@kody start-review`.
 
-- **En cada push**: Kody publica el mensaje de inicio cuando se abre el pull request y
+- **En cada push**: Piku publica el mensaje de inicio cuando se abre el pull request y
   repite el par inicio/fin después de cada nuevo push **que active una revisión**.
   Esto ocurre automáticamente solo cuando la cadencia es **Automática** o **Auto-pausa**.
-- **Solo al abrir**: Kody envía los mensajes de inicio y fin solo una vez, justo
+- **Solo al abrir**: Piku envía los mensajes de inicio y fin solo una vez, justo
   después de la primera ejecución de revisión. Si la cadencia es **Manual**, la primera ejecución de revisión es
   cuando llamas a `@kody start-review`. Los pushes futuros solo agregan sugerencias de revisión
   más la reacción habitual para que los autores sepan que la revisión volvió a ejecutarse.
-- **Desactivado**: Los mensajes personalizados están deshabilitados. Kody aún ejecuta la revisión y publica
+- **Desactivado**: Los mensajes personalizados están deshabilitados. Piku aún ejecuta la revisión y publica
   sugerencias, pero no se envían mensajes de inicio ni de fin.
 
-Cuando el comportamiento es `En cada push` o `Solo al abrir`, Kody usa las
+Cuando el comportamiento es `En cada push` o `Solo al abrir`, Piku usa las
 plantillas que hayas completado. Si solo personalizas el mensaje de inicio, solo ese
 mensaje se envía; lo mismo aplica para el mensaje de fin. Esto mantiene la línea de tiempo familiar de
 **Mensaje Inicial → Sugerencias → Mensaje Final** siempre que el comportamiento permita
@@ -76,13 +76,13 @@ Un reflejo de la configuración de revisión del equipo, mostrando qué tipos de
 Proporciona la política exacta de revisiones de seguimiento para que los autores sepan qué sucede después
 de la primera revisión automatizada:
 
-- **Automática**: Kody revisa cada push tan pronto como llega.
-- **Auto-pausa**: Kody revisa los pushes automáticamente, pero si detecta una
+- **Automática**: Piku revisa cada push tan pronto como llega.
+- **Auto-pausa**: Piku revisa los pushes automáticamente, pero si detecta una
   "ráfaga de pushes" (por ejemplo, 3 pushes en 15 minutos, según tus
   umbrales) pausa las revisiones de seguimiento hasta que las reanudes. El contexto de cadencia
   incluye los límites de pushes y tiempo para que el equipo sepa cuándo puede
   activarse la pausa.
-- **Manual**: Kody espera a que alguien ejecute `@kody start-review` antes de hacer
+- **Manual**: Piku espera a que alguien ejecute `@kody start-review` antes de hacer
   otra revisión.
 
 ### reviewScope
@@ -104,7 +104,7 @@ agente de código para aplicar todas las correcciones de la revisión de una vez
 
 <Info>
   Estas variables de contexto se completarán automáticamente con los datos reales
-  de tu pull request cuando Kody envíe el mensaje.
+  de tu pull request cuando Piku envíe el mensaje.
 </Info>
 
 <Note>
@@ -116,11 +116,11 @@ agente de código para aplicar todas las correcciones de la revisión de una vez
 
 ## Mensaje de error
 
-Aparte del par inicio/fin, puedes añadir tu propio texto al comentario que Kody publica cuando
+Aparte del par inicio/fin, puedes añadir tu propio texto al comentario que Piku publica cuando
 una revisión **falla** — por ejemplo cuando no hay proveedor BYOK configurado, o el proveedor
 rechazó la petición.
 
-- **Off** (por defecto) — Kody publica su mensaje de error estándar sin cambios.
+- **Off** (por defecto) — Piku publica su mensaje de error estándar sin cambios.
 - **Active** — tu texto se añade debajo del mensaje de error estándar.
 
 Úsalo para dirigir a la gente al responsable interno o al runbook, en lugar de dejarles un fallo
@@ -131,14 +131,14 @@ customMessages:
     errorReviewMessage:
         status: 'active' # off | active
         content: |
-            ¿Fallan las revisiones? Escribe a #platform-eng — la clave de la API de Kodus es nuestra.
+            ¿Fallan las revisiones? Escribe a #platform-eng — la clave de la API de piku-cat es nuestra.
 ```
 
 Dejar `content` vacío mantiene el mensaje de error por defecto sin cambios.
 
 ## Ajustes globales
 
-Dos toggles que aplican a todos los comentarios de Kody, no solo a los mensajes personalizados:
+Dos toggles que aplican a todos los comentarios de Piku, no solo a los mensajes personalizados:
 
 | Ajuste | Por defecto | Qué hace |
 | --- | --- | --- |

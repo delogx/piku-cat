@@ -4,7 +4,7 @@ description: "What the self-hosted heartbeat sends, why we collect it, and how t
 icon: "satellite-dish"
 ---
 
-Each self-hosted Kodus instance sends **one anonymous heartbeat per day** to
+Each self-hosted piku-cat instance sends **one anonymous heartbeat per day** to
 `https://telemetry.kodus.io`. The payload contains aggregated counters and
 runtime metadata only — never code, identities, or anything that could trace
 back to you or your users.
@@ -74,11 +74,11 @@ documented schema, so a misconfigured client cannot accidentally leak data.
 Anonymous heartbeats let us answer questions we otherwise cannot answer for
 self-hosted users:
 
-- Which versions of Kodus are still in use, and how fast new releases get
+- Which versions of piku-cat are still in use, and how fast new releases get
   adopted
 - How operators deploy (Docker / Kubernetes / bare metal), so we prioritise
   the platforms people actually run
-- Whether features like Kody Rules are reaching self-hosted users at all
+- Whether features like Piku Rules are reaching self-hosted users at all
 - Volume signals (PRs reviewed per fleet, repos connected) so we can size
   capacity decisions
 
@@ -94,7 +94,7 @@ that the daily cron would build:
 pnpm run telemetry:preview
 ```
 
-This boots a minimal Kodus context, runs the same collector the cron uses,
+This boots a minimal piku-cat context, runs the same collector the cron uses,
 and prints the JSON to stdout — without sending it. Pipe it through `jq` to
 explore:
 

@@ -1,15 +1,15 @@
 ---
 title: "自托管配置"
-description: "将 Kodus CLI 连接到您的自托管 Kodus 实例。"
+description: "将 Kodus CLI 连接到您的自托管 piku-cat 实例。"
 ---
 
-如果您在自己的基础设施上运行 Kodus，CLI 的使用方式完全相同 — 只需将其指向您的 API。
+如果您在自己的基础设施上运行 piku-cat，CLI 的使用方式完全相同 — 只需将其指向您的 API。
 
 ## 连接到您的实例
 
 <Steps>
   <Step title="设置 API URL">
-    告诉 CLI 您的 Kodus API 地址。选择一种方式：
+    告诉 CLI 您的 piku-cat API 地址。选择一种方式：
 
     <Tabs>
       <Tab title="环境变量（推荐）">
@@ -55,7 +55,7 @@ description: "将 Kodus CLI 连接到您的自托管 Kodus 实例。"
   <Step title="认证">
     <Tabs>
       <Tab title="团队密钥（推荐）">
-        从您的自托管 Kodus 仪表板生成团队密钥并配置：
+        从您的自托管 piku-cat 仪表板生成团队密钥并配置：
 
         ```bash
         kodus auth team-key --key kodus_xxxxx
@@ -177,7 +177,7 @@ CLI 将配置存储在 `~/.kodus/config.json` 中：
 <Tabs>
   <Tab title="GitHub Actions">
     ```yaml
-    - name: Kodus Review
+    - name: piku-cat Review
       env:
         KODUS_API_URL: ${{ secrets.KODUS_API_URL }}
         KODUS_TEAM_KEY: ${{ secrets.KODUS_TEAM_KEY }}

@@ -47,7 +47,7 @@ export default async function InvitePage({
 
                     <div className="flex flex-col items-center gap-2">
                         <Heading variant="h2" className="text-center">
-                            Welcome to Kodus!
+                            Welcome to piku-cat!
                         </Heading>
 
                         <p className="text-text-secondary text-center text-sm">

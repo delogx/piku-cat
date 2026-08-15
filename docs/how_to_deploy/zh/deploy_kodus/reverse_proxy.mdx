@@ -1,6 +1,6 @@
 ---
 title: "反向代理"
-description: "为 Kodus 配置反向代理。"
+description: "为 piku-cat 配置反向代理。"
 icon: "server"
 tags: ["reverse-proxy", "nginx"]
 ---
@@ -9,18 +9,18 @@ tags: ["reverse-proxy", "nginx"]
 可选步骤：仅在您不使用任何负载均衡器或代理服务器时需要。
 </Info>
 
-为了使您的 Kodus 实例可以从外部系统访问（代码审查 webhook 和公共访问所必需），您需要使用 Nginx 配置反向代理。
+为了使您的 piku-cat 实例可以从外部系统访问（代码审查 webhook 和公共访问所必需），您需要使用 Nginx 配置反向代理。
 
 以下是两个子域的 Nginx 配置示例：
 
 ```nginx
-# Kodus Web 应用程序的服务器块
+# piku-cat Web 应用程序的服务器块
 server {
     listen 80;
     server_name kodus-web.yourdomain.com; # 替换为您实际的 Web 应用域名
 
     location / {
-        proxy_pass http://localhost:3000; # 指向 Kodus Web 应用容器
+        proxy_pass http://localhost:3000; # 指向 piku-cat Web 应用容器
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -35,13 +35,13 @@ server {
     }
 }
 
-# Kodus API 的服务器块
+# piku-cat API 的服务器块
 server {
     listen 80;
     server_name kodus-api.yourdomain.com; # 替换为您实际的 API 域名
 
     location ~ ^/(github|gitlab|bitbucket|azure-repos)/webhook {
-        proxy_pass http://localhost:3332; # 指向 Kodus Webhooks 服务
+        proxy_pass http://localhost:3332; # 指向 piku-cat Webhooks 服务
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -53,7 +53,7 @@ server {
     }
 
     location / {
-        proxy_pass http://localhost:3001; # 指向 Kodus API 服务
+        proxy_pass http://localhost:3001; # 指向 piku-cat API 服务
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

@@ -1,15 +1,15 @@
 ---
 title: "セルフホストセットアップ"
-description: "Kodus CLI を自己ホスト型 Kodus インスタンスに接続します。"
+description: "Kodus CLI を自己ホスト型 piku-cat インスタンスに接続します。"
 ---
 
-独自のインフラで Kodus を実行している場合、CLI は同じように動作します — API に向けるだけです。
+独自のインフラで piku-cat を実行している場合、CLI は同じように動作します — API に向けるだけです。
 
 ## インスタンスへの接続
 
 <Steps>
   <Step title="API URL を設定">
-    Kodus API の場所を CLI に伝えます。方法を1つ選択してください:
+    piku-cat API の場所を CLI に伝えます。方法を1つ選択してください:
 
     <Tabs>
       <Tab title="環境変数（推奨）">
@@ -55,7 +55,7 @@ description: "Kodus CLI を自己ホスト型 Kodus インスタンスに接続�
   <Step title="認証">
     <Tabs>
       <Tab title="チームキー（推奨）">
-        セルフホスト型 Kodus ダッシュボードからチームキーを生成して設定:
+        セルフホスト型 piku-cat ダッシュボードからチームキーを生成して設定:
 
         ```bash
         kodus auth team-key --key kodus_xxxxx
@@ -177,7 +177,7 @@ CI/CD パイプラインのセルフホスト型インスタンスでは、API U
 <Tabs>
   <Tab title="GitHub Actions">
     ```yaml
-    - name: Kodus Review
+    - name: piku-cat Review
       env:
         KODUS_API_URL: ${{ secrets.KODUS_API_URL }}
         KODUS_TEAM_KEY: ${{ secrets.KODUS_TEAM_KEY }}

@@ -6,7 +6,7 @@ description: "レビューの中核設定 — 頻度、PR ワークフロー、�
 ## コア設定
 
 <Note>
-  Kodus には 3 つの設定レベルがあります：グローバル、リポジトリ、ディレクトリ。仕組みについては <a href="/how_to_use/ja/code_review/configs/inheritance_overrides">設定の継承とオーバーライド</a> を参照してください。
+  piku-cat には 3 つの設定レベルがあります：グローバル、リポジトリ、ディレクトリ。仕組みについては <a href="/how_to_use/ja/code_review/configs/inheritance_overrides">設定の継承とオーバーライド</a> を参照してください。
 </Note>
 
 ### 設定の優先度
@@ -15,7 +15,7 @@ Web UI の代わりに、リポジトリルートの `kodus-config.yml` ファ�
 
 <Warning>
   **オプトインするまでこのファイルは無視されます。** デフォルトでは
-  `kodusConfigFileOverridesWebPreferences` が `false` のため、Kody は `kodus-config.yml` を
+  `kodusConfigFileOverridesWebPreferences` が `false` のため、Piku は `kodus-config.yml` を
   一切読み込みません — ファイルをコミットしただけでは何も起こりません。
 
   まず **Settings → Code Review → 対象リポジトリ → General** で有効化するか、Web UI から
@@ -115,7 +115,7 @@ customMessages:
 
 ### 自動レビュー
 
-Kody は PR が開かれたときに自動的にレビューするか、`@kody start-review` とコメントしたときのみレビューできます。
+Piku は PR が開かれたときに自動的にレビューするか、`@kody start-review` とコメントしたときのみレビューできます。
 
 <Info>
   これは**初回レビュー**にのみ影響します。以降のコミットについては、下記のレビュー頻度を参照してください。
@@ -123,7 +123,7 @@ Kody は PR が開かれたときに自動的にレビューするか、`@kody s
 
 #### レビュー頻度
 
-以降のコミットで Kody がレビューを処理する方法：
+以降のコミットで Piku がレビューを処理する方法：
 
 <Tabs>
   <Tab title="自動">
@@ -144,12 +144,12 @@ Kody は PR が開かれたときに自動的にレビューするか、`@kody s
 ### PR ワークフロー
 
 #### PR の自動承認
-問題が見つからない場合、Kody は PR を承認します。
+問題が見つからない場合、Piku は PR を承認します。
 
 **対応プラットフォーム：** GitHub、GitLab、Bitbucket
 
 #### 変更のリクエスト
-クリティカルな問題が見つかった場合、Kody は変更をリクエストします。
+クリティカルな問題が見つかった場合、Piku は変更をリクエストします。
 
 **対応プラットフォーム：** GitHub、Bitbucket
 
@@ -164,7 +164,7 @@ Kody は PR が開かれたときに自動的にレビューするか、`@kody s
 <Info>
   **空（デフォルト）はすべてのターゲットブランチをレビューする意味です** — `dev`/`release`/`master`
   といった組み込みのリストは存在しません。スコープを*狭めたい*ときだけエントリを追加してください。
-  リストが空でなくなると、Kody はそれらのブランチ宛の PR だけをレビューします（リポジトリの
+  リストが空でなくなると、Piku はそれらのブランチ宛の PR だけをレビューします（リポジトリの
   デフォルトブランチは常に含まれます）。
 
   エントリは PR の**ターゲット**ブランチと照合され、専用の記法をサポートします：
@@ -186,7 +186,7 @@ Kody は PR が開かれたときに自動的にレビューするか、`@kody s
 
 ## 分析タイプ
 
-Kody は 4 つのカテゴリでレビューします。**Analysis Types** で、または `kodus-config.yml` の
+Piku は 4 つのカテゴリでレビューします。**Analysis Types** で、または `kodus-config.yml` の
 `reviewOptions` で個別に有効・無効を切り替えられます。
 
 - **Bug** — ロジックエラー、競合状態、null 参照、エッジケース、誤った挙動。
@@ -196,6 +196,6 @@ Kody は 4 つのカテゴリでレビューします。**Analysis Types** で�
   [ビジネスロジック検証](/how_to_use/ja/code_review/business_logic_validation) を参照してください。
 
 <Note>
-  Kody Rules はこれらのカテゴリの 1 つ**ではありません** — `reviewOptions` とは無関係に常に実行されます。
-  [Kody Rules](/how_to_use/ja/code_review/configs/kody_rules) を参照してください。
+  Piku Rules はこれらのカテゴリの 1 つ**ではありません** — `reviewOptions` とは無関係に常に実行されます。
+  [Piku Rules](/how_to_use/ja/code_review/configs/kody_rules) を参照してください。
 </Note>

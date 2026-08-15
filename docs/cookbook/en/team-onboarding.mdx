@@ -1,12 +1,12 @@
 ---
 title: "Onboarding a new team"
-description: "Step-by-step guide to set up Kodus for a new team — from connecting repos to teaching your first conventions."
+description: "Step-by-step guide to set up piku-cat for a new team — from connecting repos to teaching your first conventions."
 icon: "users-gear"
 ---
 
 ## Overview
 
-Getting a new team up and running with Kodus takes about 30 minutes. This guide walks through the complete setup so your team gets value from the first PR.
+Getting a new team up and running with piku-cat takes about 30 minutes. This guide walks through the complete setup so your team gets value from the first PR.
 
 ## Step 1 — Create and configure the workspace
 
@@ -40,8 +40,8 @@ This gives you automated reviews with a reasonable suggestion limit. Adjust afte
 
 If your team already uses Cursor, Copilot, or Claude rules:
 
-1. Go to **Code Review Settings** → **Kody Rules**
-2. Kodus detects `.cursorrules`, `.github/copilot-instructions.md`, and `.claude` files
+1. Go to **Code Review Settings** → **Piku Rules**
+2. piku-cat detects `.cursorrules`, `.github/copilot-instructions.md`, and `.claude` files
 3. Import the ones that make sense for code review
 
 This avoids having to rewrite rules from scratch.
@@ -102,13 +102,13 @@ URLs must come from environment variables or config files.
 
 ## Step 6 — Connect task management (optional but recommended)
 
-Connect Jira, Linear, Notion, or ClickUp in **Settings** → **Plugins** to enable business logic validation. This lets Kodus check if PRs implement what the tasks describe.
+Connect Jira, Linear, Notion, or ClickUp in **Settings** → **Plugins** to enable business logic validation. This lets piku-cat check if PRs implement what the tasks describe.
 
 ## Step 7 — Run a pilot PR
 
 Open a test PR and verify:
 
-- [ ] Kodus comments appear on the PR
+- [ ] piku-cat comments appear on the PR
 - [ ] Suggestions are relevant and at the right severity
 - [ ] Your custom rules fire when they should
 - [ ] Memories are reflected in the review context
@@ -120,13 +120,13 @@ After a week of reviews, check in with the team:
 - Are there too many suggestions? → Raise `severityLevelFilter` or lower `maxSuggestions`
 - Are rules too noisy? → Narrow the file paths or add exclusions
 - Missing important patterns? → Add new rules or Memories
-- Want auto-generated rules? → Click **Generate Kody Rules** to get suggestions from review history
+- Want auto-generated rules? → Click **Generate Piku Rules** to get suggestions from review history
 
 ## Tips
 
 - Don't overload with rules on day one — start small and grow
-- Let the team teach Kody naturally through conversation before formalizing as rules
-- Use `@kody start-review` for the first few PRs so the team sees Kodus in action
-- Enable LLM-generated memories approval if you want to review what Kody learns
+- Let the team teach Piku naturally through conversation before formalizing as rules
+- Use `@kody start-review` for the first few PRs so the team sees piku-cat in action
+- Enable LLM-generated memories approval if you want to review what Piku learns
 
 For the full setup guide, see [Quickstart](/how_to_use/en/quickstart).

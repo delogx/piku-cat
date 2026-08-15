@@ -1,18 +1,18 @@
 ---
 title: "Dirigir una Revisión (Enfoque)"
-description: "Dirige la atención de Kody hacia un área específica del pull request con una directiva de revisión puntual, mediante comentario en el PR o CLI"
+description: "Dirige la atención de Piku hacia un área específica del pull request con una directiva de revisión puntual, mediante comentario en el PR o CLI"
 ---
 
-Una **directiva de revisión** te permite indicarle a Kody dónde concentrar su análisis más profundo en una revisión concreta. En lugar de cambiar la configuración, adjuntas una instrucción breve al lanzar la revisión — por ejemplo, "enfócate en la lógica de auth y sesión" — y Kody dedica su análisis más riguroso al código modificado que coincide.
+Una **directiva de revisión** te permite indicarle a Piku dónde concentrar su análisis más profundo en una revisión concreta. En lugar de cambiar la configuración, adjuntas una instrucción breve al lanzar la revisión — por ejemplo, "enfócate en la lógica de auth y sesión" — y Piku dedica su análisis más riguroso al código modificado que coincide.
 
 <Note>
-  Una directiva es **efímera**: se aplica solo a esa ejecución de revisión. No se guarda en tu configuración ni afecta a revisiones futuras. Para cambiar el comportamiento de Kody de forma permanente, usa [Custom Prompts](/how_to_use/es/code_review/configs/custom_prompts) o [Kody Rules](/how_to_use/es/code_review/configs/kody_rules).
+  Una directiva es **efímera**: se aplica solo a esa ejecución de revisión. No se guarda en tu configuración ni afecta a revisiones futuras. Para cambiar el comportamiento de Piku de forma permanente, usa [Custom Prompts](/how_to_use/es/code_review/configs/custom_prompts) o [Piku Rules](/how_to_use/es/code_review/configs/kody_rules).
 </Note>
 
 ## Cuándo Usarla
 
 - Un PR toca muchos archivos pero te importa más un área de riesgo (auth, pagos, una migración).
-- Quieres que Kody rastree los callers y callees de un cambio específico y lo cuestione con más rigor.
+- Quieres que Piku rastree los callers y callees de un cambio específico y lo cuestione con más rigor.
 - Estás relanzando una revisión y quieres dirigir la atención sin editar ninguna configuración.
 
 ## Prioridad, No Filtro
@@ -20,7 +20,7 @@ Una **directiva de revisión** te permite indicarle a Kody dónde concentrar su 
 Esto es lo más importante de entender:
 
 <Warning>
-  Una directiva establece **prioridad, no un filtro**. Kody prioriza el área de enfoque, pero sigue reportando cualquier bug, problema de seguridad o de rendimiento concreto que detecte en **otras partes** del diff. Nunca suprime hallazgos fuera del enfoque ni aprueba el resto del PR sin revisarlo.
+  Una directiva establece **prioridad, no un filtro**. Piku prioriza el área de enfoque, pero sigue reportando cualquier bug, problema de seguridad o de rendimiento concreto que detecte en **otras partes** del diff. Nunca suprime hallazgos fuera del enfoque ni aprueba el resto del PR sin revisarlo.
 </Warning>
 
 Usa una directiva para decir *"mira aquí con más atención"* — no *"mira solo aquí."*
@@ -43,7 +43,7 @@ Usa una directiva para decir *"mira aquí con más atención"* — no *"mira sol
     ```
 
     <Note>
-      `--force` vuelve a ejecutar la review incluso cuando Kody normalmente la omitiría ("sin commits nuevos desde la última review"). Úsalo — con o sin directiva de enfoque — para obtener un nuevo análisis después de corregir lo que hizo fallar la ejecución anterior, o para aplicar configuraciones actualizadas a un PR ya revisado.
+      `--force` vuelve a ejecutar la review incluso cuando Piku normalmente la omitiría ("sin commits nuevos desde la última review"). Úsalo — con o sin directiva de enfoque — para obtener un nuevo análisis después de corregir lo que hizo fallar la ejecución anterior, o para aplicar configuraciones actualizadas a un PR ya revisado.
     </Note>
 
     <Note>
@@ -73,7 +73,7 @@ Usa una directiva para decir *"mira aquí con más atención"* — no *"mira sol
   [Disponibilidad](#disponibilidad) más abajo.
 </Warning>
 
-Una directiva de foco le dice a Kody *dónde* mirar con más atención. `--heavy` le dice que mire
+Una directiva de foco le dice a Piku *dónde* mirar con más atención. `--heavy` le dice que mire
 *más tiempo*: el finder ejecuta pasadas extra de crítico ("¿qué se te ha escapado?") sobre el
 mismo diff, sacando más problemas reales a costa de una revisión más lenta y más candidatos que
 triar.
@@ -146,5 +146,5 @@ Para solicitar acceso, escríbenos en [Discord](https://discord.gg/TFZBRk9fT6) o
 
 - **Longitud:** las directivas se truncan en 500 caracteres.
 - **Solo la primera línea:** en comentarios de PR, solo la primera línea tras el comando se convierte en la directiva.
-- **No confiable por diseño:** como cualquiera que pueda comentar el PR puede aportar una directiva, el texto se sanea antes de usarse (se eliminan caracteres de control y los signos de menor/mayor). Esto no cambia tu enfoque — solo evita que el texto manipule el prompt interno de Kody.
+- **No confiable por diseño:** como cualquiera que pueda comentar el PR puede aportar una directiva, el texto se sanea antes de usarse (se eliminan caracteres de control y los signos de menor/mayor). Esto no cambia tu enfoque — solo evita que el texto manipule el prompt interno de Piku.
 - **No persistente:** no se escribe nada en la configuración de tu repositorio u organización.

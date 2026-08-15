@@ -1,9 +1,9 @@
 ---
 title: "AIコードレビューがトリガーされない理由"
-description: "KodusがプルリクエストをAutomaticにレビューしない場合の一般的な原因と修正方法。"
+description: "piku-catがプルリクエストをAutomaticにレビューしない場合の一般的な原因と修正方法。"
 ---
 
-KodusがPRをレビューしていない場合は、以下の一般的な原因を確認してください：
+piku-catがPRをレビューしていない場合は、以下の一般的な原因を確認してください：
 
 ## 1. 自動レビューが無効になっている
 
@@ -18,14 +18,14 @@ automatedReviewActive: true
 
 ## 2. Webhookが設定されていない
 
-KodusはPRが開かれたり更新されたりしたときを知るためにWebhookが必要です：
+piku-catはPRが開かれたり更新されたりしたときを知るためにWebhookが必要です：
 - Gitプロバイダーのwebhook設定に移動します
-- KodusのWebhook URLが登録されてアクティブであることを確認します
+- piku-catのWebhook URLが登録されてアクティブであることを確認します
 - 配信失敗の試行を確認します
 
 ## 3. PRのタイトルが無視キーワードに一致している
 
-PRのタイトルに無視キーワードが含まれている場合、Kodusはレビューをスキップします：
+PRのタイトルに無視キーワードが含まれている場合、piku-catはレビューをスキップします：
 
 ```yaml
 ignoredTitleKeywords:
@@ -37,7 +37,7 @@ ignoredTitleKeywords:
 
 ## 4. ベースブランチが監視されていない
 
-デフォルトでは、KodusはデフォルトブランチをターゲットとするPRをレビューします。PRが別のブランチをターゲットにしている場合は、`baseBranches` に追加します：
+デフォルトでは、piku-catはデフォルトブランチをターゲットとするPRをレビューします。PRが別のブランチをターゲットにしている場合は、`baseBranches` に追加します：
 
 ```yaml
 baseBranches:
@@ -47,7 +47,7 @@ baseBranches:
 
 ## 5. レビューの頻度が手動に設定されている
 
-レビューの頻度が**手動**に設定されている場合、Kodusは `@kody start-review` とコメントしたときのみレビューします。
+レビューの頻度が**手動**に設定されている場合、piku-catは `@kody start-review` とコメントしたときのみレビューします。
 
 ## 6. 自動一時停止がアクティブになっている
 

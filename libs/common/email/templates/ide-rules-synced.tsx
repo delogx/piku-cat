@@ -31,13 +31,13 @@ function IdeRulesSyncedEmail({
             preview={`Synced ${rulesCount} ${rulesCount === 1 ? 'rule' : 'rules'} from ${repoName}`}>
             <Heading style={baseHeading}>IDE rules synced</Heading>
             <Text style={baseText}>
-                Kody synced <strong>{rulesCount}</strong>{' '}
+                Piku synced <strong>{rulesCount}</strong>{' '}
                 {rulesCount === 1 ? 'rule' : 'rules'} from{' '}
-                <strong>{repoName}</strong> into your Kody Rules.
+                <strong>{repoName}</strong> into your Piku Rules.
             </Text>
             <Section style={{ margin: '24px 0' }}>
                 <Button href={rulesLink} style={baseButton}>
-                    View Kody Rules
+                    View Piku Rules
                 </Button>
             </Section>
             <Text style={mutedText}>

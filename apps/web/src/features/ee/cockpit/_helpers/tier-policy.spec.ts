@@ -50,7 +50,9 @@ describe("isCockpitTierAllowed (web mirror)", () => {
         }
     });
 
-    it("cloud active + free_byok → blocked", () => {
+    // piku-cat personal-use fork divergence: upstream blocks free_byok. This
+    // fork unlocks the cockpit for every tier — see ./tier-policy.ts.
+    it("piku-cat fork: cloud active + free_byok → unlocked", () => {
         expect(
             isCockpitTierAllowed({
                 valid: true,
@@ -58,7 +60,7 @@ describe("isCockpitTierAllowed (web mirror)", () => {
                 numberOfLicenses: 0,
                 planType: "free_byok",
             } satisfies OrganizationLicense),
-        ).toBe(false);
+        ).toBe(true);
     });
 
     it("licensed self-hosted + Enterprise → allowed (Dmitry case)", () => {
@@ -74,7 +76,8 @@ describe("isCockpitTierAllowed (web mirror)", () => {
         }
     });
 
-    it("licensed self-hosted + Teams → blocked (Teams is cloud-only)", () => {
+    // piku-cat personal-use fork divergence: Teams-on-self-hosted is unlocked.
+    it("piku-cat fork: licensed self-hosted + Teams → unlocked", () => {
         for (const plan of teamsPlans) {
             expect(
                 isCockpitTierAllowed({
@@ -83,17 +86,19 @@ describe("isCockpitTierAllowed (web mirror)", () => {
                     planType: plan,
                     numberOfLicenses: 50,
                 } satisfies OrganizationLicense),
-            ).toBe(false);
+            ).toBe(true);
         }
     });
 
-    it("unlicensed self-hosted → blocked", () => {
+    // piku-cat personal-use fork divergence: unlicensed (CE) self-hosted gets
+    // the cockpit — that is the whole point of the fork.
+    it("piku-cat fork: unlicensed self-hosted → unlocked", () => {
         expect(
             isCockpitTierAllowed({
                 valid: true,
                 subscriptionStatus: "self-hosted",
             } satisfies OrganizationLicense),
-        ).toBe(false);
+        ).toBe(true);
     });
 
     it("trial → allowed", () => {
@@ -106,7 +111,9 @@ describe("isCockpitTierAllowed (web mirror)", () => {
         ).toBe(true);
     });
 
-    it("invalid / expired / canceled → blocked", () => {
+    // piku-cat personal-use fork divergence: a lapsed/invalid license no longer
+    // blocks — the fork unlocks before the license is inspected.
+    it("piku-cat fork: invalid / expired / canceled → unlocked", () => {
         for (const status of [
             "payment_failed",
             "canceled",
@@ -119,12 +126,13 @@ describe("isCockpitTierAllowed (web mirror)", () => {
                     subscriptionStatus: status,
                     numberOfLicenses: 0,
                 } satisfies OrganizationLicense),
-            ).toBe(false);
+            ).toBe(true);
         }
     });
 
-    it("null / undefined → blocked", () => {
-        expect(isCockpitTierAllowed(null)).toBe(false);
-        expect(isCockpitTierAllowed(undefined)).toBe(false);
+    // piku-cat personal-use fork divergence: null/undefined no longer blocks.
+    it("piku-cat fork: null / undefined → unlocked", () => {
+        expect(isCockpitTierAllowed(null)).toBe(true);
+        expect(isCockpitTierAllowed(undefined)).toBe(true);
     });
 });

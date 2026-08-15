@@ -7,8 +7,8 @@ import {
 import { KodyRulesPacksExplorer } from "./_components/_page";
 
 export const metadata: Metadata = {
-    title: "Rules Packs - Kody Rules library",
-    openGraph: { title: "Rules Packs - Kody Rules library" },
+    title: "Rules Packs - Piku Rules library",
+    openGraph: { title: "Rules Packs - Piku Rules library" },
 };
 
 export default async function Route() {

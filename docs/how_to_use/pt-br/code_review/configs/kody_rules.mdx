@@ -1,6 +1,6 @@
 ---
 title: "Visão Geral"
-description: "Kody Rules são diretrizes personalizáveis que sua equipe configura para aplicar automaticamente qualidade de código, consistência, segurança e manutenibilidade."
+description: "Piku Rules são diretrizes personalizáveis que sua equipe configura para aplicar automaticamente qualidade de código, consistência, segurança e manutenibilidade."
 ---
 
 
@@ -15,9 +15,9 @@ description: "Kody Rules são diretrizes personalizáveis que sua equipe configu
   allowfullscreen
 ></iframe>
 
-## Dois tipos na interface de Kody Rules
+## Dois tipos na interface de Piku Rules
 
-As Kody Rules são organizadas em duas categorias, gerenciadas por meio de uma interface com abas nas suas configurações:
+As Piku Rules são organizadas em duas categorias, gerenciadas por meio de uma interface com abas nas suas configurações:
 
 <Tabs>
   <Tab title="Regras de Revisão">
@@ -29,10 +29,10 @@ As Kody Rules são organizadas em duas categorias, gerenciadas por meio de uma i
   </Tab>
 
   <Tab title="Memórias">
-    Instruções contextuais persistentes que são injetadas em todos os prompts e conversas. As Memórias permitem que Kody aprenda e retenha como seu codebase funciona para que futuras revisões e sugestões sejam mais relevantes.
+    Instruções contextuais persistentes que são injetadas em todos os prompts e conversas. As Memórias permitem que Piku aprenda e retenha como seu codebase funciona para que futuras revisões e sugestões sejam mais relevantes.
 
     - Injetadas como **contexto de alta prioridade** em revisões de código, análise entre arquivos e conversas
-    - Criadas via **conversa com Kody** ou **manualmente na interface**
+    - Criadas via **conversa com Piku** ou **manualmente na interface**
     - Com escopo para **diretório**, **repositório** ou nível de **organização**
     - Suportam fluxos de aprovação para memórias geradas por IA
   </Tab>
@@ -83,10 +83,10 @@ Referencie arquivos diretamente nas instruções da sua regra para comparar cód
 
 **Como as Referências a Arquivos Funcionam:**
 
-- Kody identifica referências a arquivos automaticamente quando você salva uma regra
+- Piku identifica referências a arquivos automaticamente quando você salva uma regra
 - As referências são resolvidas em segundo plano — observe o indicador de status ao lado do editor para confirmar a conclusão
 - Use caminhos precisos no estilo blob (ex.: `src/utils/helpers.ts`) em vez de placeholders
-- O conteúdo dos arquivos é injetado no contexto da regra, permitindo que Kody compare, valide ou aplique padrões
+- O conteúdo dos arquivos é injetado no contexto da regra, permitindo que Piku compare, valide ou aplique padrões
 - Funciona em regras de Nível de Arquivo e de Pull Request
 
 **Funções MCP:**
@@ -240,7 +240,7 @@ Essa composição permite regras que entendem não apenas as alterações de có
 
 Aproveite as boas práticas comprovadas instantaneamente:
 
-- Navegue até Descoberta de Regras no seu painel Kodus.
+- Navegue até Descoberta de Regras no seu painel piku-cat.
 - Filtre regras por severidade, linguagem ou tags.
 - Importe e ative regras com um único clique.
 
@@ -251,14 +251,14 @@ Aproveite as boas práticas comprovadas instantaneamente:
 
 ## Memórias
 
-Memórias são instruções contextuais persistentes que Kody aprende das conversas e práticas de codificação da sua equipe. Ao contrário das Regras de Revisão que são executadas durante o code review, as Memórias são injetadas em todos os prompts e conversas para fornecer contexto contínuo de alta prioridade e melhorar sugestões futuras.
+Memórias são instruções contextuais persistentes que Piku aprende das conversas e práticas de codificação da sua equipe. Ao contrário das Regras de Revisão que são executadas durante o code review, as Memórias são injetadas em todos os prompts e conversas para fornecer contexto contínuo de alta prioridade e melhorar sugestões futuras.
 
 ### Como as Memórias Funcionam
 
 - **Injetadas em todos os lugares**: As Memórias são incluídas na análise de code review (entre arquivos, salvaguardas, regras no nível de PR) e nas interações conversacionais
 - **Contexto de alta prioridade**: As Memórias são tratadas como orientações de alta prioridade pela IA, garantindo que as convenções da sua equipe sejam aplicadas consistentemente
-- **Melhores sugestões futuras**: As Memórias ajudam o Kody a parar de repetir as mesmas suposições erradas sobre seu repositório
-- **Deduplicação inteligente**: Quando uma nova memória é criada, Kody usa um mecanismo de resolução baseado em LLM para determinar se deve criá-la, ignorá-la (se duplicada) ou atualizar uma memória existente
+- **Melhores sugestões futuras**: As Memórias ajudam o Piku a parar de repetir as mesmas suposições erradas sobre seu repositório
+- **Deduplicação inteligente**: Quando uma nova memória é criada, Piku usa um mecanismo de resolução baseado em LLM para determinar se deve criá-la, ignorá-la (se duplicada) ou atualizar uma memória existente
 
 ### Criando Memórias
 
@@ -266,9 +266,9 @@ Há duas formas de criar memórias:
 
 #### Via Conversa
 
-A forma mais natural de criar memórias é por meio de conversa com Kody nos comentários do PR. Kody detecta intenções explícitas e implícitas de salvar convenções:
+A forma mais natural de criar memórias é por meio de conversa com Piku nos comentários do PR. Piku detecta intenções explícitas e implícitas de salvar convenções:
 
-**Explícito** — pedindo diretamente para Kody lembrar:
+**Explícito** — pedindo diretamente para Piku lembrar:
 
 ```
 @kody remember: este repositório espelha uma API de terceiros, então alguns campos de payload permanecem intencionalmente em snake_case.
@@ -278,7 +278,7 @@ A forma mais natural de criar memórias é por meio de conversa com Kody nos com
 @kody please remember: este serviço segue arquitetura hexagonal e mantém adapters nas bordas.
 ```
 
-**Implícito** — declarando uma preferência ou convenção que Kody captura:
+**Implícito** — declarando uma preferência ou convenção que Piku captura:
 
 ```
 @kody este repositório espelha uma API de terceiros, então alguns campos de payload permanecem intencionalmente em snake_case.
@@ -293,16 +293,16 @@ A forma mais natural de criar memórias é por meio de conversa com Kody nos com
 ```
 
 <Info>
-  Kody NÃO criará memórias para instruções transitórias (ex.: "corrija isso agora"), conversas de debug, perguntas, declarações vagas ou solicitações explicitamente limitadas a uma única tarefa ou PR.
+  Piku NÃO criará memórias para instruções transitórias (ex.: "corrija isso agora"), conversas de debug, perguntas, declarações vagas ou solicitações explicitamente limitadas a uma única tarefa ou PR.
 </Info>
 
-Quando uma memória é criada ou atualizada, Kody responde com uma confirmação e fornece um **link direto** para visualizar a memória na interface.
+Quando uma memória é criada ou atualizada, Piku responde com uma confirmação e fornece um **link direto** para visualizar a memória na interface.
 
 #### Via Interface
 
 Você também pode criar memórias manualmente:
 
-1. Acesse **Configurações de Code Review** → **Repositório** → **Kody Rules**
+1. Acesse **Configurações de Code Review** → **Repositório** → **Piku Rules**
 2. Mude para a aba **Memórias**
 3. Clique em **Adicionar Memória** para criar uma nova entrada
 4. Preencha o conteúdo da memória e o escopo
@@ -321,7 +321,7 @@ Cada memória tem um escopo que determina onde ela se aplica:
 
 Por padrão, as memórias geradas por IA são ativadas automaticamente. Você pode exigir aprovação manual antes que entrem em vigor:
 
-1. Acesse **Configurações de Code Review** → **Repositório** → **Kody Rules** → aba **Memórias**
+1. Acesse **Configurações de Code Review** → **Repositório** → **Piku Rules** → aba **Memórias**
 2. Habilite **Aprovação de memórias geradas por LLM**
 
 Quando habilitado:

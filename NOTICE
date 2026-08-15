@@ -1,0 +1,44 @@
+# NOTICE
+
+**piku-cat** is a personal-use fork of [kodustech/kodus-ai](https://github.com/kodustech/kodus-ai),
+an AI code review platform by Kodus Tech.
+
+## Licensing
+
+The upstream license files are included and **unmodified**:
+
+- `license.md` — AGPL-3.0, covering the open-source portion of the project.
+- `license_ee.md` — the Kodus Enterprise License, covering all files under any `ee/`
+  directory and any file containing `.ee.` in its name.
+
+All upstream copyright headers ("Kodus Tech. All rights reserved.") are preserved verbatim.
+Copyright in the original work remains with Kodus Tech and its licensors. This fork claims no
+ownership of it.
+
+## Permission
+
+The Enterprise Code in `libs/ee/` is used here — including with its free-tier resource limits
+lifted — under permission granted directly by the Kodus team (Wellington Santana, Kodus Discord,
+2026-08-13) for **personal, non-commercial use only**.
+
+That permission is conditional. It does not extend to commercial use, to use by an organization,
+or to earning revenue from this software. If this deployment ever becomes commercial, the
+permission lapses by its own terms and a valid Kodus Enterprise License is required. Anyone else
+wanting to use the Enterprise Code must obtain their own permission or license from Kodus —
+this NOTICE grants nothing to third parties.
+
+If you are evaluating Kodus, please use the upstream project and consider their paid plans:
+<https://kodus.io/pricing>.
+
+## Changes from upstream
+
+1. **Free-tier resource caps lifted** — the Kody Rules count cap, the active MCP plugin cap, and
+   the global-rules import tier gate. Each divergence is commented inline at its site.
+2. **Product surface rebranded** — user-visible "Kodus" → "piku-cat" and the "Kody" bot persona →
+   "Piku", plus container image names. Deliberately *not* renamed, because they are load-bearing:
+   `@kodus/*` npm dependencies, environment variable names, RabbitMQ vhosts (`kodus-ai`,
+   `kodus-ast`), queue and exchange names, generated code, and any value persisted in the
+   database.
+3. **Suggestion-dedup fix** — when no embedding provider is configured, the dedup guard now
+   consults the LLM tiebreak instead of hard-vetoing the merge (upstream falls back to a lexical
+   veto). This replaces a runtime patch with a real source change.

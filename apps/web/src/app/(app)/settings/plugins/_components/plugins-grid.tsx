@@ -76,7 +76,7 @@ export const PluginsGrid = ({
                         <span className="text-text-secondary text-sm">
                             The Free plan runs {limit} plugins at a time —
                             locked plugins are skipped during reviews. Upgrade
-                            to run them all, plus unlimited Kody Rules and the
+                            to run them all, plus unlimited Piku Rules and the
                             Cockpit.
                         </span>
                     </div>

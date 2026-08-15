@@ -41,9 +41,9 @@ Pick one per machine. The CLI auto-detects what's available.
 
 See [Getting Started](getting_started) for the full decision tree.
 
-## Kody Rules
+## Piku Rules
 
-A **Kody Rule** is a structured rule the Kodus reviewer applies during every review, scoped to a repository or global to your team.
+A **Piku Rule** is a structured rule the piku-cat reviewer applies during every review, scoped to a repository or global to your team.
 
 ```
 Rule
@@ -55,13 +55,13 @@ Rule
 └── repo-id        <uuid> | global
 ```
 
-Rules layer on top of the general Kodus review — the AI uses them as additional criteria, not replacements.
+Rules layer on top of the general piku-cat review — the AI uses them as additional criteria, not replacements.
 
 Manage rules from the dashboard or from the CLI with `kodus rules create|update|view`. The CLI is useful when you want rules in version control (generate them from a script, check into a repo, re-apply on provisioning).
 
 ## Repository Settings
 
-Every repository in Kodus has settings that govern how reviews behave: ignored files, base branch patterns, title filters, feature toggles. These live in the Kodus backend and are mirrored anywhere the repo is reviewed (web PRs, CLI reviews, agent loops).
+Every repository in piku-cat has settings that govern how reviews behave: ignored files, base branch patterns, title filters, feature toggles. These live in the piku-cat backend and are mirrored anywhere the repo is reviewed (web PRs, CLI reviews, agent loops).
 
 From the CLI:
 
@@ -78,7 +78,7 @@ kodus config repo open                 # Jump to the web dashboard
 
 ## Centralized Config
 
-Normally, each repository's settings live in Kodus. **Centralized Config** lets a team store those settings in a single source-of-truth git repository — every change becomes a pull request against that repo, giving you review and version history on your review configuration itself.
+Normally, each repository's settings live in piku-cat. **Centralized Config** lets a team store those settings in a single source-of-truth git repository — every change becomes a pull request against that repo, giving you review and version history on your review configuration itself.
 
 Enable, sync, or inspect state:
 
@@ -89,7 +89,7 @@ kodus config centralized sync
 kodus config centralized disable
 ```
 
-Use Centralized Config when your team wants auditable, versioned control over review settings. Keep the default (per-repo settings in Kodus) when that ceremony is overkill.
+Use Centralized Config when your team wants auditable, versioned control over review settings. Keep the default (per-repo settings in piku-cat) when that ceremony is overkill.
 
 ## Business Validation
 

@@ -18,7 +18,7 @@
   <Accordion title="Puertos Requeridos">
     Mapeos por defecto de puertos del host — ajusta en `.env` si hay conflicto.
 
-    - **3000** — Kodus Web App
+    - **3000** — piku-cat Web App
     - **3001** — API
     - **3332** — Webhooks
     - **5432** — PostgreSQL
@@ -60,7 +60,7 @@
 
 ## Configuración de Dominio (Opcional)
 
-Si planeas integrar Kodus con proveedores Git en la nube (GitHub, GitLab o Bitbucket), necesitarás URLs públicas tanto para la aplicación web de Kodus como para su API. Esto permite que tu servidor reciba webhooks para el correcto funcionamiento de la Revisión de Código y garantiza el comportamiento correcto de la aplicación.
+Si planeas integrar piku-cat con proveedores Git en la nube (GitHub, GitLab o Bitbucket), necesitarás URLs públicas tanto para la aplicación web de piku-cat como para su API. Esto permite que tu servidor reciba webhooks para el correcto funcionamiento de la Revisión de Código y garantiza el comportamiento correcto de la aplicación.
 
 Recomendamos configurar dos subdominios:
 - Uno para la Aplicación Web, por ejemplo, `kodus-web.tudominio.com`.
@@ -108,7 +108,7 @@ Ambos subdominios deben tener registros DNS A apuntando a la dirección IP de tu
     ```
   </Step>
   <Step title="¡Éxito! 🎉">
-  Una vez completado, los servicios de Kodus deberían estar ejecutándose en tu máquina.
+  Una vez completado, los servicios de piku-cat deberían estar ejecutándose en tu máquina.
   Puedes verificar la instalación con el siguiente script:
   ```bash
   ./scripts/doctor.sh
@@ -119,7 +119,7 @@ Ambos subdominios deben tener registros DNS A apuntando a la dirección IP de tu
 
 1. **Crear tu cuenta de administrador** - Este será el primer usuario con acceso completo al sistema
 2. **Configurar tu proveedor Git** - Conecta GitHub, GitLab o Bitbucket siguiendo las instrucciones en pantalla
-3. **Seleccionar repositorios** para análisis - Elige qué repositorios de código revisará Kody
+3. **Seleccionar repositorios** para análisis - Elige qué repositorios de código revisará Piku
 
 <Info>
   Para pasos detallados sobre el proceso de configuración inicial, consulta nuestra [Guía de Inicio Rápido](/how_to_use/es/quickstart).

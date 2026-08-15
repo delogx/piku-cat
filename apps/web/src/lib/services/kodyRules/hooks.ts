@@ -140,7 +140,7 @@ type InheritedKodyRules = {
 };
 
 /**
- * Loads the two heavy data sets the Kody Rules page needs — the scope's own
+ * Loads the two heavy data sets the Piku Rules page needs — the scope's own
  * rules and the inherited rules — IN PARALLEL.
  *
  * Calling `useSuspenseKodyRulesByRepositoryId` and

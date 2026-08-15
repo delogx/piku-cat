@@ -28,7 +28,7 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 /**
  * Configuration control (global scope only) that lets the user pick one or more
- * connected repositories as sources of GLOBAL Kody Rules. Access depends on the
+ * connected repositories as sources of GLOBAL Piku Rules. Access depends on the
  * org's plan:
  *   - free  → the whole control is grayed out with an upgrade CTA.
  *   - trial → capped at `limit` imported rules; a counter is shown and a
@@ -203,7 +203,7 @@ export const GlobalRulesSourceSetting = () => {
             <Section.Title>Global rule sources</Section.Title>
             <Section.Description>
                 Select connected repositories to import their rule files as
-                global Kody Rules. Global rules apply to every repository during
+                global Piku Rules. Global rules apply to every repository during
                 code review.
             </Section.Description>
         </Section.Header>
@@ -405,7 +405,7 @@ export const GlobalRulesSourceSetting = () => {
                 open={deleteTarget !== null}
                 title="Remove global rule source?"
                 description={
-                    `The global Kody Rules imported from ` +
+                    `The global Piku Rules imported from ` +
                     `"${deleteTarget?.full_name || deleteTarget?.name}" will be ` +
                     `deleted and will no longer apply during code review. This ` +
                     `cannot be undone.`

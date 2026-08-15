@@ -252,14 +252,14 @@ export const CockpitOrganizationSettingsPage = (props: {
                             them. At least one tab must stay enabled.
                         </p>
 
-                        {/* Kodus Review tab — no per-metric configuration */}
+                        {/* piku-cat Review tab — no per-metric configuration */}
                         <Card color="lv1" className="w-full">
                             <CardHeader>
                                 <TabToggle
                                     control={control}
                                     name="cockpitMetricsVisibility.tabs.kodusReview"
-                                    title="Kodus Review"
-                                    description="Implementation rate, severity calibration, negative feedback and Kody Rule health."
+                                    title="piku-cat Review"
+                                    description="Implementation rate, severity calibration, negative feedback and Piku Rule health."
                                 />
                             </CardHeader>
                         </Card>

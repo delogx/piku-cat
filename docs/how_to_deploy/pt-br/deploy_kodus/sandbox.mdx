@@ -1,10 +1,10 @@
 ---
 title: "Sandbox & AST Graph"
-description: "Como o Kodus parseia seu repo (kodus-graph), onde isso roda (modos de sandbox), e quando escolher cada modo."
+description: "Como o piku-cat parseia seu repo (kodus-graph), onde isso roda (modos de sandbox), e quando escolher cada modo."
 icon: "box"
 ---
 
-Pra revisar um PR com o contexto certo, o Kodus parseia o repositório
+Pra revisar um PR com o contexto certo, o piku-cat parseia o repositório
 inteiro num **AST graph** (nós + arestas) e usa ele pra buscar contexto
 cross-file, validar sugestões e alimentar o agente. O parser roda dentro
 de um **sandbox** pra poder fazer `git clone`, instalar dependências, e
@@ -15,7 +15,7 @@ graph, e como o cache mantém reviews por PR rápidos.
 
 ## Como o AST graph funciona
 
-O Kodus usa o [`@kodus/kodus-graph`](https://www.npmjs.com/package/@kodus/kodus-graph),
+O piku-cat usa o [`@kodus/kodus-graph`](https://www.npmjs.com/package/@kodus/kodus-graph),
 um CLI que percorre um repositório e emite um JSON graph (funções,
 classes, arquivos, imports, calls). O CLI já vem **pré-instalado na
 imagem do worker** (`kodus-ai-worker`) — no modo `local`, não tem setup
@@ -24,7 +24,7 @@ extra.
 Ciclo de vida:
 
 1. **Quando você seleciona um repositório** (no setup, ou ao adicionar
-   um repo depois na UI) — o Kodus enfileira um job `AstGraphBuild` que
+   um repo depois na UI) — o piku-cat enfileira um job `AstGraphBuild` que
    roda `kodus-graph parse --all` no branch default, persiste no
    Postgres (tabelas `ast_graph_*`), e marca o repo como indexado.
    Isso roda em background — você não precisa esperar terminar pra
@@ -33,7 +33,7 @@ Ciclo de vida:
    enfileiram um rebuild incremental que re-parseia apenas os arquivos
    alterados e mescla os deltas no graph cacheado. O cache continua
    fresco sem precisar de rebuild completo.
-3. **Em toda review de PR** — o Kodus carrega o graph cacheado,
+3. **Em toda review de PR** — o piku-cat carrega o graph cacheado,
    parseia apenas os arquivos tocados pelo PR, e alimenta o agente com
    um subgraph focado. Esse é o caminho quente; nunca re-parseia o repo
    todo.
@@ -78,7 +78,7 @@ script de backfill que vem no installer:
 Ele percorre todos os teams da instância e enfileira um job
 `AstGraphBuild` pra cada repo selecionado cujo `astGraphStatus` seja
 `NULL`, `PENDING` ou `FAILED`. Os builds rodam em background — você pode
-continuar usando o Kodus enquanto terminam.
+continuar usando o piku-cat enquanto terminam.
 
 O script é **idempotente**: re-execuções pulam repos que já estão
 `READY`, nunca re-enfileiram jobs `BUILDING`, e você pode parar e

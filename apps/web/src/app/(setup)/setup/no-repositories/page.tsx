@@ -40,7 +40,7 @@ export default function App() {
                         </svg>
 
                         <p>
-                            Kodus has had a huge impact on our workflow by
+                            piku-cat has had a huge impact on our workflow by
                             saving us valuable time during PR reviews. It
                             consistently catches the small details that are easy
                             to miss, and the ability to set up custom rules
@@ -86,7 +86,7 @@ export default function App() {
                             <ul className="flex list-inside list-disc flex-col gap-2">
                                 <li>
                                     you don’t have the required permissions to
-                                    install Kodus in this organization
+                                    install piku-cat in this organization
                                 </li>
 
                                 <li>

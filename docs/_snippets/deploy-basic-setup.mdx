@@ -18,7 +18,7 @@
   <Accordion title="Required Ports">
     Default host port mappings — adjust in `.env` if any conflict.
 
-    - **3000** — Kodus Web App
+    - **3000** — piku-cat Web App
     - **3001** — API
     - **3332** — Webhooks
     - **5432** — PostgreSQL
@@ -63,7 +63,7 @@
 
 ## Domain Name Setup (Optional)
 
-If you're planning to integrate Kodus with cloud-based Git providers (GitHub, GitLab, or Bitbucket), you'll need public-facing URLs for both the Kodus Web App and its API. This allows your server to receive webhooks for proper Code Review functionality and ensures correct application behavior.
+If you're planning to integrate piku-cat with cloud-based Git providers (GitHub, GitLab, or Bitbucket), you'll need public-facing URLs for both the piku-cat Web App and its API. This allows your server to receive webhooks for proper Code Review functionality and ensures correct application behavior.
 
 We recommend setting up two subdomains:
 - One for the Web Application, e.g., `kodus-web.yourdomain.com`.
@@ -111,7 +111,7 @@ Both subdomains should have DNS A records pointing to your server's IP address. 
     ```
   </Step>
   <Step title="Success 🎉">
-  When complete, Kodus Services should be running on your machine.
+  When complete, piku-cat Services should be running on your machine.
   You can verify your installation using the following script:
   ```bash
   ./scripts/doctor.sh
@@ -122,7 +122,7 @@ Both subdomains should have DNS A records pointing to your server's IP address. 
 
 1. **Create your admin account** - This will be the first user with full system access
 2. **Configure your Git provider** - Connect GitHub, GitLab, or Bitbucket following the on-screen instructions
-3. **Select repositories** for analysis - Choose which code repositories Kody will review
+3. **Select repositories** for analysis - Choose which code repositories Piku will review
 
 <Info>
   For detailed steps on the initial configuration process, refer to our [Getting

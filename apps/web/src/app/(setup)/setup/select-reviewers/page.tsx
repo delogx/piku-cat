@@ -115,13 +115,13 @@ export default function SelectReviewersPage() {
             <div className="bg-card-lv1 flex w-full flex-col justify-center gap-10 rounded-3xl p-8 lg:max-w-none lg:flex-10 lg:p-12">
                 <div className="flex-1 space-y-6 overflow-hidden">
                     <h1 className="flex items-center gap-2 text-2xl font-bold">
-                        <GitPullRequestIcon /> Kody learns from your past reviews
+                        <GitPullRequestIcon /> Piku learns from your past reviews
                     </h1>
                     <p className="text-text-secondary text-md">
-                        Kody learns coding standards from your team&apos;s last 3
+                        Piku learns coding standards from your team&apos;s last 3
                         months of PR reviews, and keeps learning every week.
                         Exclude anyone whose review comments you&apos;d rather
-                        Kody not learn from.
+                        Piku not learn from.
                     </p>
                     <Alert>
                         <ClockFadingIcon size={24} />
@@ -141,7 +141,7 @@ export default function SelectReviewersPage() {
 
                     <div className="flex flex-col gap-2">
                         <Heading variant="h2">
-                            Whose reviews should Kody learn from?
+                            Whose reviews should Piku learn from?
                         </Heading>
                         <span className="text-text-secondary text-sm">
                             Everyone is included by default. Select developers to

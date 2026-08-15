@@ -68,7 +68,7 @@ customMessages:
         hideComments: false # github only
         suggestionCopyPrompt: true # not available for bitbucket
 
-    # Optional team-authored text appended below Kody's default error comment
+    # Optional team-authored text appended below Piku's default error comment
     # when a review fails (e.g. no BYOK provider configured). Empty content
     # keeps the default error message unchanged.
     errorReviewMessage:
@@ -78,11 +78,11 @@ customMessages:
     startReviewMessage:
         status: 'every_push' # every_push | only_when_opened | off
         content: |
-            # PR Summary (Comment created by [Kody](https://kodus.io) 🤖)
+            # PR Summary (Comment created by [Piku](https://kodus.io) 🤖)
 
             ## Code Review Started! 🚀
 
-            ✋ Hi, team! I'm already looking at the changed files and starting the review to ensure everything is in order. If you need more details, I'm here! [Kody](https://kodus.io)
+            ✋ Hi, team! I'm already looking at the changed files and starting the review to ensure everything is in order. If you need more details, I'm here! [Piku](https://kodus.io)
 
             @reviewCadence
 
@@ -103,11 +103,11 @@ customMessages:
             <summary>Kody Guide: Usage and Configuration</summary>
 
             <details>
-            <summary>Interacting with Kody</summary>
+            <summary>Interacting with Piku</summary>
 
-            - **Request a Review:** Ask Kody to review your PR manually by adding a comment with the \`@kody start-review\` command at the root of your PR.
+            - **Request a Review:** Ask Piku to review your PR manually by adding a comment with the \`@kody start-review\` command at the root of your PR.
 
-            - **Provide Feedback:** Help Kody learn and improve by reacting to its comments with a 👍 for helpful suggestions or a 👎 if improvements are needed.
+            - **Provide Feedback:** Help Piku learn and improve by reacting to its comments with a 👍 for helpful suggestions or a 👎 if improvements are needed.
 
             </details>
 
@@ -130,7 +130,7 @@ customMessages:
             </details>
 
             <details>
-            <summary>Current Kody Configuration</summary>
+            <summary>Current Piku Configuration</summary>
 
             @reviewOptions
 

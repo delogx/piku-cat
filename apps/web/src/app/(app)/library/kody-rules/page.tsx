@@ -9,8 +9,8 @@ import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team
 import { KodyRulesLibrary } from "./_components/_page";
 
 export const metadata: Metadata = {
-    title: "Kody Rules library",
-    openGraph: { title: "Kody Rules library" },
+    title: "Piku Rules library",
+    openGraph: { title: "Piku Rules library" },
 };
 
 const BUCKETS_PREVIEW_COUNT = 3;

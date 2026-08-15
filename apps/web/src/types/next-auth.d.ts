@@ -1,7 +1,7 @@
 import type { UserRole } from "@enums";
 import type { DefaultSession } from "next-auth";
 
-// Type augmentation for next-auth v5. The Kodus JWT carries these claims and
+// Type augmentation for next-auth v5. The piku-cat JWT carries these claims and
 // the auth callbacks stamp them onto the token — see src/core/config/auth.ts
 // (getDataFromPayload + the jwt/session callbacks). The `session` callback sets
 // `session.user = token`, so Session["user"] and JWT share the same shape.

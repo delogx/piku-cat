@@ -26,8 +26,8 @@ const overpass_mono = Overpass_Mono({
 
 export const metadata: Metadata = {
     title: {
-        default: "Kodus",
-        template: "%s | Kodus",
+        default: "piku-cat",
+        template: "%s | piku-cat",
     },
     icons: { icon: "/favicon.ico" },
     robots: {
@@ -38,10 +38,10 @@ export const metadata: Metadata = {
     openGraph: {
         locale: "en_US",
         type: "website",
-        siteName: "Kodus",
+        siteName: "piku-cat",
         title: {
-            default: "Kodus",
-            template: "%s | Kodus",
+            default: "piku-cat",
+            template: "%s | piku-cat",
         },
     },
 };

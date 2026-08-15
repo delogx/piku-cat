@@ -57,7 +57,7 @@ export const RepositoriesHealthTable = ({
                 Click a row to focus the whole cockpit on that repository.{" "}
                 <strong>Weakest category</strong> = lowest implementation rate
                 in that repo (min. 5 suggestions) — where to tune config or add
-                a Kody Rule.
+                a Piku Rule.
             </p>
         </div>
     );

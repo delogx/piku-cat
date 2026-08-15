@@ -1,11 +1,11 @@
 ---
 title: "Token de API do Bitbucket"
-description: "Gere o API Token do Bitbucket Cloud que o Kody precisa para o code review, com as permissões exatas a conceder."
+description: "Gere o API Token do Bitbucket Cloud que o Piku precisa para o code review, com as permissões exatas a conceder."
 ---
 
 ## Introdução
 
-Para habilitar Kody a realizar code reviews automáticos no Bitbucket Cloud, você precisa gerar um **Token de API**. Esse token permite que Kody acesse seus repositórios, pull requests, webhooks, issues, pipelines etc., com as permissões específicas listadas abaixo.
+Para habilitar Piku a realizar code reviews automáticos no Bitbucket Cloud, você precisa gerar um **Token de API**. Esse token permite que Piku acesse seus repositórios, pull requests, webhooks, issues, pipelines etc., com as permissões específicas listadas abaixo.
 
 ---
 
@@ -21,9 +21,9 @@ Para habilitar Kody a realizar code reviews automáticos no Bitbucket Cloud, voc
 
 ---
 
-## Escopos Necessários para Kody
+## Escopos Necessários para Piku
 
-O token deve incluir **todos** os seguintes escopos para funcionalidade completa com Kody:
+O token deve incluir **todos** os seguintes escopos para funcionalidade completa com Piku:
 
 | Escopo                        | Finalidade / O que habilita                                                                  |
 | ----------------------------- | ------------------------------------------------------------------------------------------- |
@@ -44,10 +44,10 @@ O token deve incluir **todos** os seguintes escopos para funcionalidade completa
 
 ---
 
-## Adicionando o Token ao Kody
+## Adicionando o Token ao Piku
 
-- Uma vez que o token for gerado com todos os escopos necessários, cole-o na **tela de configuração de integração/automação do Kody** ao habilitar a integração com Bitbucket.
-- Certifique-se de que o token tem `admin:repository:bitbucket` (ou equivalente) se Kody precisar configurar webhooks ou ouvir eventos de pull request.
+- Uma vez que o token for gerado com todos os escopos necessários, cole-o na **tela de configuração de integração/automação do Piku** ao habilitar a integração com Bitbucket.
+- Certifique-se de que o token tem `admin:repository:bitbucket` (ou equivalente) se Piku precisar configurar webhooks ou ouvir eventos de pull request.
 
 ---
 

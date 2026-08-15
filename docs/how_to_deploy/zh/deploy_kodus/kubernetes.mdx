@@ -1,10 +1,10 @@
 ---
 title: "Kubernetes 与 OpenShift"
-description: "使用官方 Helm charts 在 Kubernetes 或 OpenShift 上部署 Kodus。"
+description: "使用官方 Helm charts 在 Kubernetes 或 OpenShift 上部署 piku-cat。"
 icon: "dharmachakra"
 ---
 
-相比单台虚拟机更倾向于使用集群？Kodus 在
+相比单台虚拟机更倾向于使用集群？piku-cat 在
 [kodus-installer](https://github.com/kodustech/kodus-installer) 仓库中提供了适用于
 Kubernetes 和 OpenShift 的 **Helm charts**。本页面是概览——charts 的
 [README](https://github.com/kodustech/kodus-installer/blob/main/charts/README.md)
@@ -33,7 +33,7 @@ helm install kodus . -n kodus --create-namespace \
   --set ingress.hosts.api.host=api.kodus.example.com
 ```
 
-`imageTag` 为整个技术栈固定 Kodus 版本（类似 Docker Compose 的 `IMAGE_TAG`）；生产环境
+`imageTag` 为整个技术栈固定 piku-cat 版本（类似 Docker Compose 的 `IMAGE_TAG`）；生产环境
 请使用真实的 tag，切勿使用 `latest`。认证/加密所需的 secret 会以正确格式自动生成，并在升级
 之间保持稳定。
 

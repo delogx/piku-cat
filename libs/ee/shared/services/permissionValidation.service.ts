@@ -704,7 +704,19 @@ export class PermissionValidationService {
     ): Promise<boolean> {
         try {
             // Development mode doesn't limit resources
-            if (this.isDevelopment) {
+            // piku-cat personal-use fork divergence: this install is never
+            // resource-limited. Upstream returns `true` below for an unlicensed
+            // self-hosted (CE) install, which is what caps Kody Rules at 10,
+            // caps MCP plugins at 3, disables audit logs, and truncates the rule
+            // set sent into each review. This is the same path a licensed/paid
+            // org already takes, and it also drops the fail-closed catch that
+            // returned `true` on any license lookup error.
+            // The `: boolean` annotation is load-bearing — it stops TS narrowing
+            // to the literal `true` and stops eslint `no-unreachable` (on via
+            // eslint.configs.recommended) firing on the rest of the method.
+            // Never simplify to a bare `return false;` or `if (true)`.
+            const pikuCatUnlimited: boolean = true;
+            if (pikuCatUnlimited || this.isDevelopment) {
                 return false;
             }
 
@@ -928,6 +940,19 @@ export class PermissionValidationService {
             ) {
                 return override;
             }
+        }
+
+        // piku-cat personal-use fork divergence: global Kody Rules import is
+        // unlimited on this install. Upstream resolves an unlicensed self-hosted
+        // install to 'free' (and fails closed to 'free' on a license lookup
+        // error), which blocks the feature outright; 'trial' would cap it at
+        // GLOBAL_RULES_TRIAL_IMPORT_LIMIT. Deliberately placed AFTER the
+        // dev-only override above so GLOBAL_RULES_IMPORT_TIER_OVERRIDE keeps
+        // working locally. The `: boolean` annotation is load-bearing — see the
+        // note in shouldLimitResources().
+        const pikuCatPaidTier: boolean = true;
+        if (pikuCatPaidTier) {
+            return 'paid';
         }
 
         try {

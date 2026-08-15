@@ -224,7 +224,7 @@ export const ByokAdvancedSettings = ({
                                             <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
                                                 <span>
                                                     Paste the options directly —
-                                                    Kodus wraps them under the
+                                                    piku-cat wraps them under the
                                                     active provider&apos;s
                                                     namespace automatically.
                                                 </span>

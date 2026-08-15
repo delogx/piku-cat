@@ -112,7 +112,7 @@ export const GenerateRulesOptions = () => {
                     variant: "info",
                     title: "We're analyzing your past PRs",
                     description:
-                        "Kody is reviewing the last 3 months of closed PRs to draft rules. This may take a few minutes; generated rules will appear on this page.",
+                        "Piku is reviewing the last 3 months of closed PRs to draft rules. This may take a few minutes; generated rules will appear on this page.",
                 });
 
                 invalidateQueries({
@@ -211,7 +211,7 @@ export const GenerateRulesOptions = () => {
                 });
 
                 // Toggle off → backend may have flipped imported rules to
-                // DELETED or PAUSED. The Kody Rules tab caches its rule
+                // DELETED or PAUSED. The Piku Rules tab caches its rule
                 // list separately, so without these invalidations the
                 // user sees stale rows until they manually refresh.
                 invalidateQueries({
@@ -279,7 +279,7 @@ export const GenerateRulesOptions = () => {
 
                                 <Section.Content>
                                     <Section.Description>
-                                        When enabled, Kody will automatically
+                                        When enabled, Piku will automatically
                                         import rule files{" "}
                                         <InlineCode className="bg-card-lv1">
                                             (.cursorrules, CLAUDE.md, etc...)
@@ -325,7 +325,7 @@ export const GenerateRulesOptions = () => {
                                 </Section.Header>
 
                                 <Section.Content className="text-text-secondary text-sm font-normal">
-                                    Kody will analyse closed PRs and suggest
+                                    Piku will analyse closed PRs and suggest
                                     rules automatically.
                                 </Section.Content>
                             </Section.Root>

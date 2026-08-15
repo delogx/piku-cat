@@ -1,6 +1,6 @@
 ---
 title: "Visão Geral"
-description: "Rastreie e gerencie sugestões não implementadas com o recurso Kody Issues."
+description: "Rastreie e gerencie sugestões não implementadas com o recurso Piku Issues."
 ---
 
 ## Resumo Rápido
@@ -12,10 +12,10 @@ description: "Rastreie e gerencie sugestões não implementadas com o recurso Ko
 
 ## O que É
 
-O recurso **Kody Issues** rastreia automaticamente todas as sugestões geradas pelo Kody que **não foram implementadas** nos seus pull requests (PRs). Ele funciona como um sonar, fornecendo uma lista em tempo real de melhorias pendentes para garantir que você nunca perca de vista feedback crítico.
+O recurso **Piku Issues** rastreia automaticamente todas as sugestões geradas pelo Piku que **não foram implementadas** nos seus pull requests (PRs). Ele funciona como um sonar, fornecendo uma lista em tempo real de melhorias pendentes para garantir que você nunca perca de vista feedback crítico.
 
-<Frame caption="Painel do Kody Issues mostrando sugestões rastreadas com filtros e gerenciamento de status">
-  <img src="/images/issues.png" alt="Kody Issues Dashboard" />
+<Frame caption="Painel do Piku Issues mostrando sugestões rastreadas com filtros e gerenciamento de status">
+  <img src="/images/issues.png" alt="Piku Issues Dashboard" />
 </Frame>
 
 ## Principais Benefícios
@@ -45,17 +45,17 @@ O recurso **Kody Issues** rastreia automaticamente todas as sugestões geradas p
 </Note>
 
 <Warning>
-  Regras do Kody do tipo **PR** não geram issues. Apenas sugestões a nível de arquivo e específicas de código criam issues rastreáveis.
+  Regras do Piku do tipo **PR** não geram issues. Apenas sugestões a nível de arquivo e específicas de código criam issues rastreáveis.
 </Warning>
 
-- Quando um PR é **fechado**, o Kody compila todas as sugestões feitas naquele PR que **não foram aplicadas**
-- Para cada sugestão não implementada, o Kody cria automaticamente um **Issue** vinculado ao repositório
+- Quando um PR é **fechado**, o Piku compila todas as sugestões feitas naquele PR que **não foram aplicadas**
+- Para cada sugestão não implementada, o Piku cria automaticamente um **Issue** vinculado ao repositório
 - Cada issue inclui o contexto original da sugestão, localização do arquivo e nível de severidade
 
 ### 2. Resolução Automática
 
-- Se um desenvolvedor implementar a mudança sugerida em um **PR subsequente**, o Kody marca o Issue associado como **Resolvido**
-- O Kody corresponde inteligentemente as mudanças implementadas aos issues existentes usando análise de código
+- Se um desenvolvedor implementar a mudança sugerida em um **PR subsequente**, o Piku marca o Issue associado como **Resolvido**
+- O Piku corresponde inteligentemente as mudanças implementadas aos issues existentes usando análise de código
 - A resolução acontece automaticamente sem intervenção manual
 
 ### 3. Gerenciamento Manual
@@ -117,7 +117,7 @@ O recurso **Kody Issues** rastreia automaticamente todas as sugestões geradas p
 
 <CardGroup cols={2}>
   <Card
-    title="Configuração de Kody Rules"
+    title="Configuração de Piku Rules"
     icon="user-police"
     href="/how_to_use/pt-br/code_review/configs/kody_rules"
   >
@@ -128,6 +128,6 @@ O recurso **Kody Issues** rastreia automaticamente todas as sugestões geradas p
     icon="graduation-cap"
     href="/how_to_use/pt-br/code_review/learning/kody_learning"
   >
-    Saiba como o Kody melhora as sugestões com base no feedback da sua equipe
+    Saiba como o Piku melhora as sugestões com base no feedback da sua equipe
   </Card>
 </CardGroup>

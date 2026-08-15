@@ -1,6 +1,6 @@
 ---
 title: "コンプライアンスのためのPRレビュー（SOC2、HIPAA）"
-description: "監査トレイル、データ処理、アクセス制御要件を適用するためのKodyルールとMemoriesの設定方法。"
+description: "監査トレイル、データ処理、アクセス制御要件を適用するためのPikuルールとMemoriesの設定方法。"
 icon: "file-shield"
 ---
 
@@ -12,7 +12,7 @@ SOC2、HIPAA、GDPRなどのコンプライアンスフレームワークは、�
 
 ## ステップ1 — コンプライアンスのMemoriesを定義する
 
-まず高レベルのコンプライアンス原則をKodyに教えます：
+まず高レベルのコンプライアンス原則をPikuに教えます：
 
 ```
 @kody remember: 私たちはSOC2準拠です。すべてのデータアクセスは、
@@ -150,4 +150,4 @@ Instructions:
 - [ ] ルールが一貫性のために組織レベルで設定されている
 - [ ] テストPRでルールが正しく発火することが確認された
 
-ルールの設定の詳細については、[Kodyルール](/how_to_use/ja/code_review/configs/kody_rules) を参照してください。
+ルールの設定の詳細については、[Pikuルール](/how_to_use/ja/code_review/configs/kody_rules) を参照してください。

@@ -1,6 +1,6 @@
 ---
 title: "Z.AI (GLM Coding Plan) - Inferencia por Suscripción"
-description: "Aprende a conectar los modelos GLM de Z.AI — incluida la suscripción GLM Coding Plan — a Kodus."
+description: "Aprende a conectar los modelos GLM de Z.AI — incluida la suscripción GLM Coding Plan — a piku-cat."
 icon: "bolt"
 ---
 
@@ -10,7 +10,7 @@ Z.AI (desarrollado por Zhipu AI) sirve la familia de modelos GLM. Es uno de los 
 
 Para cargas de trabajo de mayor volumen o variable, Z.AI también ofrece acceso de pago por token a los mismos modelos en su Developer API estándar.
 
-Ambas rutas exponen un endpoint compatible con OpenAI, por lo que Kodus se comunica con ellas a través del proveedor `OpenAI Compatible` (o directamente mediante la tarjeta curada **GLM 5.1** en BYOK).
+Ambas rutas exponen un endpoint compatible con OpenAI, por lo que piku-cat se comunica con ellas a través del proveedor `OpenAI Compatible` (o directamente mediante la tarjeta curada **GLM 5.1** en BYOK).
 
 ## Planes de un vistazo
 
@@ -68,11 +68,11 @@ Endpoint estándar: `https://api.z.ai/api/paas/v4/` (compatible con OpenAI).
   </Tab>
 </Tabs>
 
-## Configurar Z.AI en Kodus
+## Configurar Z.AI en piku-cat
 
-El flujo principal es BYOK en Kodus Cloud — la tarjeta curada **GLM 5.1** maneja el cambio de endpoint por ti. Los usuarios con alojamiento autónomo que prefieren fijar el proveedor a nivel de proceso pueden usar variables de entorno en su lugar.
+El flujo principal es BYOK en piku-cat Cloud — la tarjeta curada **GLM 5.1** maneja el cambio de endpoint por ti. Los usuarios con alojamiento autónomo que prefieren fijar el proveedor a nivel de proceso pueden usar variables de entorno en su lugar.
 
-### Opción 1 — BYOK en Kodus Cloud (recomendado)
+### Opción 1 — BYOK en piku-cat Cloud (recomendado)
 
 <Steps>
   <Step title="Abrir BYOK y elegir GLM 5.1">
@@ -88,11 +88,11 @@ El flujo principal es BYOK en Kodus Cloud — la tarjeta curada **GLM 5.1** mane
   </Step>
 
   <Step title="Pegar tu clave de API">
-    Solo la clave — nada más que configurar. Para usuarios del Coding Plan, Kodus rellena previamente `maxConcurrentRequests=1` en la configuración avanzada, lo que coincide con los límites de los niveles Lite/Pro. Súbelo a 30 si estás en Max.
+    Solo la clave — nada más que configurar. Para usuarios del Coding Plan, piku-cat rellena previamente `maxConcurrentRequests=1` en la configuración avanzada, lo que coincide con los límites de los niveles Lite/Pro. Súbelo a 30 si estás en Max.
   </Step>
 
   <Step title="Probar y guardar">
-    Haz clic en **Test & save**. Kodus verifica el endpoint con una llamada de metadatos económica y persiste la configuración si tiene éxito. 401 significa que la clave no coincide con el endpoint del plan seleccionado; 404 significa que la URL base es incorrecta.
+    Haz clic en **Test & save**. piku-cat verifica el endpoint con una llamada de metadatos económica y persiste la configuración si tiene éxito. 401 significa que la clave no coincide con el endpoint del plan seleccionado; 404 significa que la URL base es incorrecta.
   </Step>
 </Steps>
 
@@ -117,7 +117,7 @@ La tarjeta curada de GLM 5.1 rellena previamente **Thinking: Medium**, que para 
   ```
 
 <Note>
-  No necesitas envolver en namespace — Kodus auto-envuelve bajo `openaiCompatible` (el provider activo) antes de enviar. Consulta [main BYOK doc → Custom JSON override](/how_to_use/es/byok#sobrescritura-con-json-personalizado) para más detalles.
+  No necesitas envolver en namespace — piku-cat auto-envuelve bajo `openaiCompatible` (el provider activo) antes de enviar. Consulta [main BYOK doc → Custom JSON override](/how_to_use/es/byok#sobrescritura-con-json-personalizado) para más detalles.
 </Note>
 
 ### Ajustar la concurrencia
@@ -127,7 +127,7 @@ La tarjeta curada de GLM 5.1 rellena previamente **Thinking: Medium**, que para 
 - **Developer API**: empieza vacío (sin tope). Baja a `5` si ves errores de límite de tasa, luego ajusta hacia arriba.
 
 <Note>
-  Configura GLM 5.1 como tu modelo **Principal** y mantén una clave de OpenAI o Anthropic como **Respaldo** para que las revisiones sigan funcionando cuando tu ventana de 5 horas del Coding Plan se agote. Kodus conmuta automáticamente.
+  Configura GLM 5.1 como tu modelo **Principal** y mantén una clave de OpenAI o Anthropic como **Respaldo** para que las revisiones sigan funcionando cuando tu ventana de 5 horas del Coding Plan se agote. piku-cat conmuta automáticamente.
 </Note>
 
 ### Opción 2 — Configuración manual
@@ -144,7 +144,7 @@ Si necesitas una variante de GLM que no está en el catálogo curado (por ejempl
 
 ### Opción 3 — Alojamiento autónomo (variables de entorno)
 
-Si ejecutas Kodus en Modo Fijo (proveedor global único, sin BYOK por organización), configura Z.AI en el `.env` de tus contenedores de API + worker:
+Si ejecutas piku-cat en Modo Fijo (proveedor global único, sin BYOK por organización), configura Z.AI en el `.env` de tus contenedores de API + worker:
 
 ```env
 # Configuración de Z.AI (Modo Fijo)
@@ -154,7 +154,7 @@ API_OPEN_AI_API_KEY="your-z-ai-api-key"
 ```
 
 <Note>
-  Esta opción solo es necesaria para instalaciones de Kodus con alojamiento autónomo que deshabilitan deliberadamente el BYOK. Si el BYOK está habilitado en tu instancia con alojamiento autónomo, prefiere la **Opción 1** — la tarjeta curada maneja la lógica del endpoint por ti.
+  Esta opción solo es necesaria para instalaciones de piku-cat con alojamiento autónomo que deshabilitan deliberadamente el BYOK. Si el BYOK está habilitado en tu instancia con alojamiento autónomo, prefiere la **Opción 1** — la tarjeta curada maneja la lógica del endpoint por ti.
 </Note>
 
 Reinicia los contenedores de API y worker después de editar `.env`, luego verifica la integración:
@@ -181,7 +181,7 @@ Para la configuración completa con alojamiento autónomo (dominios, claves de s
   </Accordion>
 
   <Accordion title="'Too much concurrency' durante la revisión">
-    - Los niveles Lite y Pro del Coding Plan normalmente permiten solo **1 solicitud concurrente**. Kodus lo rellena por ti; súbelo solo en Max.
+    - Los niveles Lite y Pro del Coding Plan normalmente permiten solo **1 solicitud concurrente**. piku-cat lo rellena por ti; súbelo solo en Max.
     - Baja **Max concurrent requests** en la configuración avanzada si sigues recibiendo errores 429.
   </Accordion>
 

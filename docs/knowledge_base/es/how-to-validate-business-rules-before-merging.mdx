@@ -7,7 +7,7 @@ Las revisiones de código típicamente se enfocan en la calidad del código — 
 
 ## Qué verifica
 
-Kodus compara el diff de tu PR con los requisitos de la tarea e identifica:
+piku-cat compara el diff de tu PR con los requisitos de la tarea e identifica:
 
 - **Implementaciones faltantes** — criterios de aceptación no cubiertos en el código
 - **Implementaciones parciales** — requisitos solo parcialmente abordados
@@ -18,7 +18,7 @@ Kodus compara el diff de tu PR con los requisitos de la tarea e identifica:
 
 ### Automático (por defecto)
 
-Con `business_logic: true` en tus opciones de revisión (habilitado por defecto), Kodus valida automáticamente las reglas de negocio durante cada revisión de PR cuando hay un plugin de gestión de tareas conectado.
+Con `business_logic: true` en tus opciones de revisión (habilitado por defecto), piku-cat valida automáticamente las reglas de negocio durante cada revisión de PR cuando hay un plugin de gestión de tareas conectado.
 
 ### Bajo demanda
 
@@ -63,6 +63,6 @@ Cada hallazgo incluye la **cita exacta** de la tarea que establece el requisito,
 
 - Las tareas con criterios de aceptación explícitos reciben la validación más exhaustiva
 - Después de solucionar los problemas, vuelve a ejecutar el comando para confirmar el cumplimiento
-- Si el alcance del PR no coincide con la tarea, Kody marca un desajuste de alcance en lugar de especular
+- Si el alcance del PR no coincide con la tarea, Piku marca un desajuste de alcance en lugar de especular
 
 Para más detalles, consulta [Validación de Lógica de Negocio](/how_to_use/es/code_review/business_logic_validation).

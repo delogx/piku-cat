@@ -603,13 +603,13 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         <p className="text-text-secondary text-sm">
                             {rule.inherited ===
                                 KodyRuleInheritanceOrigin.GLOBAL &&
-                                `This ${entityLabel.toLowerCase()} is inherited from the Global configuration. To edit it, you must go to the global Kody Rules settings.`}
+                                `This ${entityLabel.toLowerCase()} is inherited from the Global configuration. To edit it, you must go to the global Piku Rules settings.`}
                             {rule.inherited ===
                                 KodyRuleInheritanceOrigin.REPOSITORY &&
-                                `This ${entityLabel.toLowerCase()} is inherited from the Repository configuration. To edit it, you must go to the repository Kody Rules settings.`}
+                                `This ${entityLabel.toLowerCase()} is inherited from the Repository configuration. To edit it, you must go to the repository Piku Rules settings.`}
                             {rule.inherited ===
                                 KodyRuleInheritanceOrigin.DIRECTORY &&
-                                `This ${entityLabel.toLowerCase()} is inherited from another Directory configuration. This is likely due to how the ${entityLabel.toLowerCase()}'s path is defined. To edit it, you must go to the Kody Rules settings for the directory where it was created.`}
+                                `This ${entityLabel.toLowerCase()} is inherited from another Directory configuration. This is likely due to how the ${entityLabel.toLowerCase()}'s path is defined. To edit it, you must go to the Piku Rules settings for the directory where it was created.`}
                         </p>
                         <Separator />
                         <div className="flex items-center justify-between">
@@ -707,7 +707,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                                 Execution mode
                                                             </h4>
                                                             <p className="text-text-secondary text-xs">
-                                                                Choose how Kody
+                                                                Choose how Piku
                                                                 analyzes your
                                                                 code and where
                                                                 comments appear.
@@ -1053,7 +1053,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                 </FormControl.Label>
 
                                 <FormControl.Helper>
-                                    Readonly. This Kody {entityLabel} was
+                                    Readonly. This Piku {entityLabel} was
                                     created based on this file.
                                 </FormControl.Helper>
                             </FormControl.Root>
@@ -1087,7 +1087,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 align="start"
                                                 className="flex max-w-prose flex-col gap-1 text-xs">
                                                 <p>
-                                                    Describe what Kody should
+                                                    Describe what Piku should
                                                     focus on during the review.
                                                 </p>
                                                 <p>

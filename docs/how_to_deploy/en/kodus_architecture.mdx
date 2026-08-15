@@ -1,12 +1,12 @@
 ---
-title: "Kodus Architecture"
-description: "A deep dive into Kodus's technical infrastructure."
+title: "piku-cat Architecture"
+description: "A deep dive into piku-cat's technical infrastructure."
 icon: "puzzle-piece"
 ---
 
 ## Overview
 
-This document outlines the architecture powering Kodus's infrastructure. Our system is built on a distributed architecture that leverages containerization and network segmentation to ensure maximum scalability, security, and maintainability.
+This document outlines the architecture powering piku-cat's infrastructure. Our system is built on a distributed architecture that leverages containerization and network segmentation to ensure maximum scalability, security, and maintainability.
 
 ## Networks and Key Components
 
@@ -21,7 +21,7 @@ from internal service traffic:
 
 ```mermaid
 graph LR
-    Web[Kodus Web App] --> API[API Service]
+    Web[piku-cat Web App] --> API[API Service]
     API --> RabbitMQ[(RabbitMQ)]
     Webhooks[Webhooks Service] --> API
     API --> Worker[Worker Service]
@@ -32,7 +32,7 @@ graph LR
     Worker --> Mongo
 ```
 
-### 1. Kodus Web Application
+### 1. piku-cat Web Application
 
 Our frontend platform is built with Next.js, delivering a seamless user experience through direct communication with our API layer.
 
@@ -47,12 +47,12 @@ The 2.0 stack splits backend responsibilities into dedicated services:
 
 ### 3. MCP Manager
 
-MCP Manager catalogs providers and integrations, then exposes them to Kodus so
+MCP Manager catalogs providers and integrations, then exposes them to piku-cat so
 teams can install MCPs from the Plugins screen.
 
 ### 4. Data Stores
 
-Kodus uses two databases:
+piku-cat uses two databases:
 
 - Postgres: Relational data and embeddings metadata
 - MongoDB: Flexible document storage
@@ -64,19 +64,19 @@ between API, worker, and webhooks.
 
 Prometheus and Grafana are optional and used for monitoring and visualization.
 
-### 6. Auxiliary Services (Kodus Cloud)
+### 6. Auxiliary Services (piku-cat Cloud)
 
-Kodus Cloud includes closed-source auxiliary services (billing and chat
+piku-cat Cloud includes closed-source auxiliary services (billing and chat
 integrations) that are not required for self-hosted deployments. Analytics is
 not cloud-only: licensed self-hosted Enterprise runs the same ingestion worker
 locally.
 
 ## Next Steps
 <CardGroup cols={2}>
-  <Card title="Run Kodus Locally" icon="laptop" href="/how_to_deploy/en/local_quickstart/orchestrator">
-    Ideal for local development and getting familiar with the full Kodus stack.
+  <Card title="Run piku-cat Locally" icon="laptop" href="/how_to_deploy/en/local_quickstart/orchestrator">
+    Ideal for local development and getting familiar with the full piku-cat stack.
   </Card>
-  <Card title="Deploy Kodus to Production" icon="rocket" href="/how_to_deploy/en/deploy_kodus/generic_vm">
-    Perfect for production deployment and experiencing the full capabilities of Kodus.
+  <Card title="Deploy piku-cat to Production" icon="rocket" href="/how_to_deploy/en/deploy_kodus/generic_vm">
+    Perfect for production deployment and experiencing the full capabilities of piku-cat.
   </Card>
 </CardGroup>

@@ -127,12 +127,12 @@ export default async function KodusReviewTab() {
 
             <ReviewSection
                 title="Repositories — health"
-                description="where Kodus is landing vs. being ignored">
+                description="where piku-cat is landing vs. being ignored">
                 <RepositoriesHealthTable data={repositoriesHealth ?? []} />
             </ReviewSection>
 
             <ReviewSection
-                title="Kody Rules — health"
+                title="Piku Rules — health"
                 description="how each rule is performing · click a row to see its suggestions">
                 <RulesHealthTable data={rulesHealth ?? []} />
             </ReviewSection>

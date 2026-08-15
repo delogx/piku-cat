@@ -128,7 +128,7 @@ function AllPlansInclude() {
                 Reviews are unlimited on every plan — they run on your own AI
                 key.{" "}
                 <span className="text-text-secondary font-normal">
-                    Plans differ by features, not by how many PRs Kody can
+                    Plans differ by features, not by how many PRs Piku can
                     review.
                 </span>
             </p>
@@ -372,7 +372,7 @@ function TeamsPlan({ plan }: { plan: Plan }) {
                     </FormControl.Input>
 
                     <p className="text-text-tertiary text-xs">
-                        One license per developer whose PRs Kody reviews.
+                        One license per developer whose PRs Piku reviews.
                         Workspace members (reviewers, viewers, admins) are
                         unlimited and free.
                     </p>

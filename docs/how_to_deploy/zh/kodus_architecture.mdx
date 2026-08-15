@@ -1,12 +1,12 @@
 ---
-title: "Kodus 架构"
-description: "深入了解 Kodus 的技术基础设施。"
+title: "piku-cat 架构"
+description: "深入了解 piku-cat 的技术基础设施。"
 icon: "puzzle-piece"
 ---
 
 ## 概述
 
-本文档概述了支持 Kodus 基础设施的架构。我们的系统建立在分布式架构上，利用容器化和网络分段来确保最大的可扩展性、安全性和可维护性。
+本文档概述了支持 piku-cat 基础设施的架构。我们的系统建立在分布式架构上，利用容器化和网络分段来确保最大的可扩展性、安全性和可维护性。
 
 ## 网络和关键组件
 
@@ -20,7 +20,7 @@ icon: "puzzle-piece"
 
 ```mermaid
 graph LR
-    Web[Kodus Web App] --> API[API Service]
+    Web[piku-cat Web App] --> API[API Service]
     API --> RabbitMQ[(RabbitMQ)]
     Webhooks[Webhooks Service] --> API
     API --> Worker[Worker Service]
@@ -31,7 +31,7 @@ graph LR
     Worker --> Mongo
 ```
 
-### 1. Kodus Web 应用程序
+### 1. piku-cat Web 应用程序
 
 我们的前端平台使用 Next.js 构建，通过与 API 层的直接通信提供无缝的用户体验。
 
@@ -46,11 +46,11 @@ graph LR
 
 ### 3. MCP Manager
 
-MCP Manager 编目提供商和集成，然后将它们暴露给 Kodus，以便团队可以从插件屏幕安装 MCP。
+MCP Manager 编目提供商和集成，然后将它们暴露给 piku-cat，以便团队可以从插件屏幕安装 MCP。
 
 ### 4. 数据存储
 
-Kodus 使用两个数据库：
+piku-cat 使用两个数据库：
 
 - Postgres: 关系数据和嵌入元数据
 - MongoDB: 灵活的文档存储
@@ -61,16 +61,16 @@ Kodus 使用两个数据库：
 
 Prometheus 和 Grafana 是可选的，用于监控和可视化。
 
-### 6. 辅助服务 (Kodus Cloud)
+### 6. 辅助服务 (piku-cat Cloud)
 
-Kodus Cloud 包括闭源辅助服务（计费和聊天集成），这些服务不是自托管部署所必需的。分析并非仅限云端:已授权的自托管 Enterprise 会在本地运行同一个采集 worker。
+piku-cat Cloud 包括闭源辅助服务（计费和聊天集成），这些服务不是自托管部署所必需的。分析并非仅限云端:已授权的自托管 Enterprise 会在本地运行同一个采集 worker。
 
 ## 下一步
 <CardGroup cols={2}>
-  <Card title="本地运行 Kodus" icon="laptop" href="/how_to_deploy/zh/local_quickstart/orchestrator">
-    非常适合本地开发和熟悉完整的 Kodus 堆栈。
+  <Card title="本地运行 piku-cat" icon="laptop" href="/how_to_deploy/zh/local_quickstart/orchestrator">
+    非常适合本地开发和熟悉完整的 piku-cat 堆栈。
   </Card>
-  <Card title="将 Kodus 部署到生产环境" icon="rocket" href="/how_to_deploy/zh/deploy_kodus/generic_vm">
-    非常适合生产部署和体验 Kodus 的全部功能。
+  <Card title="将 piku-cat 部署到生产环境" icon="rocket" href="/how_to_deploy/zh/deploy_kodus/generic_vm">
+    非常适合生产部署和体验 piku-cat 的全部功能。
   </Card>
 </CardGroup>

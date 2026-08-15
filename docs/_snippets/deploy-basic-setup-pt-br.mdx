@@ -18,7 +18,7 @@
   <Accordion title="Portas Necessárias">
     Mapeamentos padrão de porta no host — ajuste no `.env` em caso de conflito.
 
-    - **3000** — Kodus Web App
+    - **3000** — piku-cat Web App
     - **3001** — API
     - **3332** — Webhooks
     - **5432** — PostgreSQL
@@ -60,7 +60,7 @@
 
 ## Configuração de Domínio (Opcional)
 
-Se você planeja integrar o Kodus com provedores Git na nuvem (GitHub, GitLab ou Bitbucket), precisará de URLs públicas tanto para o Kodus Web App quanto para sua API. Isso permite que seu servidor receba webhooks para o correto funcionamento da Revisão de Código e garante o comportamento correto da aplicação.
+Se você planeja integrar o piku-cat com provedores Git na nuvem (GitHub, GitLab ou Bitbucket), precisará de URLs públicas tanto para o piku-cat Web App quanto para sua API. Isso permite que seu servidor receba webhooks para o correto funcionamento da Revisão de Código e garante o comportamento correto da aplicação.
 
 Recomendamos configurar dois subdomínios:
 - Um para o Aplicativo Web, ex.: `kodus-web.seudominio.com`.
@@ -108,7 +108,7 @@ Ambos os subdomínios devem ter registros DNS A apontando para o endereço IP do
     ```
   </Step>
   <Step title="Sucesso 🎉">
-  Quando concluído, os serviços do Kodus devem estar rodando na sua máquina.
+  Quando concluído, os serviços do piku-cat devem estar rodando na sua máquina.
   Você pode verificar a instalação usando o seguinte script:
   ```bash
   ./scripts/doctor.sh
@@ -119,7 +119,7 @@ Ambos os subdomínios devem ter registros DNS A apontando para o endereço IP do
 
 1. **Criar sua conta de administrador** - Este será o primeiro usuário com acesso completo ao sistema
 2. **Configurar seu provedor Git** - Conecte o GitHub, GitLab ou Bitbucket seguindo as instruções na tela
-3. **Selecionar repositórios** para análise - Escolha quais repositórios de código o Kody irá revisar
+3. **Selecionar repositórios** para análise - Escolha quais repositórios de código o Piku irá revisar
 
 <Info>
   Para etapas detalhadas sobre o processo de configuração inicial, consulte nosso [Guia de Início Rápido](/how_to_use/pt-br/quickstart).

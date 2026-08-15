@@ -3,7 +3,7 @@ title: "为什么我的 AI 代码审查没有触发"
 description: "审查未自动启动时的常见原因和修复方法。"
 ---
 
-如果 Kodus 没有审查您的 PR，请检查以下常见原因：
+如果 piku-cat 没有审查您的 PR，请检查以下常见原因：
 
 ## 1. 自动审查已禁用
 
@@ -18,14 +18,14 @@ automatedReviewActive: true
 
 ## 2. Webhook 未配置
 
-Kodus 需要 webhooks 来知道何时打开或更新 PR：
+piku-cat 需要 webhooks 来知道何时打开或更新 PR：
 - 前往 Git 提供商的 webhook 设置
-- 验证 Kodus webhook URL 是否已注册且活跃
+- 验证 piku-cat webhook URL 是否已注册且活跃
 - 检查失败的投递尝试
 
 ## 3. PR 标题匹配忽略关键字
 
-如果 PR 标题包含忽略关键字，Kodus 会跳过审查：
+如果 PR 标题包含忽略关键字，piku-cat 会跳过审查：
 
 ```yaml
 ignoredTitleKeywords:
@@ -37,7 +37,7 @@ ignoredTitleKeywords:
 
 ## 4. 基础分支未被监控
 
-默认情况下，Kodus 审查目标为默认分支的 PR。如果您的 PR 目标是其他分支，请将其添加到 `baseBranches`：
+默认情况下，piku-cat 审查目标为默认分支的 PR。如果您的 PR 目标是其他分支，请将其添加到 `baseBranches`：
 
 ```yaml
 baseBranches:
@@ -47,7 +47,7 @@ baseBranches:
 
 ## 5. 审查节奏设置为手动
 
-如果审查节奏设置为**手动**，Kodus 仅在您评论 `@kody start-review` 时审查。
+如果审查节奏设置为**手动**，piku-cat 仅在您评论 `@kody start-review` 时审查。
 
 ## 6. 自动暂停已激活
 

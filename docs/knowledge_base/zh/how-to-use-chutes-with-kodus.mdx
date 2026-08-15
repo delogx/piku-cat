@@ -1,6 +1,6 @@
 ---
 title: "Chutes — 开源模型的订阅封顶推理"
-description: "了解如何将 Chutes AI 的订阅套餐(覆盖 DeepSeek、Llama、Qwen、MiniMax 等)连接到 Kodus。"
+description: "了解如何将 Chutes AI 的订阅套餐(覆盖 DeepSeek、Llama、Qwen、MiniMax 等)连接到 piku-cat。"
 icon: "cloud-bolt"
 ---
 
@@ -8,7 +8,7 @@ icon: "cloud-bolt"
 
 Chutes AI 是一个面向开源模型的去中心化无服务器计算平台。它暴露一个 **OpenAI 兼容**的推理端点,并提供**订阅套餐** — 套餐将 API 使用量打包到一个以等价按 token 付费价值的倍数表示的上限内,结构上类似 Z.AI GLM Coding Plan,但覆盖完整的开源目录(DeepSeek、Llama、Qwen、MiniMax、Kimi 等等)。
 
-Kodus 通过与其他提供商相同的 OpenAI 兼容适配器与 Chutes 通信,无需任何代码修改 — 仅需 BYOK 凭证。
+piku-cat 通过与其他提供商相同的 OpenAI 兼容适配器与 Chutes 通信,无需任何代码修改 — 仅需 BYOK 凭证。
 
 ## 方案概览
 
@@ -52,11 +52,11 @@ Chutes 使用 HuggingFace 风格的 `org/model` 标识符,部分带 `-TEE` 后�
 2. 在 [chutes.ai/pricing](https://chutes.ai/pricing) 订阅档位,或启用按量付费。
 3. 打开开发者控制台并创建 API 密钥。立即复制。
 
-## 在 Kodus 中配置 Chutes
+## 在 piku-cat 中配置 Chutes
 
-### 方式 1 — Kodus Cloud 上的 BYOK(推荐)
+### 方式 1 — piku-cat Cloud 上的 BYOK(推荐)
 
-1. 在 Kodus Web UI 中打开**设置 → BYOK**([app.kodus.io/organization/byok](https://app.kodus.io/organization/byok))。
+1. 在 piku-cat Web UI 中打开**设置 → BYOK**([app.kodus.io/organization/byok](https://app.kodus.io/organization/byok))。
 2. Chutes 不在精选目录中 — 请点击模型列表底部的**手动配置**。如果要配置备用模型而非主模型,请在 URL 中使用 `?slot=fallback`。
 3. 填写向导:
 
@@ -68,19 +68,19 @@ Chutes 使用 HuggingFace 风格的 `org/model` 标识符,部分带 `-TEE` 后�
    | **API Key** | 您的 Chutes API 密钥 |
    | **Max Concurrent Requests** | `3–5` 是安全起点;若未触及上限可上调(在高级设置下) |
 
-4. 点击**测试并保存**。Kodus 会探测端点,成功后持久化配置。
+4. 点击**测试并保存**。piku-cat 会探测端点,成功后持久化配置。
 
 <Tip>
-  5× 上限基于每 token 价格计算。前沿模型比小模型更快消耗上限 — 如果想最大化每美元的审查数量,可以将 Chutes 与更便宜的模型(Llama、较小的 Qwen 变体)搭配用于常规 PR,通过 Kody 规则或独立的 BYOK 配置文件将前沿模型留给复杂审查。
+  5× 上限基于每 token 价格计算。前沿模型比小模型更快消耗上限 — 如果想最大化每美元的审查数量,可以将 Chutes 与更便宜的模型(Llama、较小的 Qwen 变体)搭配用于常规 PR,通过 Piku 规则或独立的 BYOK 配置文件将前沿模型留给复杂审查。
 </Tip>
 
 <Note>
-  由于 Chutes 运行在去中心化计算上,冷启动和尾部延迟比专用提供商更多变。配置一个 OpenAI 或 Anthropic 密钥作为 **Fallback**,以便当节点响应慢或月度上限触及时 Kodus 能故障转移。
+  由于 Chutes 运行在去中心化计算上,冷启动和尾部延迟比专用提供商更多变。配置一个 OpenAI 或 Anthropic 密钥作为 **Fallback**,以便当节点响应慢或月度上限触及时 piku-cat 能故障转移。
 </Note>
 
 ### 方式 2 — 自托管(环境变量)
 
-如果您以 Fixed Mode 运行 Kodus(单一全局提供商,无按组织 BYOK),在 API + worker 容器的 `.env` 中配置 Chutes:
+如果您以 Fixed Mode 运行 piku-cat(单一全局提供商,无按组织 BYOK),在 API + worker 容器的 `.env` 中配置 Chutes:
 
 ```env
 # Chutes 配置(固定模式)
@@ -90,7 +90,7 @@ API_OPEN_AI_API_KEY="your-chutes-api-key"
 ```
 
 <Note>
-  仅在有意禁用 BYOK 的自托管 Kodus 安装中才需要这条路径。如果您的自托管实例启用了 BYOK,请优先使用**方式 1** — 基于 UI 的流程与 Cloud 上相同。
+  仅在有意禁用 BYOK 的自托管 piku-cat 安装中才需要这条路径。如果您的自托管实例启用了 BYOK,请优先使用**方式 1** — 基于 UI 的流程与 Cloud 上相同。
 </Note>
 
 编辑 `.env` 后重启 API 和 worker 容器,然后验证:

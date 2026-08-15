@@ -1,12 +1,12 @@
 ---
 title: "Inicio rápido local"
-description: "Pone en marcha Kodus en tu máquina local — API, Worker, Webhooks, interfaz web y todas las dependencias con un solo comando."
+description: "Pone en marcha piku-cat en tu máquina local — API, Worker, Webhooks, interfaz web y todas las dependencias con un solo comando."
 icon: "laptop"
 ---
 
 <Note>
   Esta guía es para propósitos de desarrollo local. Para el despliegue en producción,
-  consulta la guía [Desplegar Kodus](/how_to_deploy/es/deploy_kodus/generic_vm).
+  consulta la guía [Desplegar piku-cat](/how_to_deploy/es/deploy_kodus/generic_vm).
 </Note>
 
 <Note>
@@ -142,10 +142,10 @@ Selecciona un modo y completa tu .env antes de iniciar los servicios.
 
       Este comando inicia:
 
-      - Kodus API
+      - piku-cat API
       - Worker (trabajos asíncronos)
       - Servicio de Webhooks
-      - Aplicación Web de Kodus
+      - Aplicación Web de piku-cat
       - Base de datos PostgreSQL
       - Base de datos MongoDB
       - RabbitMQ
@@ -227,7 +227,7 @@ pnpm run dev:health-check
 ```
 
 Esta verificación de salud exhaustiva valida:
-- ✅ **Servicios**: Kodus API, Worker, Webhooks, Web, PostgreSQL, MongoDB, RabbitMQ
+- ✅ **Servicios**: piku-cat API, Worker, Webhooks, Web, PostgreSQL, MongoDB, RabbitMQ
 - 🔌 **Disponibilidad de puertos**: Web (3000), API (3001), PostgreSQL (5432), MongoDB (27017), RabbitMQ (5672/15672)
 - 🗄️ **Configuración de base de datos**: Migraciones y datos iniciales
 - 🌐 **Endpoints de API**: Endpoints de salud y conectividad básica
@@ -274,7 +274,7 @@ docker network rm kodus-backend-services shared-network
 
 **Conflictos de puertos:**
 - Asegúrate de que los puertos 3000 (Web), 3001 (API), 5432 (PostgreSQL), 27017 (MongoDB) y 5672/15672 (RabbitMQ) estén disponibles
-- Detén otros servicios que usen estos puertos antes de iniciar Kodus
+- Detén otros servicios que usen estos puertos antes de iniciar piku-cat
 
 **Variables de entorno no se cargan:**
 - Verifica que tu archivo `.env` exista en la raíz del proyecto

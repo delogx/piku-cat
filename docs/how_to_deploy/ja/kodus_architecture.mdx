@@ -1,12 +1,12 @@
 ---
-title: "Kodusアーキテクチャ"
-description: "Kodusの技術インフラストラクチャの詳細解説。"
+title: "piku-catアーキテクチャ"
+description: "piku-catの技術インフラストラクチャの詳細解説。"
 icon: "puzzle-piece"
 ---
 
 ## 概要
 
-このドキュメントでは、Kodusのインフラストラクチャを支えるアーキテクチャについて説明します。当システムはコンテナ化とネットワーク分割を活用した分散アーキテクチャで構築されており、最大限のスケーラビリティ、セキュリティ、保守性を確保しています。
+このドキュメントでは、piku-catのインフラストラクチャを支えるアーキテクチャについて説明します。当システムはコンテナ化とネットワーク分割を活用した分散アーキテクチャで構築されており、最大限のスケーラビリティ、セキュリティ、保守性を確保しています。
 
 ## ネットワークと主要コンポーネント
 
@@ -20,7 +20,7 @@ icon: "puzzle-piece"
 
 ```mermaid
 graph LR
-    Web[Kodus Web App] --> API[API Service]
+    Web[piku-cat Web App] --> API[API Service]
     API --> RabbitMQ[(RabbitMQ)]
     Webhooks[Webhooks Service] --> API
     API --> Worker[Worker Service]
@@ -31,7 +31,7 @@ graph LR
     Worker --> Mongo
 ```
 
-### 1. Kodus Webアプリケーション
+### 1. piku-cat Webアプリケーション
 
 フロントエンドプラットフォームはNext.jsで構築されており、APIレイヤーとの直接通信によってシームレスなユーザー体験を提供します。
 
@@ -46,11 +46,11 @@ graph LR
 
 ### 3. MCP Manager
 
-MCP Managerはプロバイダーとインテグレーションをカタログ化し、Kodusに公開することで、チームがPlugins画面からMCPをインストールできるようにします。
+MCP Managerはプロバイダーとインテグレーションをカタログ化し、piku-catに公開することで、チームがPlugins画面からMCPをインストールできるようにします。
 
 ### 4. データストア
 
-Kodusは2つのデータベースを使用します：
+piku-catは2つのデータベースを使用します：
 
 - Postgres: リレーショナルデータと埋め込みメタデータ
 - MongoDB: 柔軟なドキュメントストレージ
@@ -61,16 +61,16 @@ RabbitMQは2.0で必須であり、API、ワーカー、Webhooks間の信頼性�
 
 PrometheusとGrafanaはオプションで、モニタリングと可視化に使用されます。
 
-### 6. 補助サービス（Kodus Cloud）
+### 6. 補助サービス（piku-cat Cloud）
 
-Kodus Cloudには、セルフホスト型デプロイメントには不要なクローズドソースの補助サービス（課金、チャットインテグレーション）が含まれています。アナリティクスはクラウド専用ではありません：ライセンス済みのセルフホスト Enterprise は同じインジェストワーカーをローカルで実行します。
+piku-cat Cloudには、セルフホスト型デプロイメントには不要なクローズドソースの補助サービス（課金、チャットインテグレーション）が含まれています。アナリティクスはクラウド専用ではありません：ライセンス済みのセルフホスト Enterprise は同じインジェストワーカーをローカルで実行します。
 
 ## 次のステップ
 <CardGroup cols={2}>
-  <Card title="Kodusをローカルで実行する" icon="laptop" href="/how_to_deploy/ja/local_quickstart/orchestrator">
-    ローカル開発とKodusのフルスタックを理解するのに最適です。
+  <Card title="piku-catをローカルで実行する" icon="laptop" href="/how_to_deploy/ja/local_quickstart/orchestrator">
+    ローカル開発とpiku-catのフルスタックを理解するのに最適です。
   </Card>
-  <Card title="Kodusを本番環境にデプロイする" icon="rocket" href="/how_to_deploy/ja/deploy_kodus/generic_vm">
-    本番環境へのデプロイとKodusの全機能を体験するのに最適です。
+  <Card title="piku-catを本番環境にデプロイする" icon="rocket" href="/how_to_deploy/ja/deploy_kodus/generic_vm">
+    本番環境へのデプロイとpiku-catの全機能を体験するのに最適です。
   </Card>
 </CardGroup>

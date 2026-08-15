@@ -144,7 +144,7 @@ kodus pr business-validation --task-id KC-1441 --dry-run
 
 ## `kodus auth`
 
-管理 Kodus API 的认证。
+管理 piku-cat API 的认证。
 
 ### `auth login`
 
@@ -225,7 +225,7 @@ kodus hook install --force            # 覆盖现有钩子
 kodus hook uninstall
 ```
 
-移除 Kodus 安装的 pre-push 钩子。
+移除 piku-cat 安装的 pre-push 钩子。
 
 ### `hook status`
 
@@ -281,20 +281,20 @@ kodus config centralized download --out ./centralized-config.zip
 
 ## `kodus config repo`
 
-查看和更新存储在 Kodus 中的仓库设置。需要团队密钥认证。使用 `.` 指代当前仓库。
+查看和更新存储在 piku-cat 中的仓库设置。需要团队密钥认证。使用 `.` 指代当前仓库。
 
 <Note>`kodus config repo` 和 `kodus config remote` 是同一命令组的别名。</Note>
 
 ### 用法
 
 ```bash
-kodus config repo add                                   # 将当前仓库添加到 Kodus
+kodus config repo add                                   # 将当前仓库添加到 piku-cat
 kodus config repo add owner/repo                        # 添加指定仓库
 kodus config repo list                                  # 列出已配置的仓库
 kodus config repo show                                  # 显示当前仓库设置
 kodus config repo setup                                 # 引导式设置向导
 kodus config repo set . reviewEnabled true              # 直接设置某项配置
-kodus config repo open                                  # 在 Kodus 仪表板中打开
+kodus config repo open                                  # 在 piku-cat 仪表板中打开
 kodus config repo add-ignore-file . "**/*.generated.ts"
 kodus config repo add-base-branch . "release/*"
 kodus config repo add-ignore-title . "^WIP:"
@@ -304,12 +304,12 @@ kodus config repo add-ignore-title . "^WIP:"
 
 | 子命令 | 描述 |
 |--------|------|
-| `add [repository]` | 将仓库添加到 Kodus（快捷方式：`kodus config -r [repository]`） |
-| `list` | 列出已在 Kodus 配置的仓库 |
+| `add [repository]` | 将仓库添加到 piku-cat（快捷方式：`kodus config -r [repository]`） |
+| `list` | 列出已在 piku-cat 配置的仓库 |
 | `show [repository]` | 显示仓库设置 |
 | `setup [repository]` | 运行引导式仓库设置向导 |
 | `set [repository] <key> <value>` | 直接设置某项仓库配置 |
-| `open [repository]` | 打开 Kodus 仪表板进行高级配置 |
+| `open [repository]` | 打开 piku-cat 仪表板进行高级配置 |
 | `add-pattern [repository] <field> <pattern>` | 向列表字段添加模式（`ignore-files`、`base-branches`、`ignore-titles`） |
 | `remove-pattern [repository] <field> <pattern>` | 从列表字段移除模式 |
 | `add-ignore-file [repository] <pattern>` | 快捷方式：添加忽略文件模式 |
@@ -329,7 +329,7 @@ kodus config repo add-ignore-title . "^WIP:"
 
 ## `kodus rules`
 
-创建、更新和查看 Kody Rules — Kodus 在审查时应用的结构化规则。
+创建、更新和查看 Piku Rules — piku-cat 在审查时应用的结构化规则。
 
 ### 用法
 
@@ -345,9 +345,9 @@ kodus rules update --uuid <rule-uuid> --severity critical
 
 | 子命令 | 描述 |
 |--------|------|
-| `create` | 创建新的 Kody Rule |
+| `create` | 创建新的 Piku Rule |
 | `update` | 更新已有规则 |
-| `view` | 查看 Kody Rules |
+| `view` | 查看 Piku Rules |
 
 ### `rules create` 标志
 
@@ -420,7 +420,7 @@ kodus skills uninstall                                   # 移除打包的技能
 
 ## `kodus status`
 
-显示统一的 Kodus 状态：认证模式、组织、仓库、钩子、决策、打包的技能以及 CLI 版本。
+显示统一的 piku-cat 状态：认证模式、组织、仓库、钩子、决策、打包的技能以及 CLI 版本。
 
 ```bash
 kodus status
@@ -462,7 +462,7 @@ kodus update
 
 ## `kodus subscribe`
 
-在浏览器中打开 Kodus 定价/升级页面。
+在浏览器中打开 piku-cat 定价/升级页面。
 
 ```bash
 kodus subscribe

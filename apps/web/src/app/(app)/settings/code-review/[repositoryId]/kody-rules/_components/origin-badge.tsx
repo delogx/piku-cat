@@ -10,11 +10,11 @@ import {
 const ORIGIN_TOOLTIPS: Record<Exclude<InferredRuleOrigin, "manual">, string> = {
     "Auto-sync": "Imported from an IDE rule file in the repo",
     Onboarding: "Suggested by onboarding analysis",
-    "Kody-generated":
-        "Suggested by the Kody rule generator from past reviews",
-    Library: "Added from the Kody rule library",
+    "Piku-generated":
+        "Suggested by the Piku rule generator from past reviews",
+    Library: "Added from the Piku rule library",
     "MCP/Agent": "Created by an MCP / agent",
-    CLI: "Created via the Kody CLI",
+    CLI: "Created via the Piku CLI",
 };
 
 // Distinct colour per origin so users can tell where a rule came from
@@ -24,7 +24,7 @@ const ORIGIN_TOOLTIPS: Record<Exclude<InferredRuleOrigin, "manual">, string> = {
 //
 //   Auto-sync       → secondary (purple) — IDE / dev tooling
 //   Onboarding         → success   (green)  — "welcome", first-run
-//   Kody-generated  → tertiary  (pink)   — Kody / LLM brand
+//   Piku-generated  → tertiary  (pink)   — Piku / LLM brand
 //   Library         → info      (blue)   — curated catalog
 //
 // (Library is the one exception that does borrow from the severity
@@ -39,7 +39,7 @@ const ORIGIN_CLASSES: Record<
         "bg-secondary-light/10 text-secondary-light ring-secondary-light/40 [--button-foreground:var(--color-secondary-light)]",
     Onboarding:
         "bg-success/10 text-success ring-success/40 [--button-foreground:var(--color-success)]",
-    "Kody-generated":
+    "Piku-generated":
         "bg-tertiary-light/10 text-tertiary-light ring-tertiary-light/40 [--button-foreground:var(--color-tertiary-light)]",
     Library:
         "bg-info/10 text-info ring-info/40 [--button-foreground:var(--color-info)]",
@@ -65,7 +65,7 @@ type OriginBadgeProps = {
 };
 
 // Static visual badge that names the rule's origin (Auto-sync / Onboarding /
-// Kody-generated). Intentionally avoids Radix Tooltip because nesting a
+// Piku-generated). Intentionally avoids Radix Tooltip because nesting a
 // Radix Slot trigger inside arbitrary parents (TooltipTrigger > Badge >
 // asChild) created a setRef loop in our setup. The hover tooltip is
 // rendered as a native `title` attribute instead — no Radix slot, no
@@ -74,7 +74,7 @@ type OriginBadgeProps = {
 // Two separate axes, two separate badges (they used to be conflated):
 //
 //   1. ORIGIN — where the rule came from. Always shown: Auto-sync /
-//      Onboarding / Kody-generated / Library (manual hides). Purely identity.
+//      Onboarding / Piku-generated / Library (manual hides). Purely identity.
 //
 //   2. MAINTENANCE — only for Auto-sync rules, and only once the repo's
 //      auto-sync toggle is OFF (`syncEnabledForRepo === false`), because

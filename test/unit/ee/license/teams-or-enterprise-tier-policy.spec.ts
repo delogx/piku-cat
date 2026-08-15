@@ -43,14 +43,17 @@ describe('isTeamsOrEnterpriseTierAllowed', () => {
         }
     });
 
-    it('blocks free_byok even on active cloud', () => {
+    // piku-cat personal-use fork divergence: upstream blocks free_byok here.
+    // This fork unlocks every tier — see
+    // libs/ee/license/tier/teams-or-enterprise-tier-policy.ts.
+    it('piku-cat fork: free_byok on active cloud is unlocked', () => {
         expect(
             isTeamsOrEnterpriseTierAllowed({
                 valid: true,
                 subscriptionStatus: SubscriptionStatus.ACTIVE,
                 planType: 'free_byok',
             }),
-        ).toBe(false);
+        ).toBe(true);
     });
 
     it('allows Enterprise plans on licensed self-hosted', () => {
@@ -65,7 +68,9 @@ describe('isTeamsOrEnterpriseTierAllowed', () => {
         }
     });
 
-    it('blocks Teams plans on licensed self-hosted (Teams is cloud-only)', () => {
+    // piku-cat personal-use fork divergence: upstream blocks Teams plans on
+    // licensed self-hosted (Teams is cloud-only). This fork unlocks them.
+    it('piku-cat fork: Teams plans on licensed self-hosted are unlocked', () => {
         for (const plan of planVariants.teams) {
             expect(
                 isTeamsOrEnterpriseTierAllowed({
@@ -73,17 +78,19 @@ describe('isTeamsOrEnterpriseTierAllowed', () => {
                     subscriptionStatus: SubscriptionStatus.LICENSED_SELF_HOSTED,
                     planType: plan,
                 }),
-            ).toBe(false);
+            ).toBe(true);
         }
     });
 
-    it('blocks unlicensed self-hosted', () => {
+    // piku-cat personal-use fork divergence: upstream blocks unlicensed
+    // self-hosted (CE). This fork unlocks it — that is the whole point.
+    it('piku-cat fork: unlicensed self-hosted is unlocked', () => {
         expect(
             isTeamsOrEnterpriseTierAllowed({
                 valid: true,
                 subscriptionStatus: SubscriptionStatus.SELF_HOSTED,
             }),
-        ).toBe(false);
+        ).toBe(true);
     });
 
     it('allows trial as Teams-cloud preview', () => {
@@ -95,19 +102,24 @@ describe('isTeamsOrEnterpriseTierAllowed', () => {
         ).toBe(true);
     });
 
-    it('blocks invalid / missing license', () => {
-        expect(isTeamsOrEnterpriseTierAllowed(null)).toBe(false);
-        expect(isTeamsOrEnterpriseTierAllowed(undefined)).toBe(false);
+    // piku-cat personal-use fork divergence: upstream blocks an invalid or
+    // missing license (including null/undefined). This fork unlocks
+    // unconditionally, so the license object is never inspected.
+    it('piku-cat fork: invalid / missing license is unlocked', () => {
+        expect(isTeamsOrEnterpriseTierAllowed(null)).toBe(true);
+        expect(isTeamsOrEnterpriseTierAllowed(undefined)).toBe(true);
         expect(
             isTeamsOrEnterpriseTierAllowed({
                 valid: false,
                 subscriptionStatus: SubscriptionStatus.ACTIVE,
                 planType: 'teams_byok',
             }),
-        ).toBe(false);
+        ).toBe(true);
     });
 
-    it('blocks canceled / expired / payment_failed', () => {
+    // piku-cat personal-use fork divergence: upstream blocks lapsed
+    // subscriptions. This fork unlocks unconditionally.
+    it('piku-cat fork: canceled / expired / payment_failed are unlocked', () => {
         for (const status of [
             SubscriptionStatus.CANCELED,
             SubscriptionStatus.EXPIRED,
@@ -119,7 +131,7 @@ describe('isTeamsOrEnterpriseTierAllowed', () => {
                     subscriptionStatus: status,
                     planType: 'teams_byok',
                 }),
-            ).toBe(false);
+            ).toBe(true);
         }
     });
 });

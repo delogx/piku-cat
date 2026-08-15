@@ -109,7 +109,7 @@ export const KodyKnowledgeApprovalSetting = () => {
                             <Section.Header>
                                 <div className="flex items-center gap-2">
                                     <Section.Title>
-                                        Kody knowledge approval
+                                        Piku knowledge approval
                                     </Section.Title>
                                     {config?.kodyKnowledgeApproval?.enabled !==
                                         undefined && (
@@ -126,7 +126,7 @@ export const KodyKnowledgeApprovalSetting = () => {
                             </Section.Header>
 
                             <Section.Content className="text-text-secondary text-sm font-normal">
-                                When enabled, Kody-generated rules and memories
+                                When enabled, Piku-generated rules and memories
                                 are created as pending and require approval
                                 before becoming active. When disabled, they are
                                 active by default.

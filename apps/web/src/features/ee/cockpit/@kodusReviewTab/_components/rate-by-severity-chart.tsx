@@ -101,7 +101,7 @@ export const RateBySeverityChart = ({
                     onChange={setSource}
                     options={[
                         { value: "all", label: "All" },
-                        { value: "native", label: "Kodus only" },
+                        { value: "native", label: "piku-cat only" },
                     ]}
                 />
             </div>
@@ -153,8 +153,8 @@ export const RateBySeverityChart = ({
 
             <p className="text-text-tertiary px-1 text-[11px]">
                 {source === "native"
-                    ? "Excluding Kody Rules — their severity is set on the rule, not by Kodus's risk analysis."
-                    : "Includes Kody Rules. Switch to “Kodus only” for Kodus's own severity calibration."}
+                    ? "Excluding Piku Rules — their severity is set on the rule, not by piku-cat's risk analysis."
+                    : "Includes Piku Rules. Switch to “piku-cat only” for piku-cat's own severity calibration."}
                 {chartData.some((d) => d.lowSample) &&
                     " * faded bars have too few suggestions to be reliable."}
             </p>

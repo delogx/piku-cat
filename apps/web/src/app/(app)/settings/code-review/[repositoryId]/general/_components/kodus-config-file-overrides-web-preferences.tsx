@@ -78,7 +78,7 @@ export const KodusConfigFileOverridesWebPreferences = () => {
                 <Link
                     href={kodyRulesUrl}
                     className="text-xs underline-offset-3">
-                    Kody Rules
+                    Piku Rules
                 </Link>{" "}
                 can only be configured through the web interface.
             </p>

@@ -646,10 +646,10 @@ export const CliKeysPage = ({
                             <div className="bg-card-lv2 border-card-lv1 flex items-start justify-between gap-4 rounded-xl border p-4">
                                 <div className="flex flex-col gap-1">
                                     <span className="text-sm font-semibold">
-                                        Allow Kody Rules management via CLI
+                                        Allow Piku Rules management via CLI
                                     </span>
                                     <span className="text-text-secondary text-sm">
-                                        Enables commands that manage Kody Rules
+                                        Enables commands that manage Piku Rules
                                         for this key.
                                     </span>
                                 </div>

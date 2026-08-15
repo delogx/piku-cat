@@ -229,8 +229,8 @@ export default function App() {
             : "Select at least one repo";
     const scopeCopy =
         reviewScope === "pilot"
-            ? "Kody reviews only PRs opened by you. No impact on the team yet."
-            : "Kody reviews every new PR in these repos.";
+            ? "Piku reviews only PRs opened by you. No impact on the team yet."
+            : "Piku reviews every new PR in these repos.";
     const staleRepositories = selectedRepositories.filter((repo) => {
         if (!repo.lastActivityAt) return true;
         const last = Date.parse(repo.lastActivityAt);
@@ -258,7 +258,7 @@ export default function App() {
                         </svg>
 
                         <p>
-                            Kodus has had a huge impact on our workflow by
+                            piku-cat has had a huge impact on our workflow by
                             saving us valuable time during PR reviews. It
                             consistently catches the small details that are easy
                             to miss, and the ability to set up custom rules
@@ -411,7 +411,7 @@ export default function App() {
 
                                 <div className="flex flex-col gap-2">
                                     <FormControl.Label>
-                                        Who should Kody review?
+                                        Who should Piku review?
                                     </FormControl.Label>
                                     <ToggleGroup.Root
                                         type="single"

@@ -10,7 +10,7 @@ export const CockpitNoDataBanner = () => {
 
                 <span className="flex-1 text-center text-sm">
                     <strong>
-                        Kody doesn't have enough data yet to fill your cockpit.
+                        Piku doesn't have enough data yet to fill your cockpit.
                     </strong>{" "}
                     Start by opening a few PRs, and watch the magic happen.
                 </span>

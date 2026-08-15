@@ -186,7 +186,12 @@ export class MCPManagerService {
         },
     ): Promise<MCPItem[] | MCPServerConfig[]> {
         try {
-            const limited =
+            // piku-cat personal-use fork divergence: the result is no longer
+            // used to cap plugins (see below). Renamed with a leading underscore
+            // so `unused-imports/no-unused-vars` (varsIgnorePattern '^_') stays
+            // quiet; the call itself is kept so the DI dependency and its
+            // logging are unchanged.
+            const _limited =
                 await this.permissionValidationService.shouldLimitResources(
                     organizationAndTeamData,
                     MCPManagerService.name,
@@ -206,7 +211,11 @@ export class MCPManagerService {
                 return [];
             }
 
-            const limitedData = limited ? data.items.slice(0, 3) : data.items;
+            // piku-cat personal-use fork divergence: no free-tier cap on active
+            // MCP plugins. Upstream sliced to the first 3 when `limited`, which
+            // silently dropped plugins 4+ from reviews as well as from the UI.
+            // Belt-and-braces: shouldLimitResources() already returns false.
+            const limitedData = data.items;
 
             if (format) {
                 const results = await Promise.allSettled(

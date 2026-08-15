@@ -1,6 +1,6 @@
 ---
 title: "Z.AI (GLM Coding Plan) - サブスクリプションベースの推論"
-description: "GLM Coding Plan サブスクリプションを含む、Z.AI の GLM モデルを Kodus に接続する方法を学びます。"
+description: "GLM Coding Plan サブスクリプションを含む、Z.AI の GLM モデルを piku-cat に接続する方法を学びます。"
 icon: "bolt"
 ---
 
@@ -10,7 +10,7 @@ Z.AI（Zhipu AI によって開発）は GLM ファミリーのモデルを提�
 
 より大量または変動するワークロードには、Z.AI は標準 Developer API で同じモデルへのペイパートークンアクセスも提供しています。
 
-両方のパスは OpenAI 互換エンドポイントを公開しているため、Kodus は `OpenAI Compatible` プロバイダー（または BYOK のキュレートされた **GLM 5.1** カードを介して直接）を通じて通信します。
+両方のパスは OpenAI 互換エンドポイントを公開しているため、piku-cat は `OpenAI Compatible` プロバイダー（または BYOK のキュレートされた **GLM 5.1** カードを介して直接）を通じて通信します。
 
 ## プランの概要
 
@@ -68,11 +68,11 @@ Z.AI（Zhipu AI によって開発）は GLM ファミリーのモデルを提�
   </Tab>
 </Tabs>
 
-## Kodus で Z.AI を設定する
+## piku-cat で Z.AI を設定する
 
-主なフローは Kodus Cloud での BYOK です — キュレートされた **GLM 5.1** カードがエンドポイントの切り替えを処理します。プロセスレベルでプロバイダーを固定することを好むセルフホストユーザーは、代わりに環境変数を使用できます。
+主なフローは piku-cat Cloud での BYOK です — キュレートされた **GLM 5.1** カードがエンドポイントの切り替えを処理します。プロセスレベルでプロバイダーを固定することを好むセルフホストユーザーは、代わりに環境変数を使用できます。
 
-### オプション1 — Kodus Cloud での BYOK（推奨）
+### オプション1 — piku-cat Cloud での BYOK（推奨）
 
 <Steps>
   <Step title="BYOK を開き GLM 5.1 を選択">
@@ -88,11 +88,11 @@ Z.AI（Zhipu AI によって開発）は GLM ファミリーのモデルを提�
   </Step>
 
   <Step title="APIキーを貼り付ける">
-    キーのみ — 他に設定するものはありません。Coding Plan ユーザーの場合、Kodus は Advanced settings に `maxConcurrentRequests=1` を事前入力し、これは Lite/Pro ティアの制限と一致します。Max ティアの場合は 30 に増やしてください。
+    キーのみ — 他に設定するものはありません。Coding Plan ユーザーの場合、piku-cat は Advanced settings に `maxConcurrentRequests=1` を事前入力し、これは Lite/Pro ティアの制限と一致します。Max ティアの場合は 30 に増やしてください。
   </Step>
 
   <Step title="Test & save">
-    **Test & save** をクリックします。Kodus は安価なメタデータ呼び出しでエンドポイントをプローブし、成功時に設定を保存します。401 はキーが選択したプランのエンドポイントと一致しないことを意味し、404 はベース URL が間違っていることを意味します。
+    **Test & save** をクリックします。piku-cat は安価なメタデータ呼び出しでエンドポイントをプローブし、成功時に設定を保存します。401 はキーが選択したプランのエンドポイントと一致しないことを意味し、404 はベース URL が間違っていることを意味します。
   </Step>
 </Steps>
 
@@ -117,7 +117,7 @@ Z.AI（Zhipu AI によって開発）は GLM ファミリーのモデルを提�
   ```
 
 <Note>
-  名前空間のラップは不要です — Kodus が送信前に `openaiCompatible`（アクティブなプロバイダー）で自動ラップします。詳しくは [main BYOK doc → Custom JSON override](/how_to_use/ja/byok#カスタム-json-オーバーライド) を参照してください。
+  名前空間のラップは不要です — piku-cat が送信前に `openaiCompatible`（アクティブなプロバイダー）で自動ラップします。詳しくは [main BYOK doc → Custom JSON override](/how_to_use/ja/byok#カスタム-json-オーバーライド) を参照してください。
 </Note>
 
 ### 同時実行数のチューニング
@@ -127,7 +127,7 @@ Z.AI（Zhipu AI によって開発）は GLM ファミリーのモデルを提�
 - **Developer API**：空のまま開始（制限なし）。レート制限エラーが発生したら `5` に下げ、その後調整します。
 
 <Note>
-  GLM 5.1 を**メイン**モデルとして設定し、OpenAI または Anthropic キーを**フォールバック**として保持することで、Coding Plan の5時間ウィンドウが枯渇してもレビューが継続されます。Kodus は自動的にフェイルオーバーします。
+  GLM 5.1 を**メイン**モデルとして設定し、OpenAI または Anthropic キーを**フォールバック**として保持することで、Coding Plan の5時間ウィンドウが枯渇してもレビューが継続されます。piku-cat は自動的にフェイルオーバーします。
 </Note>
 
 ### オプション2 — 手動設定
@@ -144,7 +144,7 @@ Z.AI（Zhipu AI によって開発）は GLM ファミリーのモデルを提�
 
 ### オプション3 — セルフホスト（環境変数）
 
-固定モード（単一グローバルプロバイダー、組織ごとの BYOK なし）で Kodus を実行している場合は、API とワーカーコンテナの `.env` で Z.AI を設定します：
+固定モード（単一グローバルプロバイダー、組織ごとの BYOK なし）で piku-cat を実行している場合は、API とワーカーコンテナの `.env` で Z.AI を設定します：
 
 ```env
 # Z.AI configuration (Fixed Mode)
@@ -154,7 +154,7 @@ API_OPEN_AI_API_KEY="your-z-ai-api-key"
 ```
 
 <Note>
-  このパスは意図的に BYOK を無効にしているセルフホスト Kodus インストールにのみ必要です。セルフホストインスタンスで BYOK が有効な場合は、**オプション1**を優先してください — キュレートされたカードがエンドポイントのロジックを処理します。
+  このパスは意図的に BYOK を無効にしているセルフホスト piku-cat インストールにのみ必要です。セルフホストインスタンスで BYOK が有効な場合は、**オプション1**を優先してください — キュレートされたカードがエンドポイントのロジックを処理します。
 </Note>
 
 `.env` を編集後、API とワーカーコンテナを再起動して統合を確認します：
@@ -181,7 +181,7 @@ docker-compose logs api worker | grep -iE "z\.ai|glm"
   </Accordion>
 
   <Accordion title="レビュー時の 'Too much concurrency'">
-    - Lite および Pro Coding Plan ティアは通常、**1 concurrent リクエスト**のみを許可します。Kodus がこれを事前入力します；Max でのみ上げてください。
+    - Lite および Pro Coding Plan ティアは通常、**1 concurrent リクエスト**のみを許可します。piku-cat がこれを事前入力します；Max でのみ上げてください。
     - まだ 429 にヒットしている場合は、Advanced settings で **Max concurrent requests** を下げます。
   </Accordion>
 

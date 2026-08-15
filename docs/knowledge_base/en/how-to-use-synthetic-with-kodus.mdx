@@ -1,6 +1,6 @@
 ---
 title: "Synthetic — Flat-Rate Subscription for Open-Source Coding Models"
-description: "Learn how to connect Synthetic.new's subscription-based API — bundling Kimi, DeepSeek, Qwen Coder, GLM and more — to Kodus."
+description: "Learn how to connect Synthetic.new's subscription-based API — bundling Kimi, DeepSeek, Qwen Coder, GLM and more — to piku-cat."
 icon: "infinity"
 ---
 
@@ -10,7 +10,7 @@ Synthetic is a subscription service that runs open-source coding LLMs on dedicat
 
 It's positioned as a direct alternative to Claude's $20/month and $200/month plans for developers who do a lot of coding: the same price point, several-times-higher rate limits, and your choice of open-source models.
 
-Kodus reaches Synthetic through the OpenAI-compatible endpoint, so there are no adapter changes — just BYOK credentials.
+piku-cat reaches Synthetic through the OpenAI-compatible endpoint, so there are no adapter changes — just BYOK credentials.
 
 ## Plans at a glance
 
@@ -50,13 +50,13 @@ See the full catalog at [dev.synthetic.new/docs/openai/models](https://dev.synth
 2. Subscribe to a plan at [synthetic.new/pricing](https://synthetic.new/pricing).
 3. Open the developer console and create an API key. Copy it immediately — you will not see the full key again.
 
-## Configure Synthetic in Kodus
+## Configure Synthetic in piku-cat
 
-The primary flow is BYOK on Kodus Cloud. Self-hosted installs can use environment variables as a secondary option.
+The primary flow is BYOK on piku-cat Cloud. Self-hosted installs can use environment variables as a secondary option.
 
-### Option 1 — BYOK on Kodus Cloud (recommended)
+### Option 1 — BYOK on piku-cat Cloud (recommended)
 
-1. In the Kodus web UI, open **Settings → BYOK** ([app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)).
+1. In the piku-cat web UI, open **Settings → BYOK** ([app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)).
 2. Synthetic isn't in the curated catalog — click **Configure manually** at the bottom of the model list. Use `?slot=fallback` in the URL if configuring a fallback instead of the main model.
 3. Fill the wizard:
 
@@ -68,19 +68,19 @@ The primary flow is BYOK on Kodus Cloud. Self-hosted installs can use environmen
    | **API Key** | your Synthetic API key |
    | **Max Concurrent Requests** | start at `3–5` to fit the 5-hour budget on bigger PRs (under Advanced settings) |
 
-4. Click **Test & save**. Kodus probes the endpoint and persists the config on success. 401 means the key is wrong; 404 usually means the base URL or model path is wrong.
+4. Click **Test & save**. piku-cat probes the endpoint and persists the config on success. 401 means the key is wrong; 404 usually means the base URL or model path is wrong.
 
 <Tip>
   The 500-messages-per-5-hours budget is per subscription, not per PR. For teams doing heavy continuous review, keep `Max Concurrent Requests` low enough that one big multi-file PR doesn't eat the window, or split the work across multiple subscriptions.
 </Tip>
 
 <Note>
-  Configure Synthetic as **Main** and keep an OpenAI or Anthropic key as **Fallback** — when the 5-hour window fills up, Kodus automatically fails over and reviews keep flowing.
+  Configure Synthetic as **Main** and keep an OpenAI or Anthropic key as **Fallback** — when the 5-hour window fills up, piku-cat automatically fails over and reviews keep flowing.
 </Note>
 
 ### Option 2 — Self-hosted (environment variables)
 
-If you run Kodus in Fixed Mode (single global provider, no per-org BYOK), configure Synthetic in the `.env` of your API + worker containers:
+If you run piku-cat in Fixed Mode (single global provider, no per-org BYOK), configure Synthetic in the `.env` of your API + worker containers:
 
 ```env
 # Synthetic configuration (Fixed Mode)
@@ -90,7 +90,7 @@ API_OPEN_AI_API_KEY="your-synthetic-api-key"
 ```
 
 <Note>
-  This path is only needed for self-hosted Kodus installs that deliberately disable BYOK. If BYOK is enabled on your self-hosted instance, prefer **Option 1** — the UI-based flow is the same as on Cloud.
+  This path is only needed for self-hosted piku-cat installs that deliberately disable BYOK. If BYOK is enabled on your self-hosted instance, prefer **Option 1** — the UI-based flow is the same as on Cloud.
 </Note>
 
 Restart the API and worker containers after editing `.env`, then verify:
@@ -130,7 +130,7 @@ Pick pay-per-token (Moonshot, Fireworks, Together, Groq) instead if traffic is b
 
   <Accordion title="Long cold-start on first call">
     - Some larger models may cold-start the first time they're used after a period of inactivity.
-    - If first-call latency is blocking Kodus health checks, warm the model by issuing a tiny test request before opening PRs.
+    - If first-call latency is blocking piku-cat health checks, warm the model by issuing a tiny test request before opening PRs.
   </Accordion>
 
   <Accordion title="Connection errors">

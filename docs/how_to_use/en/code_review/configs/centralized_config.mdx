@@ -1,31 +1,31 @@
 ---
 title: "Centralized Config"
-description: "Manage all code review configuration and Kody Rules as code in a single repository. Changes sync automatically after each merge; rollout is controlled from the UI or the CLI."
+description: "Manage all code review configuration and Piku Rules as code in a single repository. Changes sync automatically after each merge; rollout is controlled from the UI or the CLI."
 ---
 
-Centralized Config lets you keep every code review setting and every Kody Rule in **one repository** instead of editing them per-repo in the web UI. Each change flows through a pull request on that repository, giving you version history, review, and rollback on your review configuration.
+Centralized Config lets you keep every code review setting and every Piku Rule in **one repository** instead of editing them per-repo in the web UI. Each change flows through a pull request on that repository, giving you version history, review, and rollback on your review configuration.
 
 Use it when you want:
 
 - A single source of truth for review behavior across many repositories.
 - Code-review-as-code: history, PR review, rollback, CI validation.
-- Consistent Kody Rules (review rules and memories) across the whole organization.
+- Consistent Piku Rules (review rules and memories) across the whole organization.
 - CLI-driven or CI-driven configuration changes.
 
 ## How It Works
 
-1. Choose one repository to hold your centralized config. It has to be one of the repositories selected in Kodus.
+1. Choose one repository to hold your centralized config. It has to be one of the repositories selected in piku-cat.
 2. Enable Centralized Config in the UI and point it at that repository.
 3. Pick an **initial sync mode**:
-   - `pr` — Kodus opens the initialization PR with your current effective settings and rules.
-   - `manual` — Kodus generates the files; your team downloads and opens the PR.
-4. After the first merge, every future merge on the centralized repository automatically propagates changes to Kodus.
+   - `pr` — piku-cat opens the initialization PR with your current effective settings and rules.
+   - `manual` — piku-cat generates the files; your team downloads and opens the PR.
+4. After the first merge, every future merge on the centralized repository automatically propagates changes to piku-cat.
 
-The centralized repository mirrors Kodus's scope hierarchy (Global → Repository → Directory) through its folder layout.
+The centralized repository mirrors piku-cat's scope hierarchy (Global → Repository → Directory) through its folder layout.
 
 ## Repository Layout
 
-The centralized repository uses folder paths to map files to scopes. The layout covers both review settings (`kodus-config.yml`) and Kody Rules (`.kody-rules/`).
+The centralized repository uses folder paths to map files to scopes. The layout covers both review settings (`kodus-config.yml`) and Piku Rules (`.kody-rules/`).
 
 <Note>
 The repository name is arbitrary — pick whatever fits your organization. `kodus-config` is used below as a convention.
@@ -40,7 +40,7 @@ kodus-config/
 │   └── memories/                         ← global memories
 │       └── logging-convention.yml
 │
-├── backend-api/                          ← matches a Kodus repo
+├── backend-api/                          ← matches a piku-cat repo
 │   ├── kodus-config.yml                  ← repository-level overrides
 │   ├── .kody-rules/
 │   │   ├── review/
@@ -61,7 +61,7 @@ kodus-config/
 Rules:
 
 - A `kodus-config.yml` at the **root** of the centralized repo applies globally.
-- A top-level folder whose name matches a Kodus repository (e.g. `backend-api/`) scopes files to that repository.
+- A top-level folder whose name matches a piku-cat repository (e.g. `backend-api/`) scopes files to that repository.
 - A nested path inside a repo folder (e.g. `backend-api/src/auth/`) scopes files to that directory, following the same inheritance model as the web UI.
 - Rules under `.kody-rules/review/` become **review rules**; rules under `.kody-rules/memories/` become **memories**.
 
@@ -89,9 +89,9 @@ ignorePaths:
 automatedReviewActive: true
 ```
 
-## Kody Rules Files
+## Piku Rules Files
 
-Each rule is a single YAML file under `.kody-rules/review/` (standard rules) or `.kody-rules/memories/` (memories). The filename is arbitrary — Kodus identifies rules by the `title` field and by the canonical file path stored with the rule.
+Each rule is a single YAML file under `.kody-rules/review/` (standard rules) or `.kody-rules/memories/` (memories). The filename is arbitrary — piku-cat identifies rules by the `title` field and by the canonical file path stored with the rule.
 
 Example review rule (`.kody-rules/review/require-tests-for-endpoints.yml`):
 
@@ -116,7 +116,7 @@ inheritance:
   include: []
 ```
 
-See [Kody Rules Overview](/how_to_use/en/code_review/configs/kody_rules) for the full field reference and [Rule Inheritance](/how_to_use/en/code_review/configs/rules_inheritance) for how `inheritance.inheritable`, `exclude`, and `include` behave.
+See [Piku Rules Overview](/how_to_use/en/code_review/configs/kody_rules) for the full field reference and [Rule Inheritance](/how_to_use/en/code_review/configs/rules_inheritance) for how `inheritance.inheritable`, `exclude`, and `include` behave.
 
 ## UI Workflow
 
@@ -135,7 +135,7 @@ From **Settings → Code Review → General**:
 When Centralized Config is enabled, the source of truth for configuration is the centralized repository. The web UI reflects this:
 
 - **Repository, directory and global code review settings** become read-only in the web UI. Edit them by opening a PR on the centralized repository.
-- **Kody Rules and PR Messages** remain editable in the web UI. Saving an edit does not mutate the rule directly — Kodus opens a pull request on the centralized repository with the proposed change. Once the PR is merged, the change becomes active.
+- **Piku Rules and PR Messages** remain editable in the web UI. Saving an edit does not mutate the rule directly — piku-cat opens a pull request on the centralized repository with the proposed change. Once the PR is merged, the change becomes active.
 
 This preserves the "everything is reviewed and versioned" guarantee while keeping the visual editing experience for rules and messages.
 
@@ -145,10 +145,10 @@ Enabling Centralized Config does **not** wipe rules that were previously created
 
 - Rules imported from the centralized repository are persisted with status `SYNCED`.
 - Rules created directly in the web UI live alongside them and stay active.
-- At review time, Kodus loads **every active rule** from the database regardless of origin. A rule that exists only in the UI is applied exactly like a rule that exists only in the repo.
+- At review time, piku-cat loads **every active rule** from the database regardless of origin. A rule that exists only in the UI is applied exactly like a rule that exists only in the repo.
 - Rules in status `PENDING_ADD` (a UI/CLI edit that opened a PR not yet merged) are **excluded** from reviews until the PR is merged and the status transitions to `SYNCED`.
 
-In practice: if you bootstrap the centralized repo by hand and it's missing a rule you already had in the UI, that rule keeps running — it just isn't version-controlled in the repo. To bring it under version control, edit it once in the UI (which opens a PR) or use `init` so Kodus bundles every existing rule into the initialization PR.
+In practice: if you bootstrap the centralized repo by hand and it's missing a rule you already had in the UI, that rule keeps running — it just isn't version-controlled in the repo. To bring it under version control, edit it once in the UI (which opens a PR) or use `init` so piku-cat bundles every existing rule into the initialization PR.
 
 ## Sync States
 
@@ -156,7 +156,7 @@ Each rule that comes from Centralized Config tracks its lifecycle through a stat
 
 | Status | Meaning |
 |---|---|
-| `SYNCED` | The rule in Kodus matches the file in the centralized repository. |
+| `SYNCED` | The rule in piku-cat matches the file in the centralized repository. |
 | `PENDING_ADD` | A new rule has been created via UI/CLI and a PR was opened; the file does not exist on the default branch yet. |
 | `PENDING_EDIT` | An edit was proposed via UI/CLI and a PR is open; the existing file has not been updated yet. |
 | `PENDING_DELETE` | A deletion was proposed via UI/CLI and a PR is open; the file still exists on the default branch. |
@@ -167,11 +167,11 @@ Each rule that comes from Centralized Config tracks its lifecycle through a stat
 
 <Tabs>
   <Tab title="PR (default)">
-    Kodus opens the initialization pull request automatically with your
+    piku-cat opens the initialization pull request automatically with your
     current effective settings and rules.
   </Tab>
   <Tab title="Manual">
-    Kodus generates the files but does not open a PR. Use the download bundle
+    piku-cat generates the files but does not open a PR. Use the download bundle
     to export the files, then open and merge the PR yourselves.
   </Tab>
 </Tabs>
@@ -191,7 +191,7 @@ Use this when:
 
 Disabling Centralized Config clears the selected source repository and returns all repositories to the standard non-centralized behavior (settings edited in the web UI, optional per-repo `kodus-config.yml`).
 
-Rules and settings that were synced in remain in Kodus — they are not deleted on disable.
+Rules and settings that were synced in remain in piku-cat — they are not deleted on disable.
 
 ## CLI
 
@@ -200,7 +200,7 @@ Use these commands to manage Centralized Config from terminal workflows and CI s
 ### Requirements
 
 - Team key authentication.
-- At least one selected repository in Kodus.
+- At least one selected repository in piku-cat.
 
 Authenticate with:
 
@@ -272,6 +272,6 @@ kodus config centralized download --out ./centralized-config.zip --json
 
 - [General Settings](/how_to_use/en/code_review/configs/general)
 - [Config Inheritance & Overrides](/how_to_use/en/code_review/configs/inheritance_overrides)
-- [Kody Rules Overview](/how_to_use/en/code_review/configs/kody_rules)
+- [Piku Rules Overview](/how_to_use/en/code_review/configs/kody_rules)
 - [Rule Inheritance](/how_to_use/en/code_review/configs/rules_inheritance)
 - [CLI command reference](/how_to_use/en/cli/commands)

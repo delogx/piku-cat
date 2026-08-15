@@ -180,7 +180,7 @@ export default function App() {
                             </Heading>
 
                             <p className="text-text-secondary text-sm">
-                                Tell us about your team to customize Kody for
+                                Tell us about your team to customize Piku for
                                 your workflows.
                             </p>
                         </div>

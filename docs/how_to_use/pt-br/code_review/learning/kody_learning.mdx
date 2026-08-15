@@ -1,23 +1,23 @@
 ---
 title: "Aprendizado por Reforço"
-description: "Kody fica mais inteligente a cada interação. Ao aprender com o feedback da sua equipe, ela adapta continuamente suas sugestões de código para corresponder às preferências e padrões da sua equipe."
+description: "Piku fica mais inteligente a cada interação. Ao aprender com o feedback da sua equipe, ela adapta continuamente suas sugestões de código para corresponder às preferências e padrões da sua equipe."
 ---
 
 ## Visão Rápida
 
-- 👍 Positivo: Kody aprende o que sua equipe gosta
-- 👎 Negativo: Kody aprende o que evitar
-- ✨ Aprendizado automático: Kody rastreia quais sugestões são implementadas
+- 👍 Positivo: Piku aprende o que sua equipe gosta
+- 👎 Negativo: Piku aprende o que evitar
+- ✨ Aprendizado automático: Piku rastreia quais sugestões são implementadas
 
 ## Como o Aprendizado Funciona
 
-<img src="/images/finetuning.png" alt="Kody Learnings" />
+<img src="/images/finetuning.png" alt="Piku Learnings" />
 
 ### 1. Coletando Feedback
 
-Kody aprende de três fontes principais:
+Piku aprende de três fontes principais:
 
-- **Reações Diretas**: Os membros da equipe podem reagir às sugestões de Kody em qualquer ferramenta de gerenciamento de código:
+- **Reações Diretas**: Os membros da equipe podem reagir às sugestões de Piku em qualquer ferramenta de gerenciamento de código:
 
   - 👍 = "Isso é o que queremos"
   - 👎 = "Isso não corresponde ao nosso estilo"
@@ -26,20 +26,20 @@ Kody aprende de três fontes principais:
 
   | Plataforma | Como dar feedback |
   |---|---|
-  | GitHub, GitLab, Forgejo | Adicione uma **reação de emoji** 👍/👎 diretamente no comentário da sugestão de Kody |
+  | GitHub, GitLab, Forgejo | Adicione uma **reação de emoji** 👍/👎 diretamente no comentário da sugestão de Piku |
   | Azure DevOps, Bitbucket | Sem reações de emoji em comentários de PR — **responda** dentro da thread da sugestão com 👍 ou 👎 em qualquer lugar da mensagem (ex.: `👎 tratamos isso em outra camada`) |
 
   <Note>
-    No Azure DevOps e Bitbucket cada pessoa conta como um voto por sugestão, e texto extra na resposta é bem-vindo — ajuda Kody a aprender o "porquê".
+    No Azure DevOps e Bitbucket cada pessoa conta como um voto por sugestão, e texto extra na resposta é bem-vindo — ajuda Piku a aprender o "porquê".
   </Note>
 
-- **Rastreamento de Implementação**: Quando sua equipe implementa as sugestões de Kody, ela marca como feedback positivo
+- **Rastreamento de Implementação**: Quando sua equipe implementa as sugestões de Piku, ela marca como feedback positivo
 
-- **Reconhecimento de Padrões**: Kody constrói clusters de conhecimento com base nas preferências da sua equipe
+- **Reconhecimento de Padrões**: Piku constrói clusters de conhecimento com base nas preferências da sua equipe
 
 ### 2. Filtragem Inteligente
 
-Uma vez que Kody tem dados suficientes, ela:
+Uma vez que Piku tem dados suficientes, ela:
 
 1. Analisa novas sugestões de código
 2. Compara com os clusters de preferência da sua equipe
@@ -48,7 +48,7 @@ Uma vez que Kody tem dados suficientes, ela:
 
 ## Por Que Seu Feedback É Importante
 
-Quanto mais feedback você fornecer, melhor Kody fica em:
+Quanto mais feedback você fornecer, melhor Piku fica em:
 
 - ✅ Corresponder ao seu estilo de codificação
 - 🎯 Fazer sugestões relevantes

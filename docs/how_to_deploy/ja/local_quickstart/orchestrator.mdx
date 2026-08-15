@@ -1,12 +1,12 @@
 ---
 title: "ローカルクイックスタート"
-description: "ローカルマシンでKodusを起動する — API、Worker、Webhooks、Web UI、およびすべての依存関係を1つのコマンドで。"
+description: "ローカルマシンでpiku-catを起動する — API、Worker、Webhooks、Web UI、およびすべての依存関係を1つのコマンドで。"
 icon: "laptop"
 ---
 
 <Note>
   このガイドはローカル開発を目的としています。本番環境へのデプロイについては、
-  [Kodusのデプロイ](/how_to_deploy/ja/deploy_kodus/generic_vm)ガイドを参照してください。
+  [piku-catのデプロイ](/how_to_deploy/ja/deploy_kodus/generic_vm)ガイドを参照してください。
 </Note>
 
 <Note>
@@ -141,10 +141,10 @@ icon: "laptop"
 
       このコマンドは以下を起動します：
 
-      - Kodus API
+      - piku-cat API
       - Worker（非同期ジョブ）
       - Webhooksサービス
-      - Kodus Webアプリケーション
+      - piku-cat Webアプリケーション
       - PostgreSQLデータベース
       - MongoDBデータベース
       - RabbitMQ
@@ -226,7 +226,7 @@ pnpm run dev:health-check
 ```
 
 この包括的なヘルスチェックは以下を検証します：
-- ✅ **サービス**: Kodus API、Worker、Webhooks、Web、PostgreSQL、MongoDB、RabbitMQ
+- ✅ **サービス**: piku-cat API、Worker、Webhooks、Web、PostgreSQL、MongoDB、RabbitMQ
 - 🔌 **ポートの可用性**: Web（3000）、API（3001）、PostgreSQL（5432）、MongoDB（27017）、RabbitMQ（5672/15672）
 - 🗄️ **データベースセットアップ**: マイグレーションとシードデータ
 - 🌐 **APIエンドポイント**: ヘルスエンドポイントと基本的な接続性
@@ -273,7 +273,7 @@ docker network rm kodus-backend-services shared-network
 
 **ポートの競合：**
 - ポート3000（Web）、3001（API）、5432（PostgreSQL）、27017（MongoDB）、5672/15672（RabbitMQ）が使用可能であることを確認
-- Kodusを起動する前にこれらのポートを使用している他のサービスを停止
+- piku-catを起動する前にこれらのポートを使用している他のサービスを停止
 
 **環境変数が読み込まれない：**
 - プロジェクトルートに`.env`ファイルが存在することを確認

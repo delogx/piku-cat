@@ -63,7 +63,10 @@ describe('PermissionValidationService.shouldLimitResources (self-hosted)', () =>
         expect(result).toBe(false);
     });
 
-    it('should limit when self-hosted without license', async () => {
+    // piku-cat personal-use fork divergence: upstream limits an unlicensed
+    // self-hosted install. This fork never limits — see
+    // libs/ee/shared/services/permissionValidation.service.ts.
+    it('piku-cat fork: does NOT limit when self-hosted without license', async () => {
         const licenseService = createMockLicenseService({ valid: false });
 
         const service = new PermissionValidationService(
@@ -72,10 +75,12 @@ describe('PermissionValidationService.shouldLimitResources (self-hosted)', () =>
         );
 
         const result = await service.shouldLimitResources(orgData);
-        expect(result).toBe(true);
+        expect(result).toBe(false);
     });
 
-    it('should limit when self-hosted with expired license', async () => {
+    // piku-cat personal-use fork divergence: upstream limits on an expired
+    // license; this fork never limits.
+    it('piku-cat fork: does NOT limit when self-hosted with expired license', async () => {
         const licenseService = createMockLicenseService({
             valid: false,
             subscriptionStatus: SubscriptionStatus.EXPIRED,
@@ -87,7 +92,7 @@ describe('PermissionValidationService.shouldLimitResources (self-hosted)', () =>
         );
 
         const result = await service.shouldLimitResources(orgData);
-        expect(result).toBe(true);
+        expect(result).toBe(false);
     });
 
     it('should NOT limit in development mode', async () => {
@@ -120,7 +125,9 @@ describe('PermissionValidationService.shouldLimitResources (self-hosted)', () =>
         expect(result).toBe(false);
     });
 
-    it('should limit cloud with free plan', async () => {
+    // piku-cat personal-use fork divergence: upstream limits a cloud Free plan;
+    // this fork never limits.
+    it('piku-cat fork: does NOT limit cloud with free plan', async () => {
         mockEnvironment.API_CLOUD_MODE = true;
         const licenseService = createMockLicenseService({
             valid: true,
@@ -134,6 +141,6 @@ describe('PermissionValidationService.shouldLimitResources (self-hosted)', () =>
         );
 
         const result = await service.shouldLimitResources(orgData);
-        expect(result).toBe(true);
+        expect(result).toBe(false);
     });
 });

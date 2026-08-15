@@ -25,14 +25,14 @@ export const ApplyFiltersToKodyRules = () => {
                         <div className="flex flex-col gap-1">
                             <div className="flex flex-row items-center gap-2">
                                 <Heading variant="h3">
-                                    Apply filters to Kody Rules
+                                    Apply filters to Piku Rules
                                 </Heading>
 
                                 <OverrideIndicatorForm fieldName="suggestionControl.applyFiltersToKodyRules" />
                             </div>
 
                             <p className="text-text-secondary text-sm">
-                                When OFF, Kody Rules suggestions bypass the
+                                When OFF, Piku Rules suggestions bypass the
                                 limit and severity filters.
                             </p>
                         </div>

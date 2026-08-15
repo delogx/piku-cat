@@ -143,7 +143,7 @@ export const KodyRuleItem = ({
                 toast({
                     title: "Rule stayed locked",
                     description:
-                        "You've hit the Free plan cap of 10 active Kody Rules. Upgrade to activate this one too.",
+                        "You've hit the Free plan cap of 10 active Piku Rules. Upgrade to activate this one too.",
                     variant: "warning",
                 });
             } else {

@@ -56,7 +56,16 @@ export function evaluateCatalogGate(inputs: GateInputs): GateDecision {
                 return 'pass';
             case 'beta':
                 return selfHostedBetaEnabled ? 'pass' : 'deny';
+            // piku-cat personal-use fork divergence (narrowed from the original
+            // proposal on review): `alpha` features are unlocked on this
+            // self-hosted install — today that is "heavy-review", the deeper
+            // multi-pass review. Upstream denies alpha outright. These are
+            // unfinished upstream features and may be unstable.
+            // `beta` above is deliberately left as upstream: BETA_FEATURES=true
+            // in the deployment env already unlocks it with no source change.
+            // `default` (unknown stage) still denies.
             case 'alpha':
+                return 'pass';
             default:
                 return 'deny';
         }

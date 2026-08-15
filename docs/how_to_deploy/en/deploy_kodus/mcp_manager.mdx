@@ -1,6 +1,6 @@
 ---
 title: "MCP Manager"
-description: "Deploy MCP Manager for Kodus."
+description: "Deploy MCP Manager for piku-cat."
 icon: "puzzle-piece"
 tag: 'beta'
 ---
@@ -9,42 +9,42 @@ tag: 'beta'
 
 Model Context Protocol (MCP) is an open standard that lets LLM apps connect to
 external tools and data sources through a consistent server interface. MCP
-servers publish tool schemas and endpoints so clients like Kodus/Kody can fetch
+servers publish tool schemas and endpoints so clients like piku-cat/Piku can fetch
 context or run actions during a workflow.
 
 ## MCP Manager Architecture
 
 MCP Manager is the backend service that brokers those MCP connections for
-Kodus. It keeps track of providers, integrations, and allowed tools per
-workspace, then exposes that catalog to the Kodus API.
+piku-cat. It keeps track of providers, integrations, and allowed tools per
+workspace, then exposes that catalog to the piku-cat API.
 
-- Central registry for MCP providers (Kodus and custom)
+- Central registry for MCP providers (piku-cat and custom)
 - Stores integration metadata (connection status, MCP URL, allowed tools)
 - Handles provider-specific authentication flows and tool discovery
-- Exposes APIs used by Kodus to list and invoke MCP tools
+- Exposes APIs used by piku-cat to list and invoke MCP tools
 
 ```mermaid
 graph TD
-    A[Kodus] --> B[MCP Manager]
+    A[piku-cat] --> B[MCP Manager]
     B --> C[Providers]
     C --> D[Kodus MCPs]
     C --> F[Custom]
 ```
 
-## Plugins in Kodus
+## Plugins in piku-cat
 
-Everything registered in MCP Manager appears in the Kodus **Plugins** screen,
+Everything registered in MCP Manager appears in the piku-cat **Plugins** screen,
 so your team can install, manage, and enable the MCPs available for each
 workspace.
 
-<img src="/images/kodus_plugins.png" alt="Kodus plugins screen showing MCPs from MCP Manager" />
+<img src="/images/kodus_plugins.png" alt="piku-cat plugins screen showing MCPs from MCP Manager" />
 
 ## Providers
 
-### Kodus provider
+### piku-cat provider
 
-The Kodus provider bundles first-party MCPs managed by Kodus, including the
-Kodus MCP, Context7 MCP, and Kodus Docs MCP.
+The piku-cat provider bundles first-party MCPs managed by piku-cat, including the
+Kodus MCP, Context7 MCP, and piku-cat Docs MCP.
 
 ### Custom providers
 

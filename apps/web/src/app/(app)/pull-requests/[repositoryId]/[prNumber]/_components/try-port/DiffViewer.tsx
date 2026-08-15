@@ -156,7 +156,7 @@ export function DiffViewer({
     collapsed?: Record<string, boolean>;
     onToggleCollapsed?: (path: string) => void;
     /** When the review is still in progress, show shimmer skeletons
-     *  in each file's suggestion slot so the user feels Kody working
+     *  in each file's suggestion slot so the user feels Piku working
      *  the file rather than staring at a flat diff. */
     isReviewing?: boolean;
     /** Deep-link target — the matching suggestion card pulses + holds an
@@ -369,7 +369,7 @@ const FileBlock = memo(function FileBlock({
             {/* While the review is still running, drop a shimmer card
                 in the suggestion slot so the file doesn't read "clean"
                 prematurely. Goes away the moment real suggestions land
-                (or stays empty if Kody decided there's nothing). */}
+                (or stays empty if Piku decided there's nothing). */}
             {!collapsed && isReviewing && issues.length === 0 && (
                 <div className="border-t border-[var(--border)] bg-[var(--bg-2)]/40 p-4">
                     <SuggestionSkeleton />

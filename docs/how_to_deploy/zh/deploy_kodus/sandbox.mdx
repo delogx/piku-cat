@@ -1,10 +1,10 @@
 ---
 title: "Sandbox & AST Graph"
-description: "Kodus 如何解析您的仓库（kodus-graph）、在哪里运行（沙箱模式），以及何时选择每种模式。"
+description: "piku-cat 如何解析您的仓库（kodus-graph）、在哪里运行（沙箱模式），以及何时选择每种模式。"
 icon: "box"
 ---
 
-为了用正确的上下文审查 PR，Kodus 将整个仓库解析为一个 **AST 图**
+为了用正确的上下文审查 PR，piku-cat 将整个仓库解析为一个 **AST 图**
 （节点 + 边），并使用它来获取 cross-file 上下文、验证建议并为 agent
 提供输入。解析器在**沙箱**内运行，以便它可以执行 `git clone`、安装
 依赖项，并在与 API 进程隔离的环境中执行 CLI。
@@ -14,7 +14,7 @@ icon: "box"
 
 ## AST 图的工作方式
 
-Kodus 使用 [`@kodus/kodus-graph`](https://www.npmjs.com/package/@kodus/kodus-graph)，
+piku-cat 使用 [`@kodus/kodus-graph`](https://www.npmjs.com/package/@kodus/kodus-graph)，
 这是一个遍历仓库并发出 JSON 图（函数、类、文件、imports、调用）的 CLI。
 该 CLI **预安装在 worker 镜像**（`kodus-ai-worker`）中，因此在 `local`
 模式下没有额外的设置步骤。
@@ -22,14 +22,14 @@ Kodus 使用 [`@kodus/kodus-graph`](https://www.npmjs.com/package/@kodus/kodus-g
 生命周期：
 
 1. **当您选择仓库时**（在 setup 期间，或之后在 UI 中添加仓库时）—
-   Kodus 将 `AstGraphBuild` 作业排入队列，对默认分支运行
+   piku-cat 将 `AstGraphBuild` 作业排入队列，对默认分支运行
    `kodus-graph parse --all`，将结果持久化到 Postgres（`ast_graph_*`
    表），并将仓库标记为已索引。这在后台运行 — 您无需等待它完成即可
    打开 PR。
 2. **当 PR 合并到默认分支时** — webhook 处理程序排入增量重建作业，
    仅重新解析更改的文件，并将差异合并到缓存的图中。无需完整重建即可
    保持缓存新鲜。
-3. **每次 PR 审查时** — Kodus 加载缓存的图，只解析 PR 触及的文件，
+3. **每次 PR 审查时** — piku-cat 加载缓存的图，只解析 PR 触及的文件，
    并向 agent 提供一个聚焦的子图。这是热路径；它从不重新解析整个仓库。
 
 缓存使大型仓库的审查变得可行：完整构建在仓库 onboarding 时运行一次，
@@ -69,7 +69,7 @@ Kodus 使用 [`@kodus/kodus-graph`](https://www.npmjs.com/package/@kodus/kodus-g
 
 它会遍历实例中的每个团队，并为每个 `astGraphStatus` 为 `NULL`、
 `PENDING` 或 `FAILED` 的已选择仓库排入 `AstGraphBuild` 作业。构建在
-后台运行 — 您可以在它们完成时继续使用 Kodus。
+后台运行 — 您可以在它们完成时继续使用 piku-cat。
 
 该脚本是**幂等的**：重新运行会跳过已经 `READY` 的仓库，从不重新排入
 `BUILDING` 作业，您可以自由停止和恢复。

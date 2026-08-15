@@ -1,5 +1,5 @@
 /**
- * Pure helpers for the Kody Rules list filters.
+ * Pure helpers for the Piku Rules list filters.
  *
  * Filters are stored as Sets so the UI can model "no filter" (empty set) and
  * "match any of N" (multi-select within a section) without ambiguity.

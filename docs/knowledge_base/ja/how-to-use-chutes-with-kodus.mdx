@@ -1,6 +1,6 @@
 ---
 title: "Chutes — オープンソースモデルのサブスクリプション上限付き推論"
-description: "DeepSeek、Llama、Qwen、MiniMaxなどをカバーするChutes AIのサブスクリプションプランをKodusに接続する方法を学びます。"
+description: "DeepSeek、Llama、Qwen、MiniMaxなどをカバーするChutes AIのサブスクリプションプランをpiku-catに接続する方法を学びます。"
 icon: "cloud-bolt"
 ---
 
@@ -8,7 +8,7 @@ icon: "cloud-bolt"
 
 Chutes AI はオープンソースモデル向けの分散型サーバーレスコンピュートプラットフォームです。**OpenAI 互換**の推論エンドポイントを公開し、各モデルの1トークンあたりの価格から計算される、同等のペイパートークン値の倍数として表される上限まで API の使用量をバンドルする**サブスクリプションプラン**を提供しています — Z.AI GLM Coding Plan と構造が似ていますが、完全なオープンソースカタログ（DeepSeek、Llama、Qwen、MiniMax、Kimi、その他多数）をカバーしています。
 
-Kodus は他のすべてで使用しているのと同じ OpenAI 互換アダプターを通じて Chutes と通信するため、コードの変更は不要です — BYOK クレデンシャルだけです。
+piku-cat は他のすべてで使用しているのと同じ OpenAI 互換アダプターを通じて Chutes と通信するため、コードの変更は不要です — BYOK クレデンシャルだけです。
 
 ## プランの概要
 
@@ -52,11 +52,11 @@ Chutes は HuggingFace スタイルの `org/model` 識別子を使用し、一�
 2. [chutes.ai/pricing](https://chutes.ai/pricing) でティアにサブスクライブするか、希望する場合はペイアズユーゴーを有効にします。
 3. 開発者コンソールを開いて APIキーを作成します。すぐにコピーします。
 
-## Kodus で Chutes を設定する
+## piku-cat で Chutes を設定する
 
-### オプション1 — Kodus Cloud での BYOK（推奨）
+### オプション1 — piku-cat Cloud での BYOK（推奨）
 
-1. Kodus ウェブ UI で、**設定 → BYOK** を開きます（[app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)）。
+1. piku-cat ウェブ UI で、**設定 → BYOK** を開きます（[app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)）。
 2. Chutes はキュレートされたカタログにはありません — モデルリストの下部にある **Configure manually** をクリックします。メインモデルの代わりにフォールバックを設定する場合は URL に `?slot=fallback` を使用します。
 3. ウィザードを入力します：
 
@@ -68,19 +68,19 @@ Chutes は HuggingFace スタイルの `org/model` 識別子を使用し、一�
    | **APIキー** | Chutes APIキー |
    | **Max Concurrent Requests** | `3〜5` が安全な出発点；上限に達しなければ上げる（Advanced settings 内） |
 
-4. **Test & save** をクリックします。Kodus はエンドポイントをプローブし、成功時に設定を保存します。
+4. **Test & save** をクリックします。piku-cat はエンドポイントをプローブし、成功時に設定を保存します。
 
 <Tip>
-  5× 上限はトークン単価から計算されます。高価なフロンティアモデルは小さなモデルよりも上限を速く消費します — ドル当たりのレビューを最大化したい場合は、定期的な PR には Chutes を安価なモデル（Llama、Qwen 小型バリアント）と組み合わせ、複雑なレビューには Kody ルールまたは別の BYOK プロファイルを通じてフロンティアモデルを節約してください。
+  5× 上限はトークン単価から計算されます。高価なフロンティアモデルは小さなモデルよりも上限を速く消費します — ドル当たりのレビューを最大化したい場合は、定期的な PR には Chutes を安価なモデル（Llama、Qwen 小型バリアント）と組み合わせ、複雑なレビューには Piku ルールまたは別の BYOK プロファイルを通じてフロンティアモデルを節約してください。
 </Tip>
 
 <Note>
-  Chutes は分散コンピュートで実行されるため、コールドスタートと末尾レイテンシは専用プロバイダーよりも変動が大きくなります。ノードが遅いか月次上限に達した場合に Kodus がフェイルオーバーできるよう、OpenAI または Anthropic キーを**フォールバック**として設定します。
+  Chutes は分散コンピュートで実行されるため、コールドスタートと末尾レイテンシは専用プロバイダーよりも変動が大きくなります。ノードが遅いか月次上限に達した場合に piku-cat がフェイルオーバーできるよう、OpenAI または Anthropic キーを**フォールバック**として設定します。
 </Note>
 
 ### オプション2 — セルフホスト（環境変数）
 
-固定モード（単一グローバルプロバイダー、組織ごとの BYOK なし）で Kodus を実行している場合は、API とワーカーコンテナの `.env` で Chutes を設定します：
+固定モード（単一グローバルプロバイダー、組織ごとの BYOK なし）で piku-cat を実行している場合は、API とワーカーコンテナの `.env` で Chutes を設定します：
 
 ```env
 # Chutes configuration (Fixed Mode)
@@ -90,7 +90,7 @@ API_OPEN_AI_API_KEY="your-chutes-api-key"
 ```
 
 <Note>
-  このパスは意図的に BYOK を無効にしているセルフホスト Kodus インストールにのみ必要です。セルフホストインスタンスで BYOK が有効な場合は、**オプション1**を優先してください — UI ベースのフローはクラウドと同じです。
+  このパスは意図的に BYOK を無効にしているセルフホスト piku-cat インストールにのみ必要です。セルフホストインスタンスで BYOK が有効な場合は、**オプション1**を優先してください — UI ベースのフローはクラウドと同じです。
 </Note>
 
 `.env` を編集後、API とワーカーコンテナを再起動して確認します：

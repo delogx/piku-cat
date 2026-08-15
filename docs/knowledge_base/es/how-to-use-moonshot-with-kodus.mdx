@@ -1,12 +1,12 @@
 ---
 title: "Moonshot (Kimi) - Inferencia Compatible con OpenAI"
-description: "Aprende a conectar los modelos Kimi K2.6 de Moonshot AI a Kodus — a través del Developer API de Moonshot o el Kimi Code Plan."
+description: "Aprende a conectar los modelos Kimi K2.6 de Moonshot AI a piku-cat — a través del Developer API de Moonshot o el Kimi Code Plan."
 icon: "moon"
 ---
 
 ## Cómo funciona Moonshot
 
-Moonshot AI publica la familia de modelos **Kimi** (K2, K2.5, K2.6, K2.6 Coding). Kimi es particularmente robusto en comprensión de código de contexto largo y flujos de trabajo agénticos, y la API es totalmente compatible con OpenAI — Kodus se comunica con ella a través del proveedor `OpenAI Compatible` (o directamente mediante la tarjeta curada **Kimi K2.6 Coding** en BYOK).
+Moonshot AI publica la familia de modelos **Kimi** (K2, K2.5, K2.6, K2.6 Coding). Kimi es particularmente robusto en comprensión de código de contexto largo y flujos de trabajo agénticos, y la API es totalmente compatible con OpenAI — piku-cat se comunica con ella a través del proveedor `OpenAI Compatible` (o directamente mediante la tarjeta curada **Kimi K2.6 Coding** en BYOK).
 
 Moonshot ofrece **dos rutas** a la misma familia de modelos, cada una con su propio endpoint:
 
@@ -67,11 +67,11 @@ Endpoint del Developer API: `https://api.moonshot.ai/v1` (internacional). La con
   </Tab>
 </Tabs>
 
-## Configurar Moonshot en Kodus
+## Configurar Moonshot en piku-cat
 
-El flujo principal es BYOK en Kodus Cloud — la tarjeta curada **Kimi K2.6 Coding** maneja el cambio de endpoint por ti. Los usuarios con alojamiento autónomo que prefieren fijar el proveedor a nivel de proceso pueden usar variables de entorno en su lugar.
+El flujo principal es BYOK en piku-cat Cloud — la tarjeta curada **Kimi K2.6 Coding** maneja el cambio de endpoint por ti. Los usuarios con alojamiento autónomo que prefieren fijar el proveedor a nivel de proceso pueden usar variables de entorno en su lugar.
 
-### Opción 1 — BYOK en Kodus Cloud (recomendado)
+### Opción 1 — BYOK en piku-cat Cloud (recomendado)
 
 <Steps>
   <Step title="Abrir BYOK y elegir Kimi K2.6 Coding">
@@ -87,11 +87,11 @@ El flujo principal es BYOK en Kodus Cloud — la tarjeta curada **Kimi K2.6 Codi
   </Step>
 
   <Step title="Pegar tu clave de API">
-    Solo la clave. Para usuarios del Kimi Code Plan, Kodus rellena previamente `maxConcurrentRequests=30` en la configuración avanzada (coincide con el tope documentado).
+    Solo la clave. Para usuarios del Kimi Code Plan, piku-cat rellena previamente `maxConcurrentRequests=30` en la configuración avanzada (coincide con el tope documentado).
   </Step>
 
   <Step title="Probar y guardar">
-    Haz clic en **Test & save**. Kodus verifica el endpoint con una llamada de metadatos económica y persiste la configuración si tiene éxito. 401 significa que la clave no coincide con el endpoint del plan seleccionado.
+    Haz clic en **Test & save**. piku-cat verifica el endpoint con una llamada de metadatos económica y persiste la configuración si tiene éxito. 401 significa que la clave no coincide con el endpoint del plan seleccionado.
   </Step>
 </Steps>
 
@@ -116,7 +116,7 @@ El razonamiento está ACTIVADO por defecto para Kimi K2.6 Coding — la tarjeta 
   ```
 
 <Note>
-  No necesitas envolver en namespace — Kodus auto-envuelve bajo `openaiCompatible` (el provider activo) antes de enviar. Consulta [main BYOK doc → Custom JSON override](/how_to_use/es/byok#sobrescritura-con-json-personalizado) para más detalles.
+  No necesitas envolver en namespace — piku-cat auto-envuelve bajo `openaiCompatible` (el provider activo) antes de enviar. Consulta [main BYOK doc → Custom JSON override](/how_to_use/es/byok#sobrescritura-con-json-personalizado) para más detalles.
 </Note>
 
 ### Ajustar la concurrencia
@@ -125,7 +125,7 @@ El razonamiento está ACTIVADO por defecto para Kimi K2.6 Coding — la tarjeta 
 - **Developer API**: empieza vacío (sin tope). Tu límite real escala con tu nivel de recarga — Tier 1 (~$10 de recarga) permite ~50 concurrentes; Tier 5 (~$3000) permite ~1000. Bájalo explícitamente si ves errores 429 durante las revisiones.
 
 <Note>
-  Configura Kimi como **Principal** y mantén una clave de OpenAI o Anthropic como **Respaldo** — si Moonshot devuelve 429 o 402, Kodus conmuta automáticamente.
+  Configura Kimi como **Principal** y mantén una clave de OpenAI o Anthropic como **Respaldo** — si Moonshot devuelve 429 o 402, piku-cat conmuta automáticamente.
 </Note>
 
 ### Opción 2 — Configuración manual
@@ -142,7 +142,7 @@ Si necesitas una variante de Kimi que no está en el catálogo curado (por ejemp
 
 ### Opción 3 — Alojamiento autónomo (variables de entorno)
 
-Si ejecutas Kodus en Modo Fijo (proveedor global único, sin BYOK por organización), configura Moonshot en el `.env` de tus contenedores de API + worker:
+Si ejecutas piku-cat en Modo Fijo (proveedor global único, sin BYOK por organización), configura Moonshot en el `.env` de tus contenedores de API + worker:
 
 ```env
 # Configuración de Moonshot (Kimi) (Modo Fijo)
@@ -152,7 +152,7 @@ API_OPEN_AI_API_KEY="your-moonshot-or-kimi-code-api-key"
 ```
 
 <Note>
-  Esta opción solo es necesaria para instalaciones de Kodus con alojamiento autónomo que deshabilitan deliberadamente el BYOK. Si el BYOK está habilitado en tu instancia con alojamiento autónomo, prefiere la **Opción 1** — la tarjeta curada maneja la lógica del endpoint por ti.
+  Esta opción solo es necesaria para instalaciones de piku-cat con alojamiento autónomo que deshabilitan deliberadamente el BYOK. Si el BYOK está habilitado en tu instancia con alojamiento autónomo, prefiere la **Opción 1** — la tarjeta curada maneja la lógica del endpoint por ti.
 </Note>
 
 Reinicia los contenedores de API y worker después de editar `.env`, luego verifica la integración:
@@ -197,7 +197,7 @@ Para la configuración completa con alojamiento autónomo (dominios, claves de s
 
   <Accordion title="Región / conectividad">
     - Los usuarios fuera de China siempre deben usar `api.moonshot.ai` o `api.kimi.com`. `api.moonshot.cn` puede ser inaccesible o estar limitado por tasa desde fuera de China continental.
-    - Confirma que el HTTPS saliente hacia el endpoint elegido esté permitido desde tu despliegue de Kodus.
+    - Confirma que el HTTPS saliente hacia el endpoint elegido esté permitido desde tu despliegue de piku-cat.
   </Accordion>
 </AccordionGroup>
 

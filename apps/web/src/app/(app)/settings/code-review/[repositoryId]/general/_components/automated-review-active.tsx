@@ -71,7 +71,7 @@ export const AutomatedReviewActive = () => {
                                         <OverrideIndicatorForm fieldName="automatedReviewActive" />
                                     </div>
                                     <p className="text-text-secondary text-sm">
-                                        Whenever a Pull Request is opened, Kody
+                                        Whenever a Pull Request is opened, Piku
                                         will automatically review the code,
                                         highlighting improvements, issues, and
                                         suggestions to ensure code quality.
@@ -107,7 +107,7 @@ export const AutomatedReviewActive = () => {
                                                 <OverrideIndicatorForm fieldName="reviewCadence.type" />
                                             </div>
                                             <FormControl.Helper className="text-text-secondary mt-0 mb-2 text-xs">
-                                                Decide how Kody should run
+                                                Decide how Piku should run
                                                 follow-up reviews after the
                                                 first one.
                                             </FormControl.Helper>

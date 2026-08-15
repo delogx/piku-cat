@@ -110,8 +110,8 @@ const bulkActionErrorToast = (
             ? `You don't have permission to ${action} rules in this scope.`
             : isAxiosError(error) &&
                 error.response?.data?.message ===
-                    "Free plan's limit of Kody Rules reached."
-              ? "You have reached the limit of 10 active Kody rules. Pause or delete another rule first."
+                    "Free plan's limit of Piku Rules reached."
+              ? "You have reached the limit of 10 active Piku rules. Pause or delete another rule first."
               : "Please try again in a moment.",
     variant: "danger" as const,
 });
@@ -286,7 +286,7 @@ const KodyRulesPageContent = () => {
     // sync-off event, regardless of whether the user kept them ACTIVE or
     // parked them as PAUSED. PAUSED rules are still "in the user's lap" —
     // a one-click Resume puts them back in PR review, so they belong in
-    // the count. Onboarding / Kody-generated rules share the
+    // the count. Onboarding / Piku-generated rules share the
     // "sourcePath is set" shape but come from unrelated flows and don't
     // count here.
     //
@@ -387,7 +387,7 @@ const KodyRulesPageContent = () => {
                 ? statusFilteredRules.filter(isOrphanAutoSyncRule)
                 : statusFilteredRules;
 
-        // Popover filters: origin (Auto-sync / Onboarding / Kody-generated /
+        // Popover filters: origin (Auto-sync / Onboarding / Piku-generated /
         // manual), sync state, paused-only — everything EXCEPT severity,
         // which is applied last (below) so the heatmap can count this
         // pool. Origin only applies to standard rules (memories don't
@@ -858,11 +858,11 @@ const KodyRulesPageContent = () => {
     return (
         <Page.Root>
             <Page.Header>
-                <CodeReviewPagesBreadcrumb pageName="Kody Rules" />
+                <CodeReviewPagesBreadcrumb pageName="Piku Rules" />
             </Page.Header>
             <Page.Header>
                 <Page.TitleContainer>
-                    <Page.Title>Kody Rules</Page.Title>
+                    <Page.Title>Piku Rules</Page.Title>
                     <Page.Description>{headerDescription}</Page.Description>
                 </Page.TitleContainer>
 
@@ -884,7 +884,7 @@ const KodyRulesPageContent = () => {
                             {/* Creating is never blocked — a rule beyond
                                 the free plan's active-rule cap is still
                                 created, just PAUSED + locked (see the
-                                "N of your Kody Rules are locked" banner
+                                "N of your Piku Rules are locked" banner
                                 below), mirroring how MCP plugins beyond
                                 their cap stay connected but locked. */}
                             <Button
@@ -912,7 +912,7 @@ const KodyRulesPageContent = () => {
                         className="flex flex-row items-center justify-between gap-6 p-5">
                         <div className="flex flex-col gap-1">
                             <span className="text-text-primary text-sm font-semibold">
-                                {lockedRulesCount} of your Kody Rules{" "}
+                                {lockedRulesCount} of your Piku Rules{" "}
                                 {lockedRulesCount === 1 ? "is" : "are"} locked
                             </span>
                             <span className="text-text-secondary text-sm">
@@ -1200,7 +1200,7 @@ export const KodyRulesPage = () => {
     return (
         <PageBoundary
             errorVariant="card"
-            errorMessage="Failed to load Kody Rules. Please try again."
+            errorMessage="Failed to load Piku Rules. Please try again."
             loading={<KodyRulesPageSkeleton />}>
             <KodyRulesPageContent />
         </PageBoundary>

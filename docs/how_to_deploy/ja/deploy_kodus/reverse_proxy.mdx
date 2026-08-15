@@ -1,6 +1,6 @@
 ---
 title: "リバースプロキシ"
-description: "Kodus用のリバースプロキシを設定する。"
+description: "piku-cat用のリバースプロキシを設定する。"
 icon: "server" 
 tags: ["reverse-proxy", "nginx"]
 ---
@@ -9,18 +9,18 @@ tags: ["reverse-proxy", "nginx"]
 オプションのステップ：ロードバランサーやプロキシサーバーを使用しない場合のみ必要です。
 </Info>
 
-Kodusインスタンスを外部システムからアクセス可能にするには（コードレビューのWebhookとパブリックアクセスに必要）、Nginxでリバースプロキシを設定する必要があります。
+piku-catインスタンスを外部システムからアクセス可能にするには（コードレビューのWebhookとパブリックアクセスに必要）、Nginxでリバースプロキシを設定する必要があります。
 
 2つのサブドメイン用のNginx設定サンプルを以下に示します：
 
 ```nginx
-# Kodus Webアプリケーション用のサーバーブロック
+# piku-cat Webアプリケーション用のサーバーブロック
 server {
     listen 80;
     server_name kodus-web.yourdomain.com; # 実際のWebアプリドメインに置き換えてください
 
     location / {
-        proxy_pass http://localhost:3000; # Kodus WebアプリコンテナへのURL
+        proxy_pass http://localhost:3000; # piku-cat WebアプリコンテナへのURL
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -35,13 +35,13 @@ server {
     }
 }
 
-# Kodus API用のサーバーブロック
+# piku-cat API用のサーバーブロック
 server {
     listen 80;
     server_name kodus-api.yourdomain.com; # 実際のAPIドメインに置き換えてください
 
     location ~ ^/(github|gitlab|bitbucket|azure-repos)/webhook {
-        proxy_pass http://localhost:3332; # Kodus WebhooksサービスへのURL
+        proxy_pass http://localhost:3332; # piku-cat WebhooksサービスへのURL
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -53,7 +53,7 @@ server {
     }
 
     location / {
-        proxy_pass http://localhost:3001; # Kodus APIサービスへのURL
+        proxy_pass http://localhost:3001; # piku-cat APIサービスへのURL
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

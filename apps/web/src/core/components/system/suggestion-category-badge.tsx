@@ -43,7 +43,7 @@ const categoryDisplayNames: Record<IssueCategory, string> = {
     security: "Security",
     bug: "Bug",
     performance: "Performance",
-    kody_rules: "Kody Rule",
+    kody_rules: "Piku Rule",
     breaking_changes: "Breaking Change",
     cross_file: "Cross-File",
     default: "Suggestion",

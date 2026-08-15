@@ -1,10 +1,10 @@
 ---
 title: "Sandbox & AST Graph"
-description: "Kodus がリポジトリをどうパースするか（kodus-graph）、どこで実行されるか（サンドボックスモード）、そして各モードをいつ選ぶか。"
+description: "piku-cat がリポジトリをどうパースするか（kodus-graph）、どこで実行されるか（サンドボックスモード）、そして各モードをいつ選ぶか。"
 icon: "box"
 ---
 
-PR を適切なコンテキストでレビューするため、Kodus はリポジトリ全体を
+PR を適切なコンテキストでレビューするため、piku-cat はリポジトリ全体を
 **AST グラフ**（ノード + エッジ）にパースし、cross-file コンテキスト
 取得、提案の検証、エージェントへの入力に使用します。パーサーは
 **サンドボックス**内で実行され、`git clone`、依存関係のインストール、
@@ -15,7 +15,7 @@ CLI の実行を API プロセスから分離して行います。
 
 ## AST グラフの仕組み
 
-Kodus は [`@kodus/kodus-graph`](https://www.npmjs.com/package/@kodus/kodus-graph)
+piku-cat は [`@kodus/kodus-graph`](https://www.npmjs.com/package/@kodus/kodus-graph)
 を使用します。これはリポジトリを走査して JSON グラフ（関数、クラス、
 ファイル、import、call）を出力する CLI です。CLI は **worker イメージ
 （`kodus-ai-worker`）にプリインストール**されているため、`local` モード
@@ -24,7 +24,7 @@ Kodus は [`@kodus/kodus-graph`](https://www.npmjs.com/package/@kodus/kodus-grap
 ライフサイクル:
 
 1. **リポジトリを選択したとき**（セットアップ時、または後で UI で
-   リポジトリを追加するとき） — Kodus は `AstGraphBuild` ジョブを
+   リポジトリを追加するとき） — piku-cat は `AstGraphBuild` ジョブを
    キューに入れ、デフォルトブランチに対して `kodus-graph parse --all`
    を実行し、結果を Postgres（`ast_graph_*` テーブル）に永続化し、
    リポジトリをインデックス済みとマークします。これはバックグラウンド
@@ -33,7 +33,7 @@ Kodus は [`@kodus/kodus-graph`](https://www.npmjs.com/package/@kodus/kodus-grap
    が増分リビルドをキューに入れ、変更されたファイルのみを再パース
    して差分をキャッシュされたグラフにマージします。フルリビルドなし
    でキャッシュが新鮮に保たれます。
-3. **すべての PR レビュー時** — Kodus はキャッシュされたグラフを
+3. **すべての PR レビュー時** — piku-cat はキャッシュされたグラフを
    ロードし、PR で触れられたファイルのみをパースし、エージェントに
    絞ったサブグラフを入力します。これがホットパスで、リポジトリ全体
    を再パースすることはありません。
@@ -80,7 +80,7 @@ AST グラフ以前のバージョンからアップグレードした場合、*
 これは、インスタンス内のすべてのチームを走査し、`astGraphStatus` が
 `NULL`、`PENDING`、または `FAILED` である選択されたリポジトリごとに
 `AstGraphBuild` ジョブをキューに入れます。ビルドはバックグラウンドで
-実行されるため、完了を待たずに Kodus を使い続けられます。
+実行されるため、完了を待たずに piku-cat を使い続けられます。
 
 このスクリプトは**冪等**です: 再実行すると `READY` のリポジトリは
 スキップされ、`BUILDING` のジョブは再キューイングされず、自由に停止

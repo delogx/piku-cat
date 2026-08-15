@@ -1,6 +1,6 @@
 ---
 title: "Reverse Proxy"
-description: "Configure a reverse proxy for Kodus."
+description: "Configure a reverse proxy for piku-cat."
 icon: "server" 
 tags: ["reverse-proxy", "nginx"]
 ---
@@ -9,18 +9,18 @@ tags: ["reverse-proxy", "nginx"]
 Optional Step: Only needed if you will not use any loadbalancer or proxy server.
 </Info>
 
-To make your Kodus instance accessible from external systems (required for Code Review webhooks and public access), you'll need to configure a reverse proxy with Nginx.
+To make your piku-cat instance accessible from external systems (required for Code Review webhooks and public access), you'll need to configure a reverse proxy with Nginx.
 
 Here's a sample Nginx configuration for two subdomains:
 
 ```nginx
-# Server block for the Kodus Web Application
+# Server block for the piku-cat Web Application
 server {
     listen 80;
     server_name kodus-web.yourdomain.com; # Replace with your actual web app domain
 
     location / {
-        proxy_pass http://localhost:3000; # Points to the Kodus Web App container
+        proxy_pass http://localhost:3000; # Points to the piku-cat Web App container
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -35,13 +35,13 @@ server {
     }
 }
 
-# Server block for the Kodus API
+# Server block for the piku-cat API
 server {
     listen 80;
     server_name kodus-api.yourdomain.com; # Replace with your actual API domain
 
     location ~ ^/(github|gitlab|bitbucket|azure-repos)/webhook {
-        proxy_pass http://localhost:3332; # Points to the Kodus Webhooks service
+        proxy_pass http://localhost:3332; # Points to the piku-cat Webhooks service
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -53,7 +53,7 @@ server {
     }
 
     location / {
-        proxy_pass http://localhost:3001; # Points to the Kodus API service
+        proxy_pass http://localhost:3001; # Points to the piku-cat API service
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

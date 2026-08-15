@@ -35,7 +35,7 @@ export const KodyRulesLimitPopover = ({
                 <p>
                     You've hit the Free plan cap of{" "}
                     <span className="text-primary-light font-semibold">
-                        {limit} Kody Rules
+                        {limit} Piku Rules
                     </span>
                     .
                 </p>

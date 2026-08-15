@@ -515,7 +515,7 @@ export const KodyRulesLibrary = ({
                                 Rules Marketplace
                             </Page.Title>
                             <p className="text-text-secondary text-sm">
-                                Browse curated Kody Rules packs and discover
+                                Browse curated Piku Rules packs and discover
                                 ready-to-use rules for your code reviews.
                             </p>
                         </div>

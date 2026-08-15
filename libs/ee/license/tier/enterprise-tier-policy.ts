@@ -24,6 +24,17 @@ import {
 export function isEnterpriseTierAllowed(
     license: OrganizationLicenseValidationResult | null | undefined,
 ): boolean {
+    // piku-cat personal-use fork divergence: enterprise-tier features are
+    // unlocked on this install (SAML SSO config + user activity/audit log
+    // endpoints, via EnterpriseTierGuard). Upstream denies unlicensed / CE
+    // self-hosted. Note this does NOT cover the guard's own try/catch around
+    // validateOrganizationLicense — that 403 fires before this policy is
+    // consulted (it is moot only because the license services swallow errors
+    // and return `{ valid: false }`). The `: boolean` annotation is
+    // load-bearing — see permissionValidation.service.ts.
+    const pikuCatAllowAllTiers: boolean = true;
+    if (pikuCatAllowAllTiers) return true;
+
     if (!license || !license.valid) return false;
     const plan = license.planType ?? '';
     const isEnterprise =

@@ -1,15 +1,15 @@
 ---
 title: "Cómo revisar PRs con contexto específico del proyecto"
-description: "Proporciona a Kody acceso a los documentos, manuales y guías de arquitectura de tu proyecto para revisiones de código más relevantes."
+description: "Proporciona a Piku acceso a los documentos, manuales y guías de arquitectura de tu proyecto para revisiones de código más relevantes."
 ---
 
-La revisión de código genérica detecta problemas genéricos. Para obtener feedback que sea realmente relevante para tu proyecto, Kody necesita entender tu contexto específico — decisiones de arquitectura, convenciones y reglas de negocio.
+La revisión de código genérica detecta problemas genéricos. Para obtener feedback que sea realmente relevante para tu proyecto, Piku necesita entender tu contexto específico — decisiones de arquitectura, convenciones y reglas de negocio.
 
 ## Formas de proporcionar contexto
 
 ### Memorias
 
-Enseña a Kody tus convenciones a través de la conversación:
+Enseña a Piku tus convenciones a través de la conversación:
 
 ```
 @kody remember: este proyecto usa arquitectura hexagonal.
@@ -30,15 +30,15 @@ definidas en @file:src/shared/base-controller.ts.
 
 ### Prompts personalizados
 
-Agrega instrucciones específicas del proyecto que Kody incluye en cada revisión:
+Agrega instrucciones específicas del proyecto que Piku incluye en cada revisión:
 
 1. Ve a **Configuración de Revisión de Código** → **Prompts Personalizados**
 2. Agrega contexto como descripciones de arquitectura, pautas del equipo o conocimiento del dominio
-3. Kody lo incluye en cada análisis de revisión de código
+3. Piku lo incluye en cada análisis de revisión de código
 
 ### Plugins MCP
 
-Conecta herramientas externas para darle a Kody acceso a un contexto más enriquecido:
+Conecta herramientas externas para darle a Piku acceso a un contexto más enriquecido:
 
 - **Jira/Linear** — requisitos de tareas y criterios de aceptación
 - **Slack** — discusiones y decisiones del equipo
@@ -49,7 +49,7 @@ Conecta herramientas externas para darle a Kody acceso a un contexto más enriqu
 
 1. Define reglas de arquitectura mediante **Memorias**: `@kody remember: seguimos el patrón CQRS en este servicio`
 2. Crea **Reglas de Revisión** que referencien tus documentos: `@file:docs/architecture.md`
-3. Conecta **Jira** para que Kody valide los PRs contra los requisitos de las tareas
+3. Conecta **Jira** para que Piku valide los PRs contra los requisitos de las tareas
 4. Agrega **Prompts Personalizados** para conocimiento específico del dominio
 
 Para más detalles, consulta [Prompts Personalizados](/how_to_use/es/code_review/configs/custom_prompts) y [Plugins](/how_to_use/es/code_review/plugins).

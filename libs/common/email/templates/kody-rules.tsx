@@ -25,7 +25,7 @@ export function kodyRulesEmailMeta({
 }) {
     return {
         from: EMAIL_FROM.NOTIFICATIONS,
-        subject: `New Kody Rules generated for ${organizationName}`,
+        subject: `New Piku Rules generated for ${organizationName}`,
     };
 }
 
@@ -52,11 +52,11 @@ function KodyRulesEmail({
 
     return (
         <BrandLayout
-            preview={`${rulesCount} new Kody Rule${
+            preview={`${rulesCount} new Piku Rule${
                 rulesCount === 1 ? '' : 's'
             } for ${organizationName}`}
         >
-            <Heading style={baseHeading}>New Kody Rules are ready</Heading>
+            <Heading style={baseHeading}>New Piku Rules are ready</Heading>
             <Text style={baseText}>Hi {userName},</Text>
             <Text style={baseText}>
                 We just generated{' '}
@@ -75,12 +75,12 @@ function KodyRulesEmail({
             </Section>
             {remaining > 0 ? (
                 <Text style={mutedText}>
-                    + {remaining} more — review the full list in Kodus.
+                    + {remaining} more — review the full list in piku-cat.
                 </Text>
             ) : null}
             <Section style={{ margin: '24px 0 0' }}>
                 <Button href={rulesLink} style={baseButton}>
-                    View Kody Rules
+                    View Piku Rules
                 </Button>
             </Section>
         </BrandLayout>

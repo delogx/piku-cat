@@ -147,7 +147,7 @@ kodus pr business-validation --task-id KC-1441 --dry-run
 
 ## `kodus auth`
 
-Kodus API との認証を管理します。
+piku-cat API との認証を管理します。
 
 ### `auth login`
 
@@ -228,7 +228,7 @@ kodus hook install --force            # 既存のフックを上書き
 kodus hook uninstall
 ```
 
-Kodus によってインストールされた pre-push フックを削除します。
+piku-cat によってインストールされた pre-push フックを削除します。
 
 ### `hook status`
 
@@ -284,20 +284,20 @@ kodus config centralized download --out ./centralized-config.zip
 
 ## `kodus config repo`
 
-Kodus に保存されたリポジトリ設定を確認・更新します。チームキー認証が必要です。現在のリポジトリを対象にするには `.` を使用します。
+piku-cat に保存されたリポジトリ設定を確認・更新します。チームキー認証が必要です。現在のリポジトリを対象にするには `.` を使用します。
 
 <Note>`kodus config repo` と `kodus config remote` は同じコマンドグループのエイリアスです。</Note>
 
 ### 使用方法
 
 ```bash
-kodus config repo add                                   # 現在のリポジトリを Kodus に追加
+kodus config repo add                                   # 現在のリポジトリを piku-cat に追加
 kodus config repo add owner/repo                        # 特定のリポジトリを追加
 kodus config repo list                                  # 設定されたリポジトリを一覧表示
 kodus config repo show                                  # 現在のリポジトリ設定を表示
 kodus config repo setup                                 # ガイド付きセットアップウィザード
 kodus config repo set . reviewEnabled true              # 設定を直接設定
-kodus config repo open                                  # Kodus ダッシュボードを開く
+kodus config repo open                                  # piku-cat ダッシュボードを開く
 kodus config repo add-ignore-file . "**/*.generated.ts"
 kodus config repo add-base-branch . "release/*"
 kodus config repo add-ignore-title . "^WIP:"
@@ -307,12 +307,12 @@ kodus config repo add-ignore-title . "^WIP:"
 
 | サブコマンド                                       | 説明                                                                        |
 | -------------------------------------------------- | --------------------------------------------------------------------------- |
-| `add [repository]`                                 | Kodus にリポジトリを追加（ショートカット: `kodus config -r [repository]`）  |
-| `list`                                             | Kodus で設定されたリポジトリを一覧表示                                      |
+| `add [repository]`                                 | piku-cat にリポジトリを追加（ショートカット: `kodus config -r [repository]`）  |
+| `list`                                             | piku-cat で設定されたリポジトリを一覧表示                                      |
 | `show [repository]`                                | リポジトリ設定を表示                                                        |
 | `setup [repository]`                               | ガイド付きリポジトリセットアップウィザードを実行                            |
 | `set [repository] <key> <value>`                   | リポジトリ設定を直接設定                                                    |
-| `open [repository]`                                | 高度な設定のための Kodus ダッシュボードを開く                               |
+| `open [repository]`                                | 高度な設定のための piku-cat ダッシュボードを開く                               |
 | `add-pattern [repository] <field> <pattern>`       | リストフィールドにパターンを追加（`ignore-files`、`base-branches`、`ignore-titles`）|
 | `remove-pattern [repository] <field> <pattern>`    | リストフィールドからパターンを削除                                          |
 | `add-ignore-file [repository] <pattern>`           | ショートカット: 無視ファイルパターンにパターンを追加                        |
@@ -332,7 +332,7 @@ kodus config repo add-ignore-title . "^WIP:"
 
 ## `kodus rules`
 
-Kody Rules を作成、更新、表示します — Kodus がレビュー中に適用する構造化ルール。
+Piku Rules を作成、更新、表示します — piku-cat がレビュー中に適用する構造化ルール。
 
 ### 使用方法
 
@@ -348,9 +348,9 @@ kodus rules update --uuid <rule-uuid> --severity critical
 
 | サブコマンド | 説明                       |
 | ----------- | -------------------------- |
-| `create`    | 新しい Kody Rule を作成    |
+| `create`    | 新しい Piku Rule を作成    |
 | `update`    | 既存のルールを更新         |
-| `view`      | Kody Rules を表示          |
+| `view`      | Piku Rules を表示          |
 
 ### `rules create` フラグ
 
@@ -423,7 +423,7 @@ kodus skills uninstall                                   # バンドルされた
 
 ## `kodus status`
 
-認証モード、組織、リポジトリ、フック、決定、バンドルされたスキル、CLI バージョンなど、統合された Kodus ステータスを表示します。
+認証モード、組織、リポジトリ、フック、決定、バンドルされたスキル、CLI バージョンなど、統合された piku-cat ステータスを表示します。
 
 ```bash
 kodus status
@@ -466,7 +466,7 @@ kodus update
 
 ## `kodus subscribe`
 
-ブラウザで Kodus の価格/アップグレードページを開きます。
+ブラウザで piku-cat の価格/アップグレードページを開きます。
 
 ```bash
 kodus subscribe

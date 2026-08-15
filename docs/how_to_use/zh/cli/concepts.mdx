@@ -41,9 +41,9 @@ description: "充分利用 Kodus CLI 所需的心智模型。"
 
 完整决策树见 [快速开始](getting_started)。
 
-## Kody Rules
+## Piku Rules
 
-**Kody Rule** 是 Kodus 审查器在每次审查中应用的结构化规则，可按仓库或团队全局作用。
+**Piku Rule** 是 piku-cat 审查器在每次审查中应用的结构化规则，可按仓库或团队全局作用。
 
 ```
 Rule
@@ -55,13 +55,13 @@ Rule
 └── repo-id        <uuid> | global
 ```
 
-规则叠加在通用 Kodus 审查之上 — AI 将其作为额外判据，而不是替代通用检查。
+规则叠加在通用 piku-cat 审查之上 — AI 将其作为额外判据，而不是替代通用检查。
 
 可从仪表板或 CLI 通过 `kodus rules create|update|view` 管理规则。当您希望规则在版本控制中（脚本生成、入库、配置时重新应用）时，CLI 会非常有用。
 
 ## 仓库设置
 
-Kodus 中的每个仓库都有控制审查行为的设置：忽略文件、基础分支模式、标题过滤器、功能开关。这些设置保存在 Kodus 后端，并在任何审查场景（Web PR、CLI 审查、代理循环）中生效。
+piku-cat 中的每个仓库都有控制审查行为的设置：忽略文件、基础分支模式、标题过滤器、功能开关。这些设置保存在 piku-cat 后端，并在任何审查场景（Web PR、CLI 审查、代理循环）中生效。
 
 通过 CLI：
 
@@ -78,7 +78,7 @@ kodus config repo open                 # 跳转到 Web 仪表板
 
 ## 集中化配置（Centralized Config）
 
-通常，每个仓库的设置存在 Kodus 中。**集中化配置** 允许团队将这些设置存入一个单一事实源的 git 仓库 — 每次变更都成为对该仓库的 Pull Request，从而让审查配置本身也有审查与版本历史。
+通常，每个仓库的设置存在 piku-cat 中。**集中化配置** 允许团队将这些设置存入一个单一事实源的 git 仓库 — 每次变更都成为对该仓库的 Pull Request，从而让审查配置本身也有审查与版本历史。
 
 启用、同步或查看状态：
 

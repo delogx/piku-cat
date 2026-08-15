@@ -1,21 +1,21 @@
 ---
 title: "Flujo de Revisión de Código"
-description: "Cómo se ejecuta una revisión de Kody de principio a fin: cuándo se dispara, cuándo se omite, qué recibes y qué significa cada emoji de estado."
+description: "Cómo se ejecuta una revisión de Piku de principio a fin: cuándo se dispara, cuándo se omite, qué recibes y qué significa cada emoji de estado."
 ---
 
 ## Descripción General
 
-Kody revisa tus PRs automáticamente o bajo demanda, agrega sugerencias claras y ayuda a tu equipo a decidir cuándo hacer el merge. A continuación se muestra la vista simple orientada al usuario sobre cómo funciona.
+Piku revisa tus PRs automáticamente o bajo demanda, agrega sugerencias claras y ayuda a tu equipo a decidir cuándo hacer el merge. A continuación se muestra la vista simple orientada al usuario sobre cómo funciona.
 
 Referencia: <a href="https://www.figma.com/board/ZZJcIJMJWGuyzRGMh3w5di/Kodus-Code-Review-Flow?node-id=4-274" target="_blank">Tablero en Figma</a>
 
-## Cuándo Ejecuta Kody
+## Cuándo Ejecuta Piku
 
 - PR abierto
 - Nuevo commit subido al PR (dependiendo de la cadencia)
 - Activación manual vía comentario: `@kody start-review`
 
-## Cuándo Omite Kody
+## Cuándo Omite Piku
 
 - Sin nuevos commits desde la última ejecución
 - Solo commits de merge sin cambios efectivos
@@ -27,7 +27,7 @@ Referencia: <a href="https://www.figma.com/board/ZZJcIJMJWGuyzRGMh3w5di/Kodus-Co
   Para anular una omisión y forzar un nuevo análisis — por ejemplo tras "sin nuevos commits" — comenta `@kody review --force`.
 </Note>
 
-## Qué Hace Kody
+## Qué Hace Piku
 
 - Resuelve qué configuración aplica (global → repo → directorio) y la valida
 - Recopila los diffs y el contexto relevantes para este PR
@@ -46,19 +46,19 @@ Referencia: <a href="https://www.figma.com/board/ZZJcIJMJWGuyzRGMh3w5di/Kodus-Co
 
 ## Reacciones de Estado
 
-Kody usa reacciones con emojis para mostrar el estado en vivo de tu revisión de código directamente en tu proveedor de Git. Sin necesidad de adivinar si está trabajando, terminó o tuvo un problema. Siempre reemplaza el emoji anterior con el estado más reciente (por ejemplo: 🚀 → 🎉, 👀, 👎 o 😕).
+Piku usa reacciones con emojis para mostrar el estado en vivo de tu revisión de código directamente en tu proveedor de Git. Sin necesidad de adivinar si está trabajando, terminó o tuvo un problema. Siempre reemplaza el emoji anterior con el estado más reciente (por ejemplo: 🚀 → 🎉, 👀, 👎 o 😕).
 
 <Note>
   **Las reacciones nativas** funcionan en GitHub, GitLab y Forgejo.
 
-  Azure DevOps y Bitbucket no tienen API de reacciones, así que Kody publica el emoji de estado
+  Azure DevOps y Bitbucket no tienen API de reacciones, así que Piku publica el emoji de estado
   como **comentario** — ahí verás 👀 (omitido), 😕 (error) y 👎 (sin licencia), pero no el par
   de progreso 🚀 / 🎉.
 </Note>
 
 ### Qué significa cada emoji
 
-- 🚀 Procesando — Kody está trabajando en tu código:
+- 🚀 Procesando — Piku está trabajando en tu código:
   - Analizando archivos
   - Verificando reglas y políticas
   - Generando sugerencias
@@ -74,7 +74,7 @@ Kody usa reacciones con emojis para mostrar el estado en vivo de tu revisión de
   - Rama no configurada para revisión
   - PR/MR en modo borrador (si está configurado para omitir borradores)
 - 👎 Sin licencia — El usuario no tiene licencia:
-  - Kody no puede ejecutarse sin una licencia válida
+  - Piku no puede ejecutarse sin una licencia válida
   - Asegúrate de que el usuario que abrió el PR/MR tenga una licencia asignada
   - Opcionalmente, habilita [Asignación Automática de Licencia](/how_to_use/es/auto_license_assignment) para asignar licencias automáticamente
 - 😕 Error — Algo salió mal:
@@ -84,7 +84,7 @@ Kody usa reacciones con emojis para mostrar el estado en vivo de tu revisión de
 ### Dónde aparecen las reacciones
 
 - Revisión automática (PR abierto o nuevo commit): reacción en la descripción del PR/MR (parte superior del hilo)
-- Revisión manual (comentario `@kody start-review`): reacción en tu comentario donde invocaste a Kody
+- Revisión manual (comentario `@kody start-review`): reacción en tu comentario donde invocaste a Piku
 
 ### Escenarios de ejemplo
 
@@ -103,7 +103,7 @@ Kody usa reacciones con emojis para mostrar el estado en vivo de tu revisión de
 
 **¿Por qué cambió el emoji?**
 
-- Normal — Kody reemplaza el estado anterior (🚀 → 🎉/👀/😕)
+- Normal — Piku reemplaza el estado anterior (🚀 → 🎉/👀/😕)
 
 **Vi 👀 pero quería una revisión**
 
@@ -124,7 +124,7 @@ Kody usa reacciones con emojis para mostrar el estado en vivo de tu revisión de
 - Revisiones automatizadas vs manuales y cadencia de seguimiento
 - Patrones de ignorado y ramas base en el alcance
 - Reglas personalizadas y análisis entre archivos
-- Filtros de revisión: severidad mínima y si se aplican a las Kody Rules
+- Filtros de revisión: severidad mínima y si se aplican a las Piku Rules
 - Límites de archivos y tiempos de espera
 
 <CardGroup cols={2}>

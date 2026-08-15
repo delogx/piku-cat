@@ -1,6 +1,6 @@
 ---
 title: "Chutes — Subscription-Capped Inference for Open-Source Models"
-description: "Learn how to connect Chutes AI's subscription plans — covering DeepSeek, Llama, Qwen, MiniMax and more — to Kodus."
+description: "Learn how to connect Chutes AI's subscription plans — covering DeepSeek, Llama, Qwen, MiniMax and more — to piku-cat."
 icon: "cloud-bolt"
 ---
 
@@ -8,7 +8,7 @@ icon: "cloud-bolt"
 
 Chutes AI is a decentralized serverless compute platform for open-source models. It exposes an **OpenAI-compatible** inference endpoint and offers **subscription plans** that bundle API usage up to a cap expressed as a multiple of the equivalent pay-per-token value — similar in structure to the Z.AI GLM Coding Plan, but covering the full open-source catalog (DeepSeek, Llama, Qwen, MiniMax, Kimi, and many more).
 
-Kodus talks to Chutes through the same OpenAI-compatible adapter it uses for everything else, so there are no code changes — just BYOK credentials.
+piku-cat talks to Chutes through the same OpenAI-compatible adapter it uses for everything else, so there are no code changes — just BYOK credentials.
 
 ## Plans at a glance
 
@@ -52,11 +52,11 @@ See the live list and current pricing at [llm.chutes.ai/v1/models](https://llm.c
 2. Subscribe to a tier at [chutes.ai/pricing](https://chutes.ai/pricing), or enable pay-as-you-go if you prefer.
 3. Open the developer console and create an API key. Copy it immediately.
 
-## Configure Chutes in Kodus
+## Configure Chutes in piku-cat
 
-### Option 1 — BYOK on Kodus Cloud (recommended)
+### Option 1 — BYOK on piku-cat Cloud (recommended)
 
-1. In the Kodus web UI, open **Settings → BYOK** ([app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)).
+1. In the piku-cat web UI, open **Settings → BYOK** ([app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)).
 2. Chutes isn't in the curated catalog — click **Configure manually** at the bottom of the model list. Use `?slot=fallback` in the URL if configuring a fallback instead of the main model.
 3. Fill the wizard:
 
@@ -68,19 +68,19 @@ See the live list and current pricing at [llm.chutes.ai/v1/models](https://llm.c
    | **API Key** | your Chutes API key |
    | **Max Concurrent Requests** | `3–5` is a safe start; raise if you don't hit cap (under Advanced settings) |
 
-4. Click **Test & save**. Kodus probes the endpoint and persists the config on success.
+4. Click **Test & save**. piku-cat probes the endpoint and persists the config on success.
 
 <Tip>
-  The 5× cap is computed from per-token prices. Expensive frontier models burn through the cap faster than small ones — if you want to maximize reviews per dollar, pair Chutes with a cheaper model (Llama, Qwen smaller variants) for routine PRs and save the frontier models for complex reviews via a Kody rule or separate BYOK profile.
+  The 5× cap is computed from per-token prices. Expensive frontier models burn through the cap faster than small ones — if you want to maximize reviews per dollar, pair Chutes with a cheaper model (Llama, Qwen smaller variants) for routine PRs and save the frontier models for complex reviews via a Piku rule or separate BYOK profile.
 </Tip>
 
 <Note>
-  Because Chutes runs on decentralized compute, cold-start and tail latency vary more than on dedicated providers. Configure an OpenAI or Anthropic key as **Fallback** so Kodus can fail over when a node is slow or the monthly cap is hit.
+  Because Chutes runs on decentralized compute, cold-start and tail latency vary more than on dedicated providers. Configure an OpenAI or Anthropic key as **Fallback** so piku-cat can fail over when a node is slow or the monthly cap is hit.
 </Note>
 
 ### Option 2 — Self-hosted (environment variables)
 
-If you run Kodus in Fixed Mode (single global provider, no per-org BYOK), configure Chutes in the `.env` of your API + worker containers:
+If you run piku-cat in Fixed Mode (single global provider, no per-org BYOK), configure Chutes in the `.env` of your API + worker containers:
 
 ```env
 # Chutes configuration (Fixed Mode)
@@ -90,7 +90,7 @@ API_OPEN_AI_API_KEY="your-chutes-api-key"
 ```
 
 <Note>
-  This path is only needed for self-hosted Kodus installs that deliberately disable BYOK. If BYOK is enabled on your self-hosted instance, prefer **Option 1** — the UI-based flow is the same as on Cloud.
+  This path is only needed for self-hosted piku-cat installs that deliberately disable BYOK. If BYOK is enabled on your self-hosted instance, prefer **Option 1** — the UI-based flow is the same as on Cloud.
 </Note>
 
 Restart the API and worker containers after editing `.env`, then verify:

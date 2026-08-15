@@ -184,7 +184,12 @@ describe('CockpitTierGuard', () => {
         );
     });
 
-    it('rejects orgs whose tier is not allowed (free_byok)', async () => {
+    // piku-cat personal-use fork divergence: the guard's tier check delegates to
+    // isCockpitTierAllowed → isTeamsOrEnterpriseTierAllowed, which this fork
+    // unlocks unconditionally (libs/ee/license/tier/teams-or-enterprise-tier-policy.ts).
+    // Only the tier check changes: the IDOR / missing-org / license-error
+    // rejections above and below still 403.
+    it('piku-cat fork: allows orgs whose upstream tier would be blocked (free_byok)', async () => {
         const licenseService = makeLicenseService({
             valid: true,
             subscriptionStatus: SubscriptionStatus.ACTIVE,
@@ -193,9 +198,7 @@ describe('CockpitTierGuard', () => {
         const { ctx, reflector } = makeContext({ jwtOrg: 'org-A' });
         const guard = new CockpitTierGuard(licenseService, reflector);
 
-        await expect(guard.canActivate(ctx)).rejects.toThrow(
-            ForbiddenException,
-        );
+        await expect(guard.canActivate(ctx)).resolves.toBe(true);
     });
 
     it('resolves the org from the nested UserEntity shape (organization.uuid)', async () => {

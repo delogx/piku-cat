@@ -1,6 +1,6 @@
 ---
 title: "Agentes de IA"
-description: "Integra el CLI de Kodus con agentes de programación de IA para bucles autónomos de revisión y corrección."
+description: "Integra el CLI de piku-cat con agentes de programación de IA para bucles autónomos de revisión y corrección."
 ---
 
 El CLI incluye un modo de salida mínimo y estructurado (`--prompt-only`) diseñado para que los agentes de programación de IA lo analicen y actúen sobre él. Combinado con una clave de equipo, permite bucles autónomos de revisión y corrección: el agente revisa, aplica correcciones, vuelve a revisar y confirma los cambios, todo sin intervención humana en el flujo crítico.
@@ -26,7 +26,7 @@ Esto:
 
 1. Instala el binario `@kodus/cli` globalmente.
 2. Configura la clave de equipo en `~/.kodus/config.json`.
-3. Despliega los skills de Kodus en todos los agentes detectados (Claude Code, Cursor, Codex, Windsurf).
+3. Despliega los skills de piku-cat en todos los agentes detectados (Claude Code, Cursor, Codex, Windsurf).
 
 Sin inicios de sesión individuales. Sin indicaciones interactivas. Listo para bucles de agentes de inmediato.
 
@@ -88,7 +88,7 @@ kodus review --prompt-only --fix               # aplicar automáticamente los pr
 git commit -am "fix: KC-1441 address review findings"
 ```
 
-Con el instalador de skills, el skill de Kodus de Claude Code sabe cuándo invocar cada uno de estos comandos, sin necesidad de ingeniería de prompts de tu parte.
+Con el instalador de skills, el skill de piku-cat de Claude Code sabe cuándo invocar cada uno de estos comandos, sin necesidad de ingeniería de prompts de tu parte.
 
 ## Relacionado
 

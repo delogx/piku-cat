@@ -359,7 +359,11 @@ describe('FeatureGateService', () => {
             ).resolves.toBe(false);
         });
 
-        it('returns false for alpha features even with BETA_FEATURES=true', async () => {
+        // piku-cat personal-use fork divergence: upstream denies `alpha` on
+        // self-hosted even with BETA_FEATURES=true. This fork passes alpha (see
+        // libs/feature-gate/domain/decision.ts) so "heavy-review" is available.
+        // `beta` is deliberately left as upstream — BETA_FEATURES still gates it.
+        it('piku-cat fork: alpha features are enabled on self-hosted', async () => {
             process.env.BETA_FEATURES = 'true';
             mockedSnapshot.current = snapshotWith(FEATURE_KEYS.githubEnterpriseServerPat, {
                 stage: 'alpha',
@@ -370,7 +374,7 @@ describe('FeatureGateService', () => {
 
             await expect(
                 svc.isEnabled(FEATURE_KEYS.githubEnterpriseServerPat, orgCtx),
-            ).resolves.toBe(false);
+            ).resolves.toBe(true);
         });
 
         it('returns false when audience excludes self-hosted', async () => {

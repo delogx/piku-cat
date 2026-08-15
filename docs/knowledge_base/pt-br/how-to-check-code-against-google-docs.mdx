@@ -3,7 +3,7 @@ title: "Como verificar código contra especificações no Google Docs"
 description: "Valide a implementação do seu pull request contra especificações escritas no Google Docs."
 ---
 
-Especificações de produto e requisitos frequentemente ficam no Google Docs. O Kodus pode buscar o conteúdo do documento e compará-lo com o diff do seu PR para verificar se a implementação corresponde à especificação.
+Especificações de produto e requisitos frequentemente ficam no Google Docs. O piku-cat pode buscar o conteúdo do documento e compará-lo com o diff do seu PR para verificar se a implementação corresponde à especificação.
 
 ## Como funciona
 
@@ -15,11 +15,11 @@ Especificações de produto e requisitos frequentemente ficam no Google Docs. O 
 @kody -v business-logic https://docs.google.com/document/d/1abc123/edit
 ```
 
-4. O Kody busca o documento, extrai os requisitos e os compara com o diff do PR
+4. O Piku busca o documento, extrai os requisitos e os compara com o diff do PR
 
 ## O que você recebe
 
-O Kody produz um relatório de validação estruturado:
+O Piku produz um relatório de validação estruturado:
 
 - **Achados** com severidade: MUST_FIX, SUGGESTION ou INFO
 - **Rastreamento de requisitos** — cada achado cita texto do Google Doc

@@ -6,7 +6,7 @@ description: "审查的核心设置 —— 节奏、PR 工作流、跳过条件�
 ## 核心设置
 
 <Note>
-  Kodus 有三个配置级别:全局、代码库和目录。了解它们如何工作,请参阅<a href="/how_to_use/zh/code_review/configs/inheritance_overrides">配置继承与覆盖</a>。
+  piku-cat 有三个配置级别:全局、代码库和目录。了解它们如何工作,请参阅<a href="/how_to_use/zh/code_review/configs/inheritance_overrides">配置继承与覆盖</a>。
 </Note>
 
 ### 配置优先级
@@ -15,7 +15,7 @@ description: "审查的核心设置 —— 节奏、PR 工作流、跳过条件�
 
 <Warning>
   **在你主动开启之前，该文件会被忽略。** `kodusConfigFileOverridesWebPreferences` 默认为
-  `false`，这意味着 Kody 根本不会读取 `kodus-config.yml` —— 仅仅提交文件不会产生任何效果。
+  `false`，这意味着 Piku 根本不会读取 `kodus-config.yml` —— 仅仅提交文件不会产生任何效果。
 
   请先在 **Settings → Code Review → 对应代码库 → General** 中开启，或在网页界面的代码库
   （或目录）级别设置 `kodusConfigFileOverridesWebPreferences: true`。之后该文件才会生效。
@@ -110,7 +110,7 @@ customMessages:
 
 ### 自动审查
 
-Kody 可以在 PR 打开时自动审查,或仅在您评论 `@kody start-review` 时审查。
+Piku 可以在 PR 打开时自动审查,或仅在您评论 `@kody start-review` 时审查。
 
 <Info>
   这仅影响**初始审查**。对于后续提交,请参阅下面的审查节奏。
@@ -118,7 +118,7 @@ Kody 可以在 PR 打开时自动审查,或仅在您评论 `@kody start-review` 
 
 #### 审查节奏
 
-Kody 如何处理后续提交的审查:
+Piku 如何处理后续提交的审查:
 
 <Tabs>
   <Tab title="自动">
@@ -139,12 +139,12 @@ Kody 如何处理后续提交的审查:
 ### PR 工作流
 
 #### 自动批准 PR
-当未发现问题时,Kody 会批准 PR。
+当未发现问题时,Piku 会批准 PR。
 
 **平台:** GitHub, GitLab, Bitbucket
 
 #### 请求更改
-当发现严重问题时,Kody 会请求更改。
+当发现严重问题时,Piku 会请求更改。
 
 **平台:** GitHub, Bitbucket
 
@@ -158,7 +158,7 @@ Kody 如何处理后续提交的审查:
 
 <Info>
   **留空(默认值)表示所有目标分支都会被审查** —— 并不存在内置的 `dev`/`release`/`master` 列表。
-  只有当你想*收窄*范围时才添加条目:一旦列表非空,Kody 只审查指向这些分支的 PR(你代码库的
+  只有当你想*收窄*范围时才添加条目:一旦列表非空,Piku 只审查指向这些分支的 PR(你代码库的
   默认分支始终包含在内)。
 
   条目会与 PR 的**目标**分支进行匹配,并支持一套简单语法:
@@ -180,7 +180,7 @@ Kody 如何处理后续提交的审查:
 
 ## 分析类型
 
-Kody 从四个类别进行审查。你可以在 **Analysis Types** 中,或通过 `kodus-config.yml` 的
+Piku 从四个类别进行审查。你可以在 **Analysis Types** 中,或通过 `kodus-config.yml` 的
 `reviewOptions` 逐项启用或禁用。
 
 - **Bug** —— 逻辑错误、竞态条件、空指针解引用、边界情况和错误行为。
@@ -190,6 +190,6 @@ Kody 从四个类别进行审查。你可以在 **Analysis Types** 中,或通过
   [业务逻辑验证](/how_to_use/zh/code_review/business_logic_validation)。
 
 <Note>
-  Kody Rules **不属于**上述类别 —— 它们始终运行,与 `reviewOptions` 无关。参见
-  [Kody Rules](/how_to_use/zh/code_review/configs/kody_rules)。
+  Piku Rules **不属于**上述类别 —— 它们始终运行,与 `reviewOptions` 无关。参见
+  [Piku Rules](/how_to_use/zh/code_review/configs/kody_rules)。
 </Note>

@@ -215,7 +215,11 @@ describe("isTeamsOrEnterprisePlan", () => {
         ).toBe(true);
     });
 
-    it("blocks free_byok and unlicensed self-hosted", async () => {
+    // piku-cat personal-use fork divergence: upstream blocks free_byok and
+    // unlicensed self-hosted. This fork unlocks every tier — see the mirror in
+    // apps/web/src/features/ee/byok/_utils.ts and the backend policy in
+    // libs/ee/license/tier/teams-or-enterprise-tier-policy.ts.
+    it("piku-cat fork: free_byok and unlicensed self-hosted are unlocked", async () => {
         const { isTeamsOrEnterprisePlan } = await import("./_utils");
 
         expect(
@@ -224,16 +228,19 @@ describe("isTeamsOrEnterprisePlan", () => {
                 subscriptionStatus: "active",
                 planType: "free_byok",
             } as any),
-        ).toBe(false);
+        ).toBe(true);
         expect(
             isTeamsOrEnterprisePlan({
                 valid: true,
                 subscriptionStatus: "self-hosted",
             } as any),
-        ).toBe(false);
+        ).toBe(true);
     });
 
-    it("allows trial and licensed self-hosted enterprise only", async () => {
+    // piku-cat personal-use fork divergence: upstream allowed licensed
+    // self-hosted only on Enterprise plans (Teams is cloud-only). This fork
+    // unlocks Teams there too.
+    it("piku-cat fork: trial and licensed self-hosted (Teams included) are unlocked", async () => {
         const { isTeamsOrEnterprisePlan } = await import("./_utils");
 
         expect(
@@ -255,7 +262,7 @@ describe("isTeamsOrEnterprisePlan", () => {
                 subscriptionStatus: "licensed-self-hosted",
                 planType: "teams_byok",
             } as any),
-        ).toBe(false);
+        ).toBe(true);
     });
 });
 

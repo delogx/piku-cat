@@ -57,22 +57,22 @@ export const DeleteKodyRuleConfirmationModal = ({
                 toast(
                     getCentralizedPrToastPayload(
                         mutationResult,
-                        "Kody Rule removal proposed through centralized pull request.",
+                        "Piku Rule removal proposed through centralized pull request.",
                     ),
                 );
             } else {
                 toast({
-                    description: "Kody Rule successfully removed.",
+                    description: "Piku Rule successfully removed.",
                     variant: "success",
                 });
             }
         } catch (error) {
-            console.error("Error removing Kody Rule:", error);
+            console.error("Error removing Piku Rule:", error);
 
             toast({
                 title: "Error",
                 description:
-                    "An error occurred while removing the Kody Rule. Please try again.",
+                    "An error occurred while removing the Piku Rule. Please try again.",
                 variant: "danger",
             });
 
@@ -86,7 +86,7 @@ export const DeleteKodyRuleConfirmationModal = ({
         <Dialog open onOpenChange={() => magicModal.hide()}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Remove this Kody Rule?</DialogTitle>
+                    <DialogTitle>Remove this Piku Rule?</DialogTitle>
                     <DialogDescription>
                         This action cannot be undone!
                     </DialogDescription>

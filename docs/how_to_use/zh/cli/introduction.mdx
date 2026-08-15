@@ -3,7 +3,7 @@ title: "Kodus CLI"
 description: "在终端中进行 AI 代码审查、业务验证和代理工作流。"
 ---
 
-Kodus CLI 直接在终端中审查您的代码变更 — 在代码进入 Pull Request 之前捕获 Bug、安全问题和风格违规。它使用与 Kodus PR 审查相同的引擎，但作用于您的工作目录、暂存区、分支或特定提交。
+Kodus CLI 直接在终端中审查您的代码变更 — 在代码进入 Pull Request 之前捕获 Bug、安全问题和风格违规。它使用与 piku-cat PR 审查相同的引擎，但作用于您的工作目录、暂存区、分支或特定提交。
 
 ## 适用人群
 
@@ -36,12 +36,12 @@ Kodus CLI 直接在终端中审查您的代码变更 — 在代码进入 Pull Re
     通过 `kodus hook install` 阻止超过严重级别阈值问题的推送。
   </Card>
   <Card title="PR 建议" icon="code-pull-request">
-    直接在终端获取 Kody 对开放 Pull Request 的建议。
+    直接在终端获取 Piku 对开放 Pull Request 的建议。
   </Card>
   <Card title="业务验证" icon="clipboard-check">
     在合并前验证本地差异是否满足任务验收标准。
   </Card>
-  <Card title="Kody Rules" icon="scale-balanced">
+  <Card title="Piku Rules" icon="scale-balanced">
     创建、更新和查看 AI 在每次审查中应用的团队规则。
   </Card>
 </CardGroup>
@@ -58,9 +58,9 @@ Kodus CLI 直接在终端中审查您的代码变更 — 在代码进入 Pull Re
 
 试用限制每天重置。运行 `kodus auth status` 查看当前使用情况。
 
-## CLI 与 Kodus Web
+## CLI 与 piku-cat Web
 
-CLI 与 Kodus Web 仪表板共享同一个审查引擎、规则和仓库设置。当您希望在 **PR 尚未创建之前** 审查代码（本地分支、暂存差异或代理循环中），请使用 CLI；Web 仪表板则用于 PR 审查、指标和团队级配置。
+CLI 与 piku-cat Web 仪表板共享同一个审查引擎、规则和仓库设置。当您希望在 **PR 尚未创建之前** 审查代码（本地分支、暂存差异或代理循环中），请使用 CLI；Web 仪表板则用于 PR 审查、指标和团队级配置。
 
 通过 `kodus config repo` 和 `kodus rules` 所做的更改会同时应用到两端。
 
@@ -77,7 +77,7 @@ CLI 与 Kodus Web 仪表板共享同一个审查引擎、规则和仓库设置�
     与编码代理建立自主审查-修复循环。
   </Card>
   <Card title="自托管" icon="server" href="self_hosted">
-    将 CLI 连接到您自己的 Kodus 实例。
+    将 CLI 连接到您自己的 piku-cat 实例。
   </Card>
   <Card title="故障排查" icon="life-ring" href="troubleshooting">
     常见错误、退出码和调试方法。

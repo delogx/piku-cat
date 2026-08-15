@@ -1,9 +1,9 @@
 ---
 title: "Por qué no se está activando la revisión de código con IA"
-description: "Causas comunes y soluciones cuando Kodus no revisa automáticamente tus pull requests."
+description: "Causas comunes y soluciones cuando piku-cat no revisa automáticamente tus pull requests."
 ---
 
-Si Kodus no está revisando tus PRs, verifica estas causas comunes:
+Si piku-cat no está revisando tus PRs, verifica estas causas comunes:
 
 ## 1. La revisión automatizada está desactivada
 
@@ -18,14 +18,14 @@ automatedReviewActive: true
 
 ## 2. El webhook no está configurado
 
-Kodus necesita webhooks para saber cuándo se abre o actualiza un PR:
+piku-cat necesita webhooks para saber cuándo se abre o actualiza un PR:
 - Ve a la configuración de webhooks de tu proveedor de Git
-- Verifica que la URL del webhook de Kodus esté registrada y activa
+- Verifica que la URL del webhook de piku-cat esté registrada y activa
 - Comprueba si hay intentos de entrega fallidos
 
 ## 3. El título del PR coincide con una palabra clave ignorada
 
-Si el título del PR contiene una palabra clave ignorada, Kodus omite la revisión:
+Si el título del PR contiene una palabra clave ignorada, piku-cat omite la revisión:
 
 ```yaml
 ignoredTitleKeywords:
@@ -37,7 +37,7 @@ Verifica tu configuración de `ignoredTitleKeywords`.
 
 ## 4. La rama base no está siendo monitoreada
 
-Por defecto, Kodus revisa los PRs que apuntan a la rama predeterminada. Si tu PR apunta a una rama diferente, agrégala a `baseBranches`:
+Por defecto, piku-cat revisa los PRs que apuntan a la rama predeterminada. Si tu PR apunta a una rama diferente, agrégala a `baseBranches`:
 
 ```yaml
 baseBranches:
@@ -47,7 +47,7 @@ baseBranches:
 
 ## 5. La cadencia de revisión está configurada como manual
 
-Si la cadencia de revisión está configurada como **Manual**, Kodus solo revisa cuando comentas `@kody start-review`.
+Si la cadencia de revisión está configurada como **Manual**, piku-cat solo revisa cuando comentas `@kody start-review`.
 
 ## 6. La pausa automática está activa
 

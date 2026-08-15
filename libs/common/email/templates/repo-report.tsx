@@ -105,8 +105,8 @@ export function repoReportEmailMeta({
     const suffix = range ? ` · ${range}` : '';
     const subject =
         repoCount === 1 && repoName
-            ? `${repoShortName(repoName)} · Kody update${suffix}`
-            : `Your Kody repo update${suffix}`;
+            ? `${repoShortName(repoName)} · Piku update${suffix}`
+            : `Your Piku repo update${suffix}`;
     return {
         from: EMAIL_FROM.NOTIFICATIONS,
         subject,
@@ -262,7 +262,7 @@ function RepoSection({ section }: { section: RepoReportSectionProps }) {
             {section.rules.length > 0 ? (
                 <>
                     <Text style={{ ...sectionSubhead, margin: '18px 0 4px' }}>
-                        Kody Rules worth a look — noisy or ignored here
+                        Piku Rules worth a look — noisy or ignored here
                     </Text>
                     <Section>
                         {section.rules.map((r, i) => (
@@ -291,7 +291,7 @@ function RepoSection({ section }: { section: RepoReportSectionProps }) {
 
             <Section style={{ margin: '16px 0 0' }}>
                 <Link href={section.cockpitLink} style={sectionLink}>
-                    Open {repoShortName(section.repository)} in Kodus →
+                    Open {repoShortName(section.repository)} in piku-cat →
                 </Link>
             </Section>
         </Section>
@@ -311,7 +311,7 @@ function RepoReportEmail({
         <BrandLayout
             preview={`${company} · ${sections.length} ${
                 sections.length === 1 ? 'repo' : 'repos'
-            } · your Kodus digest`}
+            } · your piku-cat digest`}
         >
             <Heading style={baseHeading}>Hi {recipientName} 👋</Heading>
             <Text style={baseText}>

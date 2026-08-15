@@ -1,12 +1,12 @@
 ---
 title: "Moonshot (Kimi) - OpenAI 互換推論"
-description: "Moonshot Developer API または Kimi Code Plan を通じて Moonshot AI の Kimi K2.6 モデルを Kodus に接続する方法を学びます。"
+description: "Moonshot Developer API または Kimi Code Plan を通じて Moonshot AI の Kimi K2.6 モデルを piku-cat に接続する方法を学びます。"
 icon: "moon"
 ---
 
 ## Moonshot の動作方法
 
-Moonshot AI は **Kimi** ファミリーのモデル（K2、K2.5、K2.6、K2.6 Coding）を公開しています。Kimi は長コンテキストのコード理解とエージェントワークフローに特に強く、API は完全に OpenAI 互換です — Kodus は `OpenAI Compatible` プロバイダー（または BYOK のキュレートされた **Kimi K2.6 Coding** カードを介して直接）を通じて通信します。
+Moonshot AI は **Kimi** ファミリーのモデル（K2、K2.5、K2.6、K2.6 Coding）を公開しています。Kimi は長コンテキストのコード理解とエージェントワークフローに特に強く、API は完全に OpenAI 互換です — piku-cat は `OpenAI Compatible` プロバイダー（または BYOK のキュレートされた **Kimi K2.6 Coding** カードを介して直接）を通じて通信します。
 
 Moonshot は同じモデルファミリーに **2つのパス**を提供しており、それぞれ独自のエンドポイントがあります：
 
@@ -67,11 +67,11 @@ Developer API エンドポイント：`https://api.moonshot.ai/v1`（国際）�
   </Tab>
 </Tabs>
 
-## Kodus で Moonshot を設定する
+## piku-cat で Moonshot を設定する
 
-主なフローは Kodus Cloud での BYOK です — キュレートされた **Kimi K2.6 Coding** カードがエンドポイントの切り替えを処理します。プロセスレベルでプロバイダーを固定することを好むセルフホストユーザーは、代わりに環境変数を使用できます。
+主なフローは piku-cat Cloud での BYOK です — キュレートされた **Kimi K2.6 Coding** カードがエンドポイントの切り替えを処理します。プロセスレベルでプロバイダーを固定することを好むセルフホストユーザーは、代わりに環境変数を使用できます。
 
-### オプション1 — Kodus Cloud での BYOK（推奨）
+### オプション1 — piku-cat Cloud での BYOK（推奨）
 
 <Steps>
   <Step title="BYOK を開き Kimi K2.6 Coding を選択">
@@ -87,11 +87,11 @@ Developer API エンドポイント：`https://api.moonshot.ai/v1`（国際）�
   </Step>
 
   <Step title="APIキーを貼り付ける">
-    キーのみ。Kimi Code Plan ユーザーの場合、Kodus は Advanced settings に `maxConcurrentRequests=30` を事前入力します（文書化された上限と一致）。
+    キーのみ。Kimi Code Plan ユーザーの場合、piku-cat は Advanced settings に `maxConcurrentRequests=30` を事前入力します（文書化された上限と一致）。
   </Step>
 
   <Step title="Test & save">
-    **Test & save** をクリックします。Kodus は安価なメタデータ呼び出しでエンドポイントをプローブし、成功時に設定を保存します。401 はキーが選択したプランのエンドポイントと一致しないことを意味します。
+    **Test & save** をクリックします。piku-cat は安価なメタデータ呼び出しでエンドポイントをプローブし、成功時に設定を保存します。401 はキーが選択したプランのエンドポイントと一致しないことを意味します。
   </Step>
 </Steps>
 
@@ -116,7 +116,7 @@ Kimi K2.6 Coding では Reasoning はデフォルトで ON です — キュレ�
   ```
 
 <Note>
-  名前空間のラップは不要です — Kodus が送信前に `openaiCompatible`（アクティブなプロバイダー）で自動ラップします。詳しくは [main BYOK doc → Custom JSON override](/how_to_use/ja/byok#カスタム-json-オーバーライド) を参照してください。
+  名前空間のラップは不要です — piku-cat が送信前に `openaiCompatible`（アクティブなプロバイダー）で自動ラップします。詳しくは [main BYOK doc → Custom JSON override](/how_to_use/ja/byok#カスタム-json-オーバーライド) を参照してください。
 </Note>
 
 ### 同時実行数のチューニング
@@ -125,7 +125,7 @@ Kimi K2.6 Coding では Reasoning はデフォルトで ON です — キュレ�
 - **Developer API**：空のまま開始（制限なし）。実際の制限はリチャージティアとスケールします — Tier 1（約$10 リチャージ）は約50 concurrent を許可；Tier 5（約$3000）は約1000 を許可。レビュー時に 429 が発生した場合は明示的に下げてください。
 
 <Note>
-  Kimi を**メイン**として設定し、OpenAI または Anthropic キーを**フォールバック**として保持します — Moonshot が 429 または 402 を返した場合、Kodus は自動的にフェイルオーバーします。
+  Kimi を**メイン**として設定し、OpenAI または Anthropic キーを**フォールバック**として保持します — Moonshot が 429 または 402 を返した場合、piku-cat は自動的にフェイルオーバーします。
 </Note>
 
 ### オプション2 — 手動設定
@@ -142,7 +142,7 @@ Kimi K2.6 Coding では Reasoning はデフォルトで ON です — キュレ�
 
 ### オプション3 — セルフホスト（環境変数）
 
-固定モード（単一グローバルプロバイダー、組織ごとの BYOK なし）で Kodus を実行している場合は、API とワーカーコンテナの `.env` で Moonshot を設定します：
+固定モード（単一グローバルプロバイダー、組織ごとの BYOK なし）で piku-cat を実行している場合は、API とワーカーコンテナの `.env` で Moonshot を設定します：
 
 ```env
 # Moonshot (Kimi) configuration (Fixed Mode)
@@ -152,7 +152,7 @@ API_OPEN_AI_API_KEY="your-moonshot-or-kimi-code-api-key"
 ```
 
 <Note>
-  このパスは意図的に BYOK を無効にしているセルフホスト Kodus インストールにのみ必要です。セルフホストインスタンスで BYOK が有効な場合は、**オプション1**を優先してください — キュレートされたカードがエンドポイントのロジックを処理します。
+  このパスは意図的に BYOK を無効にしているセルフホスト piku-cat インストールにのみ必要です。セルフホストインスタンスで BYOK が有効な場合は、**オプション1**を優先してください — キュレートされたカードがエンドポイントのロジックを処理します。
 </Note>
 
 `.env` を編集後、API とワーカーコンテナを再起動して統合を確認します：
@@ -197,7 +197,7 @@ docker-compose logs api worker | grep -iE "moonshot|kimi"
 
   <Accordion title="リージョン / 接続性">
     - 中国以外のユーザーは常に `api.moonshot.ai` または `api.kimi.com` を使用してください。`api.moonshot.cn` は中国本土外から到達できないかレート制限される場合があります。
-    - Kodus デプロイから選択したエンドポイントへのアウトバウンド HTTPS が許可されていることを確認します。
+    - piku-cat デプロイから選択したエンドポイントへのアウトバウンド HTTPS が許可されていることを確認します。
   </Accordion>
 </AccordionGroup>
 

@@ -1,10 +1,10 @@
 ---
 title: "Kubernetes y OpenShift"
-description: "Despliega Kodus en Kubernetes u OpenShift con los Helm charts oficiales."
+description: "Despliega piku-cat en Kubernetes u OpenShift con los Helm charts oficiales."
 icon: "dharmachakra"
 ---
 
-¿Prefieres un clúster en lugar de una sola VM? Kodus ofrece **Helm charts** para
+¿Prefieres un clúster en lugar de una sola VM? piku-cat ofrece **Helm charts** para
 Kubernetes y OpenShift en el repositorio
 [kodus-installer](https://github.com/kodustech/kodus-installer). Esta página es la
 visión general — el [README](https://github.com/kodustech/kodus-installer/blob/main/charts/README.md)
@@ -35,7 +35,7 @@ helm install kodus . -n kodus --create-namespace \
   --set ingress.hosts.api.host=api.kodus.example.com
 ```
 
-`imageTag` fija la versión de Kodus para todo el stack (como el `IMAGE_TAG` de
+`imageTag` fija la versión de piku-cat para todo el stack (como el `IMAGE_TAG` de
 Docker Compose); usa una tag real, nunca `latest`, en producción. Los secrets de
 autenticación/cifrado se generan automáticamente con el formato correcto y se
 mantienen estables entre upgrades.

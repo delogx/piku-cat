@@ -1,5 +1,5 @@
 ---
-title: "Kodus + flujo de trabajo de sprint"
+title: "piku-cat + flujo de trabajo de sprint"
 description: "Integra la validación de lógica de negocio en tu ciclo de sprint para que cada PR sea validado contra los requisitos de la tarea antes del merge."
 icon: "arrows-spin"
 ---
@@ -17,7 +17,7 @@ Tarea creada (Jira/Linear/Notion)
     ↓
 Desarrollador implementa → Abre PR
     ↓
-Kodus automáticamente:
+piku-cat automáticamente:
   1. Obtiene el contexto de la tarea desde la herramienta vinculada
   2. Compara el diff del PR contra los criterios de aceptación
   3. Reporta implementaciones faltantes o parciales
@@ -36,7 +36,7 @@ Ve a **Configuración** → **Plugins** y conecta tu herramienta:
 - **Notion** — para equipos que usan Notion como gestor de tareas
 - **ClickUp** — para equipos que usan ClickUp
 
-Una vez conectada, Kodus puede obtener automáticamente el contexto de la tarea durante las revisiones.
+Una vez conectada, piku-cat puede obtener automáticamente el contexto de la tarea durante las revisiones.
 
 ## Paso 2 — Habilita la validación de lógica de negocio
 
@@ -49,7 +49,7 @@ reviewOptions:
 
 ## Paso 3 — Escribe buenos criterios de aceptación
 
-La calidad de la validación depende completamente de la calidad de las descripciones de tus tareas. Kodus clasifica el contexto de la tarea como:
+La calidad de la validación depende completamente de la calidad de las descripciones de tus tareas. piku-cat clasifica el contexto de la tarea como:
 
 | Calidad | Qué significa | Qué hacer |
 |---------|--------------|-----------|
@@ -110,7 +110,7 @@ Instructions:
 
 Tras la configuración, cada PR en tu sprint recibe:
 
-1. **Revisión de calidad de código** — seguridad, rendimiento, estilo (Kodus estándar)
+1. **Revisión de calidad de código** — seguridad, rendimiento, estilo (piku-cat estándar)
 2. **Validación de lógica de negocio** — ¿están implementados todos los criterios de aceptación?
 3. **Detección de alcance incorrecto** — ¿este PR está trabajando en la tarea correcta?
 
@@ -120,6 +120,6 @@ QA encuentra menos brechas, las demos del sprint van más fluidas y el "creía q
 
 - Anima al equipo a escribir criterios de aceptación numerados — obtienen la mejor validación
 - Usa la validación bajo demanda durante el desarrollo, no solo en el momento de la revisión
-- Si un PR intencionalmente no cubre todos los criterios (entrega por fases), anótalo en la descripción del PR para que Kody pueda tenerlo en cuenta
+- Si un PR intencionalmente no cubre todos los criterios (entrega por fases), anótalo en la descripción del PR para que Piku pueda tenerlo en cuenta
 
 Para más detalles, consulta [Validación de lógica de negocio](/how_to_use/es/code_review/business_logic_validation).

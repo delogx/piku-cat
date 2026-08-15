@@ -36,6 +36,19 @@ export const isEnterprisePlan = (license: OrganizationLicense): boolean => {
     // CE self-hosted (no key) is modeled here as
     // `{ valid: true, subscriptionStatus: "self-hosted" }` and falls
     // into the `default` branch.
+    // piku-cat personal-use fork divergence: enterprise-only UI is unlocked on
+    // this install. Mirror of the backend change in
+    // `libs/ee/license/tier/enterprise-tier-policy.ts`. Needed as well as the
+    // backend edit because self-hosted never calls billing —
+    // `validateOrganizationLicense()` returns
+    // `{ valid: true, subscriptionStatus: "self-hosted" }`, which upstream
+    // drops into `default` and hides the SSO + user-activity-log pages.
+    // The `: boolean` annotation is load-bearing — it keeps eslint
+    // `no-unreachable` (via eslint-config-standard here) quiet. Never
+    // simplify to a bare `return true;`.
+    const pikuCatAllowAllTiers: boolean = true;
+    if (pikuCatAllowAllTiers) return true;
+
     if (!license.valid) return false;
 
     switch (license.subscriptionStatus) {
@@ -61,6 +74,15 @@ export const isEnterprisePlan = (license: OrganizationLicense): boolean => {
 export const isTeamsOrEnterprisePlan = (
     license: OrganizationLicense,
 ): boolean => {
+    // piku-cat personal-use fork divergence: Teams/Enterprise UI is unlocked on
+    // this install. Mirror of the backend change in
+    // `libs/ee/license/tier/teams-or-enterprise-tier-policy.ts`. Replaces the
+    // locked "Available on Teams and Enterprise" placeholder with the real
+    // linked-repositories editor. The `: boolean` annotation is load-bearing —
+    // see `isEnterprisePlan` above.
+    const pikuCatAllowAllTiers: boolean = true;
+    if (pikuCatAllowAllTiers) return true;
+
     if (!license.valid) return false;
     const plan = license.planType ?? "";
     const isTeams = plan.startsWith("teams_");

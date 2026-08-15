@@ -1,6 +1,6 @@
 ---
 title: "Chutes — Inferencia con Cap de Suscripción para Modelos de Código Abierto"
-description: "Aprende a conectar los planes de suscripción de Chutes AI — que cubren DeepSeek, Llama, Qwen, MiniMax y más — a Kodus."
+description: "Aprende a conectar los planes de suscripción de Chutes AI — que cubren DeepSeek, Llama, Qwen, MiniMax y más — a piku-cat."
 icon: "cloud-bolt"
 ---
 
@@ -8,7 +8,7 @@ icon: "cloud-bolt"
 
 Chutes AI es una plataforma de cómputo sin servidor descentralizada para modelos de código abierto. Expone un endpoint de inferencia **compatible con OpenAI** y ofrece **planes de suscripción** que agrupan el uso de la API hasta un límite expresado como múltiplo del valor equivalente de pago por token — similar en estructura al GLM Coding Plan de Z.AI, pero cubriendo el catálogo completo de código abierto (DeepSeek, Llama, Qwen, MiniMax, Kimi y muchos más).
 
-Kodus se comunica con Chutes a través del mismo adaptador compatible con OpenAI que usa para todo lo demás, por lo que no hay cambios de código — solo credenciales BYOK.
+piku-cat se comunica con Chutes a través del mismo adaptador compatible con OpenAI que usa para todo lo demás, por lo que no hay cambios de código — solo credenciales BYOK.
 
 ## Planes de un vistazo
 
@@ -52,11 +52,11 @@ Consulta la lista en vivo y los precios actuales en [llm.chutes.ai/v1/models](ht
 2. Suscríbete a un nivel en [chutes.ai/pricing](https://chutes.ai/pricing), o habilita el pago por uso si lo prefieres.
 3. Abre la consola de desarrollador y crea una clave de API. Cópiala de inmediato.
 
-## Configurar Chutes en Kodus
+## Configurar Chutes en piku-cat
 
-### Opción 1 — BYOK en Kodus Cloud (recomendado)
+### Opción 1 — BYOK en piku-cat Cloud (recomendado)
 
-1. En la interfaz web de Kodus, abre **Configuración → BYOK** ([app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)).
+1. En la interfaz web de piku-cat, abre **Configuración → BYOK** ([app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)).
 2. Chutes no está en el catálogo curado — haz clic en **Configure manually** al final de la lista de modelos. Usa `?slot=fallback` en la URL si estás configurando un respaldo en lugar del modelo principal.
 3. Completa el asistente:
 
@@ -68,19 +68,19 @@ Consulta la lista en vivo y los precios actuales en [llm.chutes.ai/v1/models](ht
    | **Clave de API** | tu clave de API de Chutes |
    | **Máx. de solicitudes concurrentes** | `3–5` es un inicio seguro; auméntalo si no alcanzas el cap (en configuración avanzada) |
 
-4. Haz clic en **Test & save**. Kodus verifica el endpoint y persiste la configuración si tiene éxito.
+4. Haz clic en **Test & save**. piku-cat verifica el endpoint y persiste la configuración si tiene éxito.
 
 <Tip>
-  El cap 5× se calcula a partir de los precios por token. Los modelos frontier costosos consumen el cap más rápido que los pequeños — si quieres maximizar las revisiones por dólar, combina Chutes con un modelo más barato (variantes pequeñas de Llama o Qwen) para PRs rutinarios y reserva los modelos frontier para revisiones complejas mediante una regla de Kody o un perfil BYOK separado.
+  El cap 5× se calcula a partir de los precios por token. Los modelos frontier costosos consumen el cap más rápido que los pequeños — si quieres maximizar las revisiones por dólar, combina Chutes con un modelo más barato (variantes pequeñas de Llama o Qwen) para PRs rutinarios y reserva los modelos frontier para revisiones complejas mediante una regla de Piku o un perfil BYOK separado.
 </Tip>
 
 <Note>
-  Dado que Chutes se ejecuta en cómputo descentralizado, la latencia de arranque en frío y la latencia de cola varían más que en proveedores dedicados. Configura una clave de OpenAI o Anthropic como **Respaldo** para que Kodus pueda conmutar cuando un nodo sea lento o se alcance el cap mensual.
+  Dado que Chutes se ejecuta en cómputo descentralizado, la latencia de arranque en frío y la latencia de cola varían más que en proveedores dedicados. Configura una clave de OpenAI o Anthropic como **Respaldo** para que piku-cat pueda conmutar cuando un nodo sea lento o se alcance el cap mensual.
 </Note>
 
 ### Opción 2 — Alojamiento autónomo (variables de entorno)
 
-Si ejecutas Kodus en Modo Fijo (proveedor global único, sin BYOK por organización), configura Chutes en el `.env` de tus contenedores de API + worker:
+Si ejecutas piku-cat en Modo Fijo (proveedor global único, sin BYOK por organización), configura Chutes en el `.env` de tus contenedores de API + worker:
 
 ```env
 # Configuración de Chutes (Modo Fijo)
@@ -90,7 +90,7 @@ API_OPEN_AI_API_KEY="your-chutes-api-key"
 ```
 
 <Note>
-  Esta opción solo es necesaria para instalaciones de Kodus con alojamiento autónomo que deshabilitan deliberadamente el BYOK. Si el BYOK está habilitado en tu instancia con alojamiento autónomo, prefiere la **Opción 1** — el flujo basado en la interfaz es el mismo que en Cloud.
+  Esta opción solo es necesaria para instalaciones de piku-cat con alojamiento autónomo que deshabilitan deliberadamente el BYOK. Si el BYOK está habilitado en tu instancia con alojamiento autónomo, prefiere la **Opción 1** — el flujo basado en la interfaz es el mismo que en Cloud.
 </Note>
 
 Reinicia los contenedores de API y worker después de editar `.env`, luego verifica:

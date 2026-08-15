@@ -1,6 +1,6 @@
 ---
 title: "安装"
-description: "在通用虚拟机上部署 Kodus。"
+description: "在通用虚拟机上部署 piku-cat。"
 icon: "plug"
 ---
 
@@ -144,7 +144,7 @@ WORKER_ROLE=code-review
   仅在您想使用 MCP Manager 时需要。
 </Info>
 
-MCP Manager 是将 Kody 连接到外部工具并在插件屏幕中公开这些工具的服务。查看我们的 [MCP Manager 文档](/how_to_deploy/zh/deploy_kodus/mcp_manager)了解更多信息。
+MCP Manager 是将 Piku 连接到外部工具并在插件屏幕中公开这些工具的服务。查看我们的 [MCP Manager 文档](/how_to_deploy/zh/deploy_kodus/mcp_manager)了解更多信息。
 
 ```env
 API_MCP_SERVER_ENABLED=false # 如果您想使用 MCP Manager，请更改为 true
@@ -167,11 +167,11 @@ API_MCP_MANAGER_ENCRYPTION_SECRET=
 
 ### 外部服务配置（可选）
 
-这些服务是可选的，但能显著提升 Kodus 的代码审查质量。每个服务都需要您创建账号并生成 API 密钥。
+这些服务是可选的，但能显著提升 piku-cat 的代码审查质量。每个服务都需要您创建账号并生成 API 密钥。
 
 <AccordionGroup>
   <Accordion title="E2B — 代码执行沙箱">
-    E2B 提供安全的沙箱环境，Kodus 用它在审查过程中运行和验证代码。
+    E2B 提供安全的沙箱环境，piku-cat 用它在审查过程中运行和验证代码。
 
     1. 在 [e2b.dev](https://e2b.dev) 创建账号
     2. 在您的控制台中生成 API 密钥
@@ -183,7 +183,7 @@ API_MCP_MANAGER_ENCRYPTION_SECRET=
   </Accordion>
 
   <Accordion title="MorphLLM — 代码编辑模型">
-    MorphLLM 是专为快速、精准代码编辑设计的模型。Kodus 用它更精确地应用审查建议。
+    MorphLLM 是专为快速、精准代码编辑设计的模型。piku-cat 用它更精确地应用审查建议。
 
     1. 在 [morphllm.com](https://morphllm.com) 创建账号
     2. 在您的控制台中生成 API 密钥

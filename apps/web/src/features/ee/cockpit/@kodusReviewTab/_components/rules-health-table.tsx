@@ -39,7 +39,7 @@ export const RulesHealthTable = ({ data }: { data: KodyRuleHealthRow[] }) => {
     if (!data.length) {
         return (
             <div className="text-text-tertiary flex h-32 items-center justify-center text-sm">
-                No Kody Rules triggered in this period.
+                No Piku Rules triggered in this period.
             </div>
         );
     }

@@ -289,11 +289,11 @@ export default function CustomizeTeamPage() {
             <div className="bg-card-lv1 flex w-full flex-col justify-center gap-10 rounded-3xl p-8 lg:max-w-none lg:flex-10 lg:p-12">
                 <div className="flex-1 overflow-hidden">
                     <h1 className="text-2xl font-bold">
-                        Teach Kody how your team builds software
+                        Teach Piku how your team builds software
                     </h1>
                     <p className="text-text-secondary mt-2 text-base">
                         Rules add your team’s standards to every review. By
-                        default, Kody checks bugs, security, and performance.
+                        default, Piku checks bugs, security, and performance.
                     </p>
                     <div className="mt-5 flex flex-col gap-2">
                         {highlightItems.map((item) => (
@@ -328,7 +328,7 @@ export default function CustomizeTeamPage() {
                 <div className="flex flex-1 flex-col gap-8">
                     <StepIndicators.Auto />
 
-                    <Heading variant="h2">Review your Kody Rules</Heading>
+                    <Heading variant="h2">Review your Piku Rules</Heading>
 
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
@@ -364,7 +364,7 @@ export default function CustomizeTeamPage() {
                                 <span className="text-text-primary">
                                     {noRulesTimeoutReached
                                         ? "We couldn't find rules from your repo configs this time. You can continue and add or edit rules later in Settings."
-                                        : "Kody is scanning your config files and preparing recommendations. They will appear here automatically, and you can keep going in the meantime."}
+                                        : "Piku is scanning your config files and preparing recommendations. They will appear here automatically, and you can keep going in the meantime."}
                                 </span>
                             </div>
                         ) : (

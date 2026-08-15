@@ -1,11 +1,11 @@
 ---
 title: "本地快速开始"
-description: "在本地计算机上运行 Kodus — API、Worker、Webhooks、Web UI 和所有依赖项，一条命令全部启动。"
+description: "在本地计算机上运行 piku-cat — API、Worker、Webhooks、Web UI 和所有依赖项，一条命令全部启动。"
 icon: "laptop"
 ---
 
 <Note>
-  本指南用于本地开发目的。对于生产部署，请参阅[部署 Kodus](/how_to_deploy/zh/deploy_kodus/generic_vm) 指南。
+  本指南用于本地开发目的。对于生产部署，请参阅[部署 piku-cat](/how_to_deploy/zh/deploy_kodus/generic_vm) 指南。
 </Note>
 
 <Note>
@@ -138,10 +138,10 @@ icon: "laptop"
 
       此命令启动：
 
-      - Kodus API
+      - piku-cat API
       - Worker（异步任务）
       - Webhooks 服务
-      - Kodus Web 应用程序
+      - piku-cat Web 应用程序
       - PostgreSQL 数据库
       - MongoDB 数据库
       - RabbitMQ
@@ -223,7 +223,7 @@ pnpm run dev:health-check
 ```
 
 此综合健康检查验证：
-- ✅ **服务**：Kodus API、Worker、Webhooks、Web、PostgreSQL、MongoDB、RabbitMQ
+- ✅ **服务**：piku-cat API、Worker、Webhooks、Web、PostgreSQL、MongoDB、RabbitMQ
 - 🔌 **端口可用性**：Web（3000）、API（3001）、PostgreSQL（5432）、MongoDB（27017）、RabbitMQ（5672/15672）
 - 🗄️ **数据库设置**：迁移和种子数据
 - 🌐 **API 端点**：健康端点和基本连接
@@ -270,7 +270,7 @@ docker network rm kodus-backend-services shared-network
 
 **端口冲突：**
 - 确保端口 3000（Web）、3001（API）、5432（PostgreSQL）、27017（MongoDB）和 5672/15672（RabbitMQ）可用
-- 在启动 Kodus 之前停止使用这些端口的其他服务
+- 在启动 piku-cat 之前停止使用这些端口的其他服务
 
 **环境变量未加载：**
 - 验证项目根目录中存在 `.env` 文件

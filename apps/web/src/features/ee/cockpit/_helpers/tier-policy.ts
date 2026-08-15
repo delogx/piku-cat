@@ -13,6 +13,15 @@ import type { OrganizationLicense } from "../../subscription/_services/billing/t
 export function isCockpitTierAllowed(
     license: OrganizationLicense | null | undefined,
 ): boolean {
+    // piku-cat personal-use fork divergence: the cockpit is unlocked on this
+    // install. Mirror of `libs/cockpit/domain/tier-policy.ts` /
+    // `libs/ee/license/tier/teams-or-enterprise-tier-policy.ts`. Without this
+    // the cockpit layout renders a blurred preview with an "Upgrade plan" CTA
+    // and the navbar stamps a padlock on the Cockpit item. The `: boolean`
+    // annotation is load-bearing — it keeps eslint `no-unreachable` quiet.
+    const pikuCatAllowAllTiers: boolean = true;
+    if (pikuCatAllowAllTiers) return true;
+
     if (!license || !license.valid) return false;
 
     switch (license.subscriptionStatus) {

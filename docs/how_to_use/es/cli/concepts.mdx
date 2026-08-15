@@ -1,6 +1,6 @@
 ---
 title: "Conceptos"
-description: "Modelos mentales para aprovechar al máximo el CLI de Kodus."
+description: "Modelos mentales para aprovechar al máximo el CLI de piku-cat."
 ---
 
 Un breve recorrido por las ideas que aparecen en todo el CLI. Léelo una vez y el resto de la documentación tendrá más sentido.
@@ -41,9 +41,9 @@ Elige uno por máquina. El CLI detecta automáticamente lo que está disponible.
 
 Consulta [Primeros Pasos](getting_started) para el árbol de decisiones completo.
 
-## Kody Rules
+## Piku Rules
 
-Una **Kody Rule** es una regla estructurada que el revisor de Kodus aplica en cada revisión, con ámbito a un repositorio o global para tu equipo.
+Una **Piku Rule** es una regla estructurada que el revisor de piku-cat aplica en cada revisión, con ámbito a un repositorio o global para tu equipo.
 
 ```
 Regla
@@ -55,13 +55,13 @@ Regla
 └── repo-id        <uuid> | global
 ```
 
-Las reglas se añaden sobre la revisión general de Kodus: la IA las usa como criterios adicionales, no como sustitutos.
+Las reglas se añaden sobre la revisión general de piku-cat: la IA las usa como criterios adicionales, no como sustitutos.
 
 Gestiona las reglas desde el panel o desde el CLI con `kodus rules create|update|view`. El CLI es útil cuando quieres reglas bajo control de versiones (generarlas desde un script, incorporarlas a un repo, reaplicarlas en el aprovisionamiento).
 
 ## Configuración del Repositorio
 
-Cada repositorio en Kodus tiene configuraciones que rigen cómo se comportan las revisiones: archivos ignorados, patrones de ramas base, filtros de títulos, activadores de funciones. Estas viven en el backend de Kodus y se reflejan en cualquier lugar donde se revise el repo (PRs web, revisiones del CLI, bucles de agentes).
+Cada repositorio en piku-cat tiene configuraciones que rigen cómo se comportan las revisiones: archivos ignorados, patrones de ramas base, filtros de títulos, activadores de funciones. Estas viven en el backend de piku-cat y se reflejan en cualquier lugar donde se revise el repo (PRs web, revisiones del CLI, bucles de agentes).
 
 Desde el CLI:
 
@@ -78,7 +78,7 @@ kodus config repo open                 # Ir al panel web
 
 ## Configuración Centralizada
 
-Normalmente, la configuración de cada repositorio vive en Kodus. La **Configuración Centralizada** permite a un equipo almacenar esas configuraciones en un único repositorio git como fuente de verdad: cada cambio se convierte en un pull request contra ese repo, dándote revisión e historial de versiones sobre tu propia configuración de revisión.
+Normalmente, la configuración de cada repositorio vive en piku-cat. La **Configuración Centralizada** permite a un equipo almacenar esas configuraciones en un único repositorio git como fuente de verdad: cada cambio se convierte en un pull request contra ese repo, dándote revisión e historial de versiones sobre tu propia configuración de revisión.
 
 Habilitar, sincronizar o inspeccionar el estado:
 
@@ -89,7 +89,7 @@ kodus config centralized sync
 kodus config centralized disable
 ```
 
-Usa la Configuración Centralizada cuando tu equipo quiera un control auditable y versionado sobre la configuración de revisiones. Mantén el predeterminado (configuración por repositorio en Kodus) cuando esa ceremonia sea excesiva.
+Usa la Configuración Centralizada cuando tu equipo quiera un control auditable y versionado sobre la configuración de revisiones. Mantén el predeterminado (configuración por repositorio en piku-cat) cuando esa ceremonia sea excesiva.
 
 ## Validación de Negocio
 

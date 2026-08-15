@@ -1,6 +1,6 @@
 ---
 title: "Synthetic — Assinatura de Taxa Fixa para Modelos de Codificação Open-Source"
-description: "Aprenda como conectar a API por assinatura do Synthetic.new — que inclui Kimi, DeepSeek, Qwen Coder, GLM e mais — ao Kodus."
+description: "Aprenda como conectar a API por assinatura do Synthetic.new — que inclui Kimi, DeepSeek, Qwen Coder, GLM e mais — ao piku-cat."
 icon: "infinity"
 ---
 
@@ -10,7 +10,7 @@ O Synthetic é um serviço por assinatura que executa LLMs de codificação open
 
 É posicionado como uma alternativa direta aos planos de $20/mês e $200/mês do Claude para desenvolvedores que fazem muito código: o mesmo ponto de preço, limites de taxa várias vezes maiores e sua escolha de modelos open-source.
 
-O Kodus acessa o Synthetic pelo endpoint compatível com OpenAI, então não há alterações de adaptador — apenas credenciais BYOK.
+O piku-cat acessa o Synthetic pelo endpoint compatível com OpenAI, então não há alterações de adaptador — apenas credenciais BYOK.
 
 ## Visão geral dos planos
 
@@ -50,13 +50,13 @@ Veja o catálogo completo em [dev.synthetic.new/docs/openai/models](https://dev.
 2. Assine um plano em [synthetic.new/pricing](https://synthetic.new/pricing).
 3. Abra o console de desenvolvedor e crie uma chave de API. Copie-a imediatamente — você não verá a chave completa novamente.
 
-## Configurar o Synthetic no Kodus
+## Configurar o Synthetic no piku-cat
 
-O fluxo principal é BYOK no Kodus Cloud. Instalações self-hosted podem usar variáveis de ambiente como opção secundária.
+O fluxo principal é BYOK no piku-cat Cloud. Instalações self-hosted podem usar variáveis de ambiente como opção secundária.
 
-### Opção 1 — BYOK no Kodus Cloud (recomendado)
+### Opção 1 — BYOK no piku-cat Cloud (recomendado)
 
-1. Na interface do Kodus, abra **Configurações → BYOK** ([app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)).
+1. Na interface do piku-cat, abra **Configurações → BYOK** ([app.kodus.io/organization/byok](https://app.kodus.io/organization/byok)).
 2. O Synthetic não está no catálogo curado — clique em **Configure manually** no final da lista de modelos. Use `?slot=fallback` na URL se estiver configurando um fallback em vez do modelo principal.
 3. Preencha o assistente:
 
@@ -68,19 +68,19 @@ O fluxo principal é BYOK no Kodus Cloud. Instalações self-hosted podem usar v
    | **API Key** | sua chave de API do Synthetic |
    | **Max Concurrent Requests** | comece com `3–5` para caber no orçamento de 5 horas em PRs maiores (em Advanced settings) |
 
-4. Clique em **Test & save**. O Kodus sonda o endpoint e persiste a configuração em caso de sucesso. 401 significa que a chave está errada; 404 geralmente significa que a URL base ou o caminho do modelo está errado.
+4. Clique em **Test & save**. O piku-cat sonda o endpoint e persiste a configuração em caso de sucesso. 401 significa que a chave está errada; 404 geralmente significa que a URL base ou o caminho do modelo está errado.
 
 <Tip>
   O orçamento de 500 mensagens por 5 horas é por assinatura, não por PR. Para times que fazem revisões contínuas pesadas, mantenha o `Max Concurrent Requests` baixo o suficiente para que um PR grande com vários arquivos não consuma toda a janela, ou distribua o trabalho entre múltiplas assinaturas.
 </Tip>
 
 <Note>
-  Configure o Synthetic como **Main** e mantenha uma chave OpenAI ou Anthropic como **Fallback** — quando a janela de 5 horas se esgotar, o Kodus realiza o failover automaticamente e as revisões continuam fluindo.
+  Configure o Synthetic como **Main** e mantenha uma chave OpenAI ou Anthropic como **Fallback** — quando a janela de 5 horas se esgotar, o piku-cat realiza o failover automaticamente e as revisões continuam fluindo.
 </Note>
 
 ### Opção 2 — Self-hosted (variáveis de ambiente)
 
-Se você executa o Kodus em Fixed Mode (provedor global único, sem BYOK por organização), configure o Synthetic no `.env` dos seus containers de API e worker:
+Se você executa o piku-cat em Fixed Mode (provedor global único, sem BYOK por organização), configure o Synthetic no `.env` dos seus containers de API e worker:
 
 ```env
 # Synthetic configuration (Fixed Mode)
@@ -90,7 +90,7 @@ API_OPEN_AI_API_KEY="your-synthetic-api-key"
 ```
 
 <Note>
-  Este caminho só é necessário para instalações self-hosted do Kodus que desabilitam deliberadamente o BYOK. Se o BYOK estiver habilitado na sua instância self-hosted, prefira a **Opção 1** — o fluxo pela interface é o mesmo do Cloud.
+  Este caminho só é necessário para instalações self-hosted do piku-cat que desabilitam deliberadamente o BYOK. Se o BYOK estiver habilitado na sua instância self-hosted, prefira a **Opção 1** — o fluxo pela interface é o mesmo do Cloud.
 </Note>
 
 Reinicie os containers de API e worker após editar o `.env`, e verifique:
@@ -130,7 +130,7 @@ Escolha pay-per-token (Moonshot, Fireworks, Together, Groq) se seu tráfego for 
 
   <Accordion title="Cold-start longo na primeira chamada">
     - Alguns modelos maiores podem ter um cold-start na primeira vez que são usados após um período de inatividade.
-    - Se a latência da primeira chamada estiver bloqueando as verificações de saúde do Kodus, aqueça o modelo enviando uma pequena requisição de teste antes de abrir PRs.
+    - Se a latência da primeira chamada estiver bloqueando as verificações de saúde do piku-cat, aqueça o modelo enviando uma pequena requisição de teste antes de abrir PRs.
   </Accordion>
 
   <Accordion title="Erros de conexão">

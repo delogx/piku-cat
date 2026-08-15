@@ -167,7 +167,7 @@ export const FeedbackSection = ({
                         Negative feedback (👎)
                     </CardTitle>
                     <CardDescription className="text-xs">
-                        where the team disagrees with Kodus · click to drill
+                        where the team disagrees with piku-cat · click to drill
                         down
                     </CardDescription>
                 </div>

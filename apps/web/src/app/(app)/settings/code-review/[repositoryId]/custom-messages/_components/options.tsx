@@ -36,17 +36,17 @@ const REVIEW_CADENCE_COPY: Record<
 > = {
     [ReviewCadenceType.AUTOMATIC]: {
         label: "🤖 Automatic Review",
-        description: "Kody will automatically review every push to this PR.",
+        description: "Piku will automatically review every push to this PR.",
     },
     [ReviewCadenceType.AUTO_PAUSE]: {
         label: "⏸️ Auto-Pause Mode",
         description:
-            "Kody reviews the first push automatically, then pauses if you make 3+ pushes in 15 minutes. Use @kody start-review to continue.",
+            "Piku reviews the first push automatically, then pauses if you make 3+ pushes in 15 minutes. Use @kody start-review to continue.",
     },
     [ReviewCadenceType.MANUAL]: {
         label: "✋ Manual Review",
         description:
-            "Kody only reviews when you request with @kody start-review command.",
+            "Piku only reviews when you request with @kody start-review command.",
     },
 };
 
@@ -186,7 +186,7 @@ export const dropdownItems = {
     reviewCadence: {
         label: "Review cadence",
         description:
-            "Shows how Kody will review this PR (automatic, auto-pause, or manual)",
+            "Shows how Piku will review this PR (automatic, auto-pause, or manual)",
         example: (
             <SimpleCollapsible label="⏱️ Review cadence">
                 <ReviewCadencePreview />

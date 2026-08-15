@@ -1,12 +1,12 @@
 ---
 title: "Moonshot(Kimi)- OpenAI 兼容的推理平台"
-description: "了解如何将 Moonshot AI 的 Kimi K2.6 模型连接到 Kodus — 通过 Moonshot 开发者 API 或 Kimi Code Plan。"
+description: "了解如何将 Moonshot AI 的 Kimi K2.6 模型连接到 piku-cat — 通过 Moonshot 开发者 API 或 Kimi Code Plan。"
 icon: "moon"
 ---
 
 ## Moonshot 工作原理
 
-Moonshot AI 发布 **Kimi** 系列模型(K2、K2.5、K2.6、K2.6 Coding)。Kimi 在长上下文代码理解和 Agent 型任务上表现尤为突出,其 API 完全兼容 OpenAI — Kodus 通过 `OpenAI Compatible` 提供商与之对接(或直接使用 BYOK 中精选的 **Kimi K2.6 Coding** 卡片)。
+Moonshot AI 发布 **Kimi** 系列模型(K2、K2.5、K2.6、K2.6 Coding)。Kimi 在长上下文代码理解和 Agent 型任务上表现尤为突出,其 API 完全兼容 OpenAI — piku-cat 通过 `OpenAI Compatible` 提供商与之对接(或直接使用 BYOK 中精选的 **Kimi K2.6 Coding** 卡片)。
 
 Moonshot 为同一模型系列提供**两条路径**,各自有独立端点:
 
@@ -67,11 +67,11 @@ Moonshot 还运营一个仅限中国大陆的平台(`platform.moonshot.cn`,基�
   </Tab>
 </Tabs>
 
-## 在 Kodus 中配置 Moonshot
+## 在 piku-cat 中配置 Moonshot
 
-主流程是在 Kodus Cloud 上使用 BYOK — 精选的 **Kimi K2.6 Coding** 卡片会为您处理端点切换。希望在进程层级固定提供商的自托管用户可以改用环境变量。
+主流程是在 piku-cat Cloud 上使用 BYOK — 精选的 **Kimi K2.6 Coding** 卡片会为您处理端点切换。希望在进程层级固定提供商的自托管用户可以改用环境变量。
 
-### 方式 1 — Kodus Cloud 上的 BYOK(推荐)
+### 方式 1 — piku-cat Cloud 上的 BYOK(推荐)
 
 <Steps>
   <Step title="打开 BYOK 并选择 Kimi K2.6 Coding">
@@ -87,11 +87,11 @@ Moonshot 还运营一个仅限中国大陆的平台(`platform.moonshot.cn`,基�
   </Step>
 
   <Step title="粘贴您的 API 密钥">
-    只需密钥。对于 Kimi Code Plan 用户,Kodus 会在高级设置中预填 `maxConcurrentRequests=30`(匹配文档中的上限)。
+    只需密钥。对于 Kimi Code Plan 用户,piku-cat 会在高级设置中预填 `maxConcurrentRequests=30`(匹配文档中的上限)。
   </Step>
 
   <Step title="测试并保存">
-    点击**测试并保存**。Kodus 会通过一次低成本的元数据调用探测端点,成功后持久化配置。401 表示密钥与所选方案的端点不匹配。
+    点击**测试并保存**。piku-cat 会通过一次低成本的元数据调用探测端点,成功后持久化配置。401 表示密钥与所选方案的端点不匹配。
   </Step>
 </Steps>
 
@@ -116,7 +116,7 @@ Kimi K2.6 Coding 默认开启推理 — 精选卡片预填 **Thinking: Medium**,
   ```
 
 <Note>
-  无需命名空间包装 — Kodus 在发送前会在 `openaiCompatible`(当前提供商)下自动包装。详见 [主 BYOK 文档 → 自定义 JSON 覆盖](/how_to_use/zh/byok#自定义-json-覆盖)。
+  无需命名空间包装 — piku-cat 在发送前会在 `openaiCompatible`(当前提供商)下自动包装。详见 [主 BYOK 文档 → 自定义 JSON 覆盖](/how_to_use/zh/byok#自定义-json-覆盖)。
 </Note>
 
 ### 调优并发
@@ -125,7 +125,7 @@ Kimi K2.6 Coding 默认开启推理 — 精选卡片预填 **Thinking: Medium**,
 - **开发者 API**:保持为空(无上限)。实际限制随充值档位伸缩 — Tier 1(约 $10 充值)允许约 50 并发;Tier 5(约 $3000)允许约 1000。如果审查时看到 429,请显式下调。
 
 <Note>
-  将 Kimi 配置为 **Main**,同时保留一个 OpenAI 或 Anthropic 密钥作为 **Fallback** — 如果 Moonshot 返回 429 或 402,Kodus 会自动故障转移。
+  将 Kimi 配置为 **Main**,同时保留一个 OpenAI 或 Anthropic 密钥作为 **Fallback** — 如果 Moonshot 返回 429 或 402,piku-cat 会自动故障转移。
 </Note>
 
 ### 方式 2 — 手动配置
@@ -142,7 +142,7 @@ Kimi K2.6 Coding 默认开启推理 — 精选卡片预填 **Thinking: Medium**,
 
 ### 方式 3 — 自托管(环境变量)
 
-如果您以 Fixed Mode 运行 Kodus(单一全局提供商,无按组织 BYOK),在 API + worker 容器的 `.env` 中配置 Moonshot:
+如果您以 Fixed Mode 运行 piku-cat(单一全局提供商,无按组织 BYOK),在 API + worker 容器的 `.env` 中配置 Moonshot:
 
 ```env
 # Moonshot(Kimi)配置(固定模式)
@@ -152,7 +152,7 @@ API_OPEN_AI_API_KEY="your-moonshot-or-kimi-code-api-key"
 ```
 
 <Note>
-  仅在有意禁用 BYOK 的自托管 Kodus 安装中才需要这条路径。如果您的自托管实例启用了 BYOK,请优先使用**方式 1** — 精选卡片会为您处理端点逻辑。
+  仅在有意禁用 BYOK 的自托管 piku-cat 安装中才需要这条路径。如果您的自托管实例启用了 BYOK,请优先使用**方式 1** — 精选卡片会为您处理端点逻辑。
 </Note>
 
 编辑 `.env` 后重启 API 和 worker 容器,然后验证集成:
@@ -197,7 +197,7 @@ docker-compose logs api worker | grep -iE "moonshot|kimi"
 
   <Accordion title="区域 / 连接性">
     - 中国大陆以外的用户应始终使用 `api.moonshot.ai` 或 `api.kimi.com`。从大陆以外访问 `api.moonshot.cn` 可能不通或被限速。
-    - 确认您的 Kodus 部署允许对所选端点的出站 HTTPS。
+    - 确认您的 piku-cat 部署允许对所选端点的出站 HTTPS。
   </Accordion>
 </AccordionGroup>
 

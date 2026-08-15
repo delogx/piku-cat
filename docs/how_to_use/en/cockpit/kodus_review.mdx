@@ -1,13 +1,13 @@
 ---
-title: "Kodus Review"
-description: "Measure how effective Kodus's reviews are — and act on it"
+title: "piku-cat Review"
+description: "Measure how effective piku-cat's reviews are — and act on it"
 ---
 
-## What is the Kodus Review tab
+## What is the piku-cat Review tab
 
-The **Kodus Review** tab answers one question: *is your team acting on what Kodus says?*
+The **piku-cat Review** tab answers one question: *is your team acting on what piku-cat says?*
 
-Unlike the Productivity tab (which measures general delivery metrics like deploy frequency and PR cycle time), Kodus Review is about Kodus itself — how many suggestions get implemented, which categories and rules land or get ignored, and where the team pushes back.
+Unlike the Productivity tab (which measures general delivery metrics like deploy frequency and PR cycle time), piku-cat Review is about piku-cat itself — how many suggestions get implemented, which categories and rules land or get ignored, and where the team pushes back.
 
 Every chart and table respects the global **repository** and **date range** filters at the top of the page. Click a repository row, a category bar, or a rule to drill into the underlying suggestions.
 
@@ -16,7 +16,7 @@ Every chart and table respects the global **repository** and **date range** filt
 | Card | What it means |
 | --- | --- |
 | **Implementation rate** | % of sent suggestions the team implemented in the period |
-| **Suggestions sent** | How many suggestions Kodus delivered (as PR comments) in the period |
+| **Suggestions sent** | How many suggestions piku-cat delivered (as PR comments) in the period |
 | **Negative vote rate** | Share of reactions that were 👎, with the trend vs. the previous period |
 | **Criticals ignored in merged PRs** | Critical suggestions left unimplemented on PRs that were already merged — the actionable risk list |
 
@@ -30,7 +30,7 @@ Implementation rate = implemented suggestions ÷ sent suggestions
 
 Scope rules — the same across every implementation-rate chart:
 
-- Only **delivered** suggestions count (the ones actually posted as PR comments). Drafts Kodus filtered out before commenting are never counted.
+- Only **delivered** suggestions count (the ones actually posted as PR comments). Drafts piku-cat filtered out before commenting are never counted.
 - Suggestions are attributed to the **week the PR closed**, because implementation status is only final once the PR merges.
 
 ### Week over week
@@ -46,12 +46,12 @@ The weekly chart shows the trend, with a toggle:
 - **By severity** — implementation rate per severity level. The expectation is a descending gradient (critical implemented more than low). If it looks flat or inverted, severity isn't guiding the team.
 
 <Warning>
-  **The "All / Kodus only" toggle on the severity chart matters.** A Kody Rule carries the severity *you* set on the rule, not a risk assessment by Kodus. Mixing the two distorts the calibration read — for example, a pile of medium Kody Rules with high adoption can make Kodus look like it under-rates medium. Switch to **Kodus only** to see Kodus's own severity calibration. Bars built on very few suggestions are faded and marked with `*` — a 0% or 100% from a handful of suggestions is not a real signal.
+  **The "All / piku-cat only" toggle on the severity chart matters.** A Piku Rule carries the severity *you* set on the rule, not a risk assessment by piku-cat. Mixing the two distorts the calibration read — for example, a pile of medium Piku Rules with high adoption can make piku-cat look like it under-rates medium. Switch to **piku-cat only** to see piku-cat's own severity calibration. Bars built on very few suggestions are faded and marked with `*` — a 0% or 100% from a handful of suggestions is not a real signal.
 </Warning>
 
 ## Negative feedback
 
-Feedback comes from 👍 / 👎 reactions on Kodus's suggestion comments.
+Feedback comes from 👍 / 👎 reactions on piku-cat's suggestion comments.
 
 - **Negative vote rate** (summary card) — `👎 ÷ (👍 + 👎)`, with the trend vs. the previous period. Lower is better.
 - **By category** — where the team disagrees most. A category with many 👎 is a candidate to retune or disable.
@@ -59,13 +59,13 @@ Feedback comes from 👍 / 👎 reactions on Kodus's suggestion comments.
 
 ## Repositories — health
 
-A per-repository table: PRs reviewed, suggestions sent, implementation rate, 👍/👎, and the **weakest category** (the category with the lowest implementation rate in that repo, given a minimum sample). It shows where Kodus is landing versus being ignored.
+A per-repository table: PRs reviewed, suggestions sent, implementation rate, 👍/👎, and the **weakest category** (the category with the lowest implementation rate in that repo, given a minimum sample). It shows where piku-cat is landing versus being ignored.
 
 Clicking a row focuses the whole cockpit on that repository (same as picking it in the repository filter).
 
-## Kody Rules — health
+## Piku Rules — health
 
-How each Kody Rule is performing in the period: triggers, implementation rate, 👍/👎, and a status. Only active rules appear — deleted or inactive ones are excluded since you can't act on them.
+How each Piku Rule is performing in the period: triggers, implementation rate, 👍/👎, and a status. Only active rules appear — deleted or inactive ones are excluded since you can't act on them.
 
 The status is computed per rule, in this priority order:
 
@@ -83,4 +83,4 @@ The status is computed per rule, in this priority order:
 
 Every drill-down — a category bar, a rule row, the "criticals ignored" card — opens the **suggestions explorer**: a filterable, paginated list of the actual suggestions behind the number.
 
-Filters: repository, category, severity, implementation status, Kody Rule, and free-text search. Each row expands to show the existing vs. suggested code and a link to the PR comment.
+Filters: repository, category, severity, implementation status, Piku Rule, and free-text search. Each row expands to show the existing vs. suggested code and a link to the PR comment.

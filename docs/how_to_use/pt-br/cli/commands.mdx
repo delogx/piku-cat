@@ -148,7 +148,7 @@ kodus pr business-validation --task-id KC-1441 --dry-run
 
 ## `kodus auth`
 
-Gerencia autenticação com a API do Kodus.
+Gerencia autenticação com a API do piku-cat.
 
 ### `auth login`
 
@@ -229,7 +229,7 @@ kodus hook install --force            # Sobrescrever hook existente
 kodus hook uninstall
 ```
 
-Remove o hook pre-push instalado pelo Kodus.
+Remove o hook pre-push instalado pelo piku-cat.
 
 ### `hook status`
 
@@ -285,20 +285,20 @@ Para um guia completo, veja: [/how_to_use/en/code_review/configs/centralized_con
 
 ## `kodus config repo`
 
-Inspeciona e atualiza configurações de repositório armazenadas no Kodus. Requer autenticação por chave de equipe. Use `.` para referenciar o repositório atual.
+Inspeciona e atualiza configurações de repositório armazenadas no piku-cat. Requer autenticação por chave de equipe. Use `.` para referenciar o repositório atual.
 
 <Note>`kodus config repo` e `kodus config remote` são aliases para o mesmo grupo de comandos.</Note>
 
 ### Uso
 
 ```bash
-kodus config repo add                                   # Adicionar repositório atual ao Kodus
+kodus config repo add                                   # Adicionar repositório atual ao piku-cat
 kodus config repo add owner/repo                        # Adicionar um repositório específico
 kodus config repo list                                  # Listar repositórios configurados
 kodus config repo show                                  # Exibir configurações do repositório atual
 kodus config repo setup                                 # Assistente de configuração guiado
 kodus config repo set . reviewEnabled true              # Definir uma configuração diretamente
-kodus config repo open                                  # Abrir o painel do Kodus
+kodus config repo open                                  # Abrir o painel do piku-cat
 kodus config repo add-ignore-file . "**/*.generated.ts"
 kodus config repo add-base-branch . "release/*"
 kodus config repo add-ignore-title . "^WIP:"
@@ -308,12 +308,12 @@ kodus config repo add-ignore-title . "^WIP:"
 
 | Subcomando                                         | Descrição                                                                   |
 | -------------------------------------------------- | --------------------------------------------------------------------------- |
-| `add [repository]`                                 | Adicionar um repositório ao Kodus (atalho: `kodus config -r [repository]`) |
-| `list`                                             | Listar repositórios configurados no Kodus                                   |
+| `add [repository]`                                 | Adicionar um repositório ao piku-cat (atalho: `kodus config -r [repository]`) |
+| `list`                                             | Listar repositórios configurados no piku-cat                                   |
 | `show [repository]`                                | Exibir configurações do repositório                                         |
 | `setup [repository]`                               | Executar um assistente de configuração de repositório guiado                |
 | `set [repository] <key> <value>`                   | Definir uma configuração de repositório diretamente                         |
-| `open [repository]`                                | Abrir o painel do Kodus para configurações avançadas                        |
+| `open [repository]`                                | Abrir o painel do piku-cat para configurações avançadas                        |
 | `add-pattern [repository] <field> <pattern>`       | Adicionar um padrão a um campo de lista (`ignore-files`, `base-branches`, `ignore-titles`) |
 | `remove-pattern [repository] <field> <pattern>`    | Remover um padrão de um campo de lista                                      |
 | `add-ignore-file [repository] <pattern>`           | Atalho: adicionar um padrão aos padrões de arquivo ignorados                |
@@ -333,7 +333,7 @@ kodus config repo add-ignore-title . "^WIP:"
 
 ## `kodus rules`
 
-Cria, atualiza e visualiza Kody Rules — regras estruturadas que o Kodus aplica durante as revisões.
+Cria, atualiza e visualiza Piku Rules — regras estruturadas que o piku-cat aplica durante as revisões.
 
 ### Uso
 
@@ -349,9 +349,9 @@ kodus rules update --uuid <rule-uuid> --severity critical
 
 | Subcomando | Descrição                    |
 | ---------- | ---------------------------- |
-| `create`   | Criar uma nova Kody Rule     |
+| `create`   | Criar uma nova Piku Rule     |
 | `update`   | Atualizar uma regra existente |
-| `view`     | Visualizar Kody Rules        |
+| `view`     | Visualizar Piku Rules        |
 
 ### Flags de `rules create`
 
@@ -424,7 +424,7 @@ kodus skills uninstall                                   # Remover skills inclu�
 
 ## `kodus status`
 
-Exibe um status consolidado do Kodus: modo de autenticação, organização, repositório, hook, skills incluídas e versão do CLI.
+Exibe um status consolidado do piku-cat: modo de autenticação, organização, repositório, hook, skills incluídas e versão do CLI.
 
 ```bash
 kodus status
@@ -467,7 +467,7 @@ Resolve o comando de instalação global correto para o seu gerenciador de pacot
 
 ## `kodus subscribe`
 
-Abre a página de preços/upgrade do Kodus no seu navegador.
+Abre a página de preços/upgrade do piku-cat no seu navegador.
 
 ```bash
 kodus subscribe

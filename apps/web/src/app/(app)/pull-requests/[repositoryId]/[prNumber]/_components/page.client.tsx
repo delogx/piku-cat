@@ -28,7 +28,7 @@ import { PrHeader, type PrTab } from "./try-port/PrHeader";
 import { RightSidebar } from "./try-port/RightSidebar";
 import type { ReviewIssue } from "./try-port/types";
 
-// Web only carries data for these two tabs (Kody doesn't store the PR body
+// Web only carries data for these two tabs (Piku doesn't store the PR body
 // or comment threads), so we render a narrower tab bar than try's four.
 const WEB_TABS: PrTab[] = ["review", "commits"];
 const FILE_TREE_MODE_KEY = "kodus:pr-file-tree-mode";

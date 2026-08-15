@@ -1,12 +1,12 @@
 ---
 title: "Moonshot (Kimi) - OpenAI-Compatible Inference"
-description: "Learn how to connect Moonshot AI's Kimi K2.6 models to Kodus — via the Moonshot Developer API or the Kimi Code Plan."
+description: "Learn how to connect Moonshot AI's Kimi K2.6 models to piku-cat — via the Moonshot Developer API or the Kimi Code Plan."
 icon: "moon"
 ---
 
 ## How Moonshot works
 
-Moonshot AI publishes the **Kimi** family of models (K2, K2.5, K2.6, K2.6 Coding). Kimi is particularly strong on long-context code understanding and agentic workflows, and the API is fully OpenAI-compatible — Kodus talks to it via the `OpenAI Compatible` provider (or directly through the curated **Kimi K2.6 Coding** card in BYOK).
+Moonshot AI publishes the **Kimi** family of models (K2, K2.5, K2.6, K2.6 Coding). Kimi is particularly strong on long-context code understanding and agentic workflows, and the API is fully OpenAI-compatible — piku-cat talks to it via the `OpenAI Compatible` provider (or directly through the curated **Kimi K2.6 Coding** card in BYOK).
 
 Moonshot offers **two paths** to the same model family, each with its own endpoint:
 
@@ -67,11 +67,11 @@ Developer API endpoint: `https://api.moonshot.ai/v1` (international). Concurrenc
   </Tab>
 </Tabs>
 
-## Configure Moonshot in Kodus
+## Configure Moonshot in piku-cat
 
-The primary flow is BYOK on Kodus Cloud — the curated **Kimi K2.6 Coding** card handles the endpoint swap for you. Self-hosted users who prefer fixing the provider at the process level can use environment variables instead.
+The primary flow is BYOK on piku-cat Cloud — the curated **Kimi K2.6 Coding** card handles the endpoint swap for you. Self-hosted users who prefer fixing the provider at the process level can use environment variables instead.
 
-### Option 1 — BYOK on Kodus Cloud (recommended)
+### Option 1 — BYOK on piku-cat Cloud (recommended)
 
 <Steps>
   <Step title="Open BYOK and pick Kimi K2.6 Coding">
@@ -87,11 +87,11 @@ The primary flow is BYOK on Kodus Cloud — the curated **Kimi K2.6 Coding** car
   </Step>
 
   <Step title="Paste your API key">
-    Just the key. For Kimi Code Plan users, Kodus pre-fills `maxConcurrentRequests=30` in Advanced settings (matches the documented cap).
+    Just the key. For Kimi Code Plan users, piku-cat pre-fills `maxConcurrentRequests=30` in Advanced settings (matches the documented cap).
   </Step>
 
   <Step title="Test & save">
-    Click **Test & save**. Kodus probes the endpoint with a cheap metadata call and persists the config on success. 401 means the key doesn't match the selected plan's endpoint.
+    Click **Test & save**. piku-cat probes the endpoint with a cheap metadata call and persists the config on success. 401 means the key doesn't match the selected plan's endpoint.
   </Step>
 </Steps>
 
@@ -116,7 +116,7 @@ Reasoning is ON by default for Kimi K2.6 Coding — the curated card pre-fills *
   ```
 
 <Note>
-  No namespace wrapping needed — Kodus auto-wraps under `openaiCompatible` (the active provider) before sending. See the [main BYOK doc → Custom JSON override](/how_to_use/en/byok#custom-json-override) for details.
+  No namespace wrapping needed — piku-cat auto-wraps under `openaiCompatible` (the active provider) before sending. See the [main BYOK doc → Custom JSON override](/how_to_use/en/byok#custom-json-override) for details.
 </Note>
 
 ### Tuning concurrency
@@ -125,7 +125,7 @@ Reasoning is ON by default for Kimi K2.6 Coding — the curated card pre-fills *
 - **Developer API**: start empty (no cap). Your actual limit scales with your recharge tier — Tier 1 (~$10 recharge) allows ~50 concurrent; Tier 5 (~$3000) allows ~1000. Lower it explicitly if you see 429s at review time.
 
 <Note>
-  Configure Kimi as **Main** and keep an OpenAI or Anthropic key as **Fallback** — if Moonshot returns 429 or 402, Kodus fails over automatically.
+  Configure Kimi as **Main** and keep an OpenAI or Anthropic key as **Fallback** — if Moonshot returns 429 or 402, piku-cat fails over automatically.
 </Note>
 
 ### Option 2 — Manual configuration
@@ -142,7 +142,7 @@ If you need a Kimi variant not in the curated catalog (e.g. `kimi-k2.5` or `kimi
 
 ### Option 3 — Self-hosted (environment variables)
 
-If you run Kodus in Fixed Mode (single global provider, no per-org BYOK), configure Moonshot in the `.env` of your API + worker containers:
+If you run piku-cat in Fixed Mode (single global provider, no per-org BYOK), configure Moonshot in the `.env` of your API + worker containers:
 
 ```env
 # Moonshot (Kimi) configuration (Fixed Mode)
@@ -152,7 +152,7 @@ API_OPEN_AI_API_KEY="your-moonshot-or-kimi-code-api-key"
 ```
 
 <Note>
-  This path is only needed for self-hosted Kodus installs that deliberately disable BYOK. If BYOK is enabled on your self-hosted instance, prefer **Option 1** — the curated card handles the endpoint logic for you.
+  This path is only needed for self-hosted piku-cat installs that deliberately disable BYOK. If BYOK is enabled on your self-hosted instance, prefer **Option 1** — the curated card handles the endpoint logic for you.
 </Note>
 
 Restart the API and worker containers after editing `.env`, then verify the integration:
@@ -197,7 +197,7 @@ For the full self-hosted setup (domains, security keys, database, webhooks, reve
 
   <Accordion title="Region / connectivity">
     - Users outside China should always use `api.moonshot.ai` or `api.kimi.com`. `api.moonshot.cn` may be unreachable or rate-limited from outside mainland China.
-    - Confirm outbound HTTPS to the chosen endpoint is allowed from your Kodus deployment.
+    - Confirm outbound HTTPS to the chosen endpoint is allowed from your piku-cat deployment.
   </Accordion>
 </AccordionGroup>
 

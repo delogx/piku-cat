@@ -28,7 +28,7 @@ import { cn } from "src/core/utils/components";
 
 /**
  * Denylist picker for issue #1497: choose git reviewers whose past review
- * comments Kody should NOT learn from. Empty = learn from everyone. Reviewers
+ * comments Piku should NOT learn from. Empty = learn from everyone. Reviewers
  * are lazy-loaded (current members ∪ PR authors in the window) only when the
  * dropdown opens, since that involves a git call.
  */
@@ -118,7 +118,7 @@ export const ExcludedReviewersPicker = ({
     return (
         <div className="mt-1 mb-2 ml-2 flex flex-col gap-1">
             <span className="text-text-secondary text-xs">
-                Exclude specific developers so Kody doesn&apos;t learn rules
+                Exclude specific developers so Piku doesn&apos;t learn rules
                 from their review comments.
             </span>
 

@@ -1,7 +1,7 @@
 import { analyticsFetch, type AnalyticsParams } from "../utils";
 
 // ---------------------------------------------------------------------
-// "Kodus Review" tab — review-analytics endpoints (apps/api). Response
+// "piku-cat Review" tab — review-analytics endpoints (apps/api). Response
 // types mirror `libs/cockpit/domain/types.ts`.
 // ---------------------------------------------------------------------
 
@@ -22,8 +22,8 @@ export type ImplementationRateByCategoryRow = ImplementationRateBreakdown & {
 
 export type ImplementationRateBySeverityRow = ImplementationRateBreakdown & {
     severity: string;
-    // same counters excluding rule-driven suggestions (Kody Rules carry a
-    // user-defined severity, so they distort the Kodus calibration read).
+    // same counters excluding rule-driven suggestions (Piku Rules carry a
+    // user-defined severity, so they distort the piku-cat calibration read).
     nativeSent: number;
     nativeImplemented: number;
     nativeRate: number;

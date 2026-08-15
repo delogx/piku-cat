@@ -1,6 +1,6 @@
 ---
 title: "Z.AI (GLM Coding Plan) - Inferência por Assinatura"
-description: "Aprenda como conectar os modelos GLM do Z.AI — incluindo a assinatura GLM Coding Plan — ao Kodus."
+description: "Aprenda como conectar os modelos GLM do Z.AI — incluindo a assinatura GLM Coding Plan — ao piku-cat."
 icon: "bolt"
 ---
 
@@ -10,7 +10,7 @@ O Z.AI (desenvolvido pela Zhipu AI) serve a família de modelos GLM. É um dos p
 
 Para cargas de trabalho de maior volume ou variáveis, o Z.AI também oferece acesso pay-per-token aos mesmos modelos em sua Developer API padrão.
 
-Ambos os caminhos expõem um endpoint compatível com OpenAI, então o Kodus se comunica com eles via o provedor `OpenAI Compatible` (ou diretamente pelo card curado **GLM 5.1** em BYOK).
+Ambos os caminhos expõem um endpoint compatível com OpenAI, então o piku-cat se comunica com eles via o provedor `OpenAI Compatible` (ou diretamente pelo card curado **GLM 5.1** em BYOK).
 
 ## Visão geral dos planos
 
@@ -68,11 +68,11 @@ Endpoint padrão: `https://api.z.ai/api/paas/v4/` (compatível com OpenAI).
   </Tab>
 </Tabs>
 
-## Configurar o Z.AI no Kodus
+## Configurar o Z.AI no piku-cat
 
-O fluxo principal é BYOK no Kodus Cloud — o card curado **GLM 5.1** lida com a troca de endpoint por você. Usuários self-hosted que preferem fixar o provedor no nível do processo podem usar variáveis de ambiente.
+O fluxo principal é BYOK no piku-cat Cloud — o card curado **GLM 5.1** lida com a troca de endpoint por você. Usuários self-hosted que preferem fixar o provedor no nível do processo podem usar variáveis de ambiente.
 
-### Opção 1 — BYOK no Kodus Cloud (recomendado)
+### Opção 1 — BYOK no piku-cat Cloud (recomendado)
 
 <Steps>
   <Step title="Abrir BYOK e escolher GLM 5.1">
@@ -88,11 +88,11 @@ O fluxo principal é BYOK no Kodus Cloud — o card curado **GLM 5.1** lida com 
   </Step>
 
   <Step title="Colar sua chave de API">
-    Apenas a chave — nada mais para configurar. Para usuários do Coding Plan, o Kodus pré-preenche `maxConcurrentRequests=1` em Advanced settings, que corresponde aos limites dos tiers Lite/Pro. Aumente para 30 se você está no Max.
+    Apenas a chave — nada mais para configurar. Para usuários do Coding Plan, o piku-cat pré-preenche `maxConcurrentRequests=1` em Advanced settings, que corresponde aos limites dos tiers Lite/Pro. Aumente para 30 se você está no Max.
   </Step>
 
   <Step title="Test & save">
-    Clique em **Test & save**. O Kodus sonda o endpoint com uma chamada barata de metadados e persiste a configuração em caso de sucesso. 401 significa que a chave não corresponde ao endpoint do plano selecionado; 404 significa que a URL base está errada.
+    Clique em **Test & save**. O piku-cat sonda o endpoint com uma chamada barata de metadados e persiste a configuração em caso de sucesso. 401 significa que a chave não corresponde ao endpoint do plano selecionado; 404 significa que a URL base está errada.
   </Step>
 </Steps>
 
@@ -117,7 +117,7 @@ O card curado GLM 5.1 pré-preenche **Thinking: Medium**, que para provedores Op
   ```
 
 <Note>
-  Não é necessário envolver em namespace — o Kodus faz o auto-wrap sob `openaiCompatible` (o provider ativo) antes de enviar. Veja [main BYOK doc → Custom JSON override](/how_to_use/pt-br/byok#sobrescrita-via-json-customizado) para detalhes.
+  Não é necessário envolver em namespace — o piku-cat faz o auto-wrap sob `openaiCompatible` (o provider ativo) antes de enviar. Veja [main BYOK doc → Custom JSON override](/how_to_use/pt-br/byok#sobrescrita-via-json-customizado) para detalhes.
 </Note>
 
 ### Ajustar simultaneidade
@@ -127,7 +127,7 @@ O card curado GLM 5.1 pré-preenche **Thinking: Medium**, que para provedores Op
 - **Developer API**: comece vazio (sem limite). Reduza para `5` se vir erros de limite de taxa, depois ajuste.
 
 <Note>
-  Configure o GLM 5.1 como seu modelo **Main** e mantenha uma chave OpenAI ou Anthropic como **Fallback** para que as revisões continuem rodando quando sua janela de 5 horas do Coding Plan se esgotar. O Kodus faz failover automaticamente.
+  Configure o GLM 5.1 como seu modelo **Main** e mantenha uma chave OpenAI ou Anthropic como **Fallback** para que as revisões continuem rodando quando sua janela de 5 horas do Coding Plan se esgotar. O piku-cat faz failover automaticamente.
 </Note>
 
 ### Opção 2 — Configuração manual
@@ -144,7 +144,7 @@ Se você precisa de uma variante do GLM que não está no catálogo curado (ex.:
 
 ### Opção 3 — Self-hosted (variáveis de ambiente)
 
-Se você executa o Kodus em Fixed Mode (provedor global único, sem BYOK por organização), configure o Z.AI no `.env` dos seus containers de API e worker:
+Se você executa o piku-cat em Fixed Mode (provedor global único, sem BYOK por organização), configure o Z.AI no `.env` dos seus containers de API e worker:
 
 ```env
 # Z.AI configuration (Fixed Mode)
@@ -154,7 +154,7 @@ API_OPEN_AI_API_KEY="your-z-ai-api-key"
 ```
 
 <Note>
-  Este caminho só é necessário para instalações self-hosted do Kodus que desabilitam deliberadamente o BYOK. Se o BYOK estiver habilitado na sua instância self-hosted, prefira a **Opção 1** — o card curado lida com a lógica do endpoint por você.
+  Este caminho só é necessário para instalações self-hosted do piku-cat que desabilitam deliberadamente o BYOK. Se o BYOK estiver habilitado na sua instância self-hosted, prefira a **Opção 1** — o card curado lida com a lógica do endpoint por você.
 </Note>
 
 Reinicie os containers de API e worker após editar o `.env`, e verifique a integração:
@@ -181,7 +181,7 @@ Para a configuração completa self-hosted (domínios, chaves de segurança, ban
   </Accordion>
 
   <Accordion title="'Too much concurrency' no momento da revisão">
-    - Os tiers Lite e Pro do Coding Plan geralmente permitem apenas **1 requisição simultânea**. O Kodus pré-preenche isso para você; aumente apenas no Max.
+    - Os tiers Lite e Pro do Coding Plan geralmente permitem apenas **1 requisição simultânea**. O piku-cat pré-preenche isso para você; aumente apenas no Max.
     - Reduza **Max concurrent requests** em Advanced settings se ainda estiver atingindo 429s.
   </Accordion>
 

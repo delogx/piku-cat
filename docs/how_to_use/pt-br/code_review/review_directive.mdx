@@ -1,18 +1,18 @@
 ---
 title: "Direcionar uma Revisão (Foco)"
-description: "Direcione a atenção da Kody para uma área específica do pull request com uma diretiva de revisão pontual, via comentário no PR ou pela CLI"
+description: "Direcione a atenção da Piku para uma área específica do pull request com uma diretiva de revisão pontual, via comentário no PR ou pela CLI"
 ---
 
-Uma **diretiva de revisão** permite dizer à Kody onde concentrar a análise mais profunda em uma revisão específica. Em vez de mudar qualquer configuração, você anexa uma instrução curta ao acionar a revisão — por exemplo, "foque na lógica de auth e sessão" — e a Kody gasta a análise mais rigorosa no código alterado que corresponde a isso.
+Uma **diretiva de revisão** permite dizer à Piku onde concentrar a análise mais profunda em uma revisão específica. Em vez de mudar qualquer configuração, você anexa uma instrução curta ao acionar a revisão — por exemplo, "foque na lógica de auth e sessão" — e a Piku gasta a análise mais rigorosa no código alterado que corresponde a isso.
 
 <Note>
-  Uma diretiva é **efêmera**: vale apenas para aquela execução de revisão. Ela não é salva nas suas configurações e não afeta revisões futuras. Para mudar o comportamento da Kody de forma permanente, use [Custom Prompts](/how_to_use/pt-br/code_review/configs/custom_prompts) ou [Kody Rules](/how_to_use/pt-br/code_review/configs/kody_rules).
+  Uma diretiva é **efêmera**: vale apenas para aquela execução de revisão. Ela não é salva nas suas configurações e não afeta revisões futuras. Para mudar o comportamento da Piku de forma permanente, use [Custom Prompts](/how_to_use/pt-br/code_review/configs/custom_prompts) ou [Piku Rules](/how_to_use/pt-br/code_review/configs/kody_rules).
 </Note>
 
 ## Quando Usar
 
 - Um PR mexe em muitos arquivos, mas você se importa mais com uma área arriscada (auth, pagamentos, uma migração).
-- Você quer que a Kody rastreie os callers e callees de uma mudança específica e a questione com mais rigor.
+- Você quer que a Piku rastreie os callers e callees de uma mudança específica e a questione com mais rigor.
 - Você está reexecutando uma revisão e quer direcionar a atenção sem editar nenhuma configuração.
 
 ## Prioridade, Não Filtro
@@ -20,7 +20,7 @@ Uma **diretiva de revisão** permite dizer à Kody onde concentrar a análise ma
 Este é o ponto mais importante de entender:
 
 <Warning>
-  Uma diretiva define **prioridade, não filtro**. A Kody prioriza a área de foco, mas ainda reporta qualquer bug, problema de segurança ou de performance concreto que perceba **em outros pontos** do diff. Ela nunca suprime achados fora do foco e nunca aprova o resto do PR sem olhar.
+  Uma diretiva define **prioridade, não filtro**. A Piku prioriza a área de foco, mas ainda reporta qualquer bug, problema de segurança ou de performance concreto que perceba **em outros pontos** do diff. Ela nunca suprime achados fora do foco e nunca aprova o resto do PR sem olhar.
 </Warning>
 
 Use uma diretiva para dizer *"olhe aqui com mais afinco"* — não *"olhe só aqui."*
@@ -43,7 +43,7 @@ Use uma diretiva para dizer *"olhe aqui com mais afinco"* — não *"olhe só aq
     ```
 
     <Note>
-      `--force` reexecuta a review mesmo quando Kody normalmente pularia ("nenhum commit novo desde a última review"). Use — com ou sem diretiva de foco — para obter uma nova análise depois de corrigir o que fez a execução anterior falhar, ou para aplicar configurações atualizadas a um PR já revisado.
+      `--force` reexecuta a review mesmo quando Piku normalmente pularia ("nenhum commit novo desde a última review"). Use — com ou sem diretiva de foco — para obter uma nova análise depois de corrigir o que fez a execução anterior falhar, ou para aplicar configurações atualizadas a um PR já revisado.
     </Note>
 
     <Note>
@@ -72,7 +72,7 @@ Use uma diretiva para dizer *"olhe aqui com mais afinco"* — não *"olhe só aq
   [Disponibilidade](#disponibilidade) abaixo.
 </Warning>
 
-Uma diretiva de foco diz ao Kody *onde* olhar com mais atenção. O `--heavy` diz para olhar por
+Uma diretiva de foco diz ao Piku *onde* olhar com mais atenção. O `--heavy` diz para olhar por
 *mais tempo*: o finder roda passadas extras de crítico ("o que você deixou passar?") sobre o
 mesmo diff, trazendo mais problemas reais ao custo de uma revisão mais lenta e mais candidatos
 para triar.
@@ -142,5 +142,5 @@ para [support@kodus.io](mailto:support@kodus.io) com o nome da sua organização
 
 - **Tamanho:** diretivas são truncadas em 500 caracteres.
 - **Só a primeira linha:** em comentários de PR, apenas a primeira linha após o comando vira a diretiva.
-- **Não confiável por design:** como qualquer pessoa que pode comentar no PR pode fornecer uma diretiva, o texto é sanitizado antes do uso (caracteres de controle e sinais de menor/maior são removidos). Isso não altera o seu foco — apenas impede que o texto adultere o prompt interno da Kody.
+- **Não confiável por design:** como qualquer pessoa que pode comentar no PR pode fornecer uma diretiva, o texto é sanitizado antes do uso (caracteres de controle e sinais de menor/maior são removidos). Isso não altera o seu foco — apenas impede que o texto adultere o prompt interno da Piku.
 - **Não persistida:** nada é gravado nas configurações do seu repositório ou organização.

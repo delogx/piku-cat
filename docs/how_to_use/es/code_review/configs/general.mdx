@@ -6,7 +6,7 @@ description: "Los ajustes centrales de la revisión — cadencia, flujo de PR, c
 ## Configuración Principal
 
 <Note>
-  Kodus tiene tres niveles de configuración: Global, Repositorio y Directorio. Aprende cómo funcionan en <a href="/how_to_use/es/code_review/configs/inheritance_overrides">Herencia y Overrides de Configuración</a>.
+  piku-cat tiene tres niveles de configuración: Global, Repositorio y Directorio. Aprende cómo funcionan en <a href="/how_to_use/es/code_review/configs/inheritance_overrides">Herencia y Overrides de Configuración</a>.
 </Note>
 
 ### Prioridad de Configuración
@@ -16,7 +16,7 @@ repositorio en lugar de usar la interfaz web.
 
 <Warning>
   **El archivo se ignora hasta que lo habilites.** Por defecto,
-  `kodusConfigFileOverridesWebPreferences` es `false`, lo que significa que Kody nunca lee
+  `kodusConfigFileOverridesWebPreferences` es `false`, lo que significa que Piku nunca lee
   `kodus-config.yml` — hacer commit del archivo por sí solo no hace nada.
 
   Actívalo primero en **Settings → Code Review → el repositorio → General**, o define
@@ -117,7 +117,7 @@ customMessages:
 
 ### Revisión Automatizada
 
-Kody puede revisar los PRs automáticamente cuando se abren, o solo cuando comentas `@kody start-review`.
+Piku puede revisar los PRs automáticamente cuando se abren, o solo cuando comentas `@kody start-review`.
 
 <Info>
   Esto afecta solo la **revisión inicial**. Para commits posteriores, consulta Cadencia de Revisión a continuación.
@@ -125,7 +125,7 @@ Kody puede revisar los PRs automáticamente cuando se abren, o solo cuando comen
 
 #### Cadencia de Revisión
 
-Cómo Kody gestiona las revisiones en commits posteriores:
+Cómo Piku gestiona las revisiones en commits posteriores:
 
 <Tabs>
   <Tab title="Automática">
@@ -146,12 +146,12 @@ Cómo Kody gestiona las revisiones en commits posteriores:
 ### Flujo de Trabajo del PR
 
 #### Auto-aprobar PRs
-Kody aprueba los PRs cuando no se encuentran problemas.
+Piku aprueba los PRs cuando no se encuentran problemas.
 
 **Plataformas:** GitHub, GitLab, Bitbucket
 
 #### Solicitar Cambios
-Kody solicita cambios cuando encuentra problemas críticos.
+Piku solicita cambios cuando encuentra problemas críticos.
 
 **Plataformas:** GitHub, Bitbucket
 
@@ -166,7 +166,7 @@ Kody solicita cambios cuando encuentra problemas críticos.
 <Info>
   **Vacío (el valor por defecto) significa que se revisa cualquier rama de destino** — no existe
   una lista integrada de `dev`/`release`/`master`. Añade entradas solo cuando quieras *acotar* el
-  alcance: con la lista no vacía, Kody revisa únicamente los PRs dirigidos a esas ramas (la rama
+  alcance: con la lista no vacía, Piku revisa únicamente los PRs dirigidos a esas ramas (la rama
   por defecto de tu repositorio siempre se incluye).
 
   Las entradas se comparan con la rama de **destino** del PR y admiten una sintaxis propia:
@@ -188,7 +188,7 @@ Ponlo en `false` para omitirlos hasta que el PR se marque como listo.
 
 ## Tipos de Análisis
 
-Kody revisa en cuatro categorías. Habilita o deshabilita cada una en **Analysis Types**, o
+Piku revisa en cuatro categorías. Habilita o deshabilita cada una en **Analysis Types**, o
 mediante `reviewOptions` en `kodus-config.yml`.
 
 - **Bug** — errores de lógica, condiciones de carrera, desreferencias nulas, casos límite y comportamiento incorrecto.
@@ -199,6 +199,6 @@ mediante `reviewOptions` en `kodus-config.yml`.
   [Validación de Lógica de Negocio](/how_to_use/es/code_review/business_logic_validation).
 
 <Note>
-  Kody Rules **no** es una de estas categorías — siempre se ejecutan, con independencia de
-  `reviewOptions`. Consulta [Kody Rules](/how_to_use/es/code_review/configs/kody_rules).
+  Piku Rules **no** es una de estas categorías — siempre se ejecutan, con independencia de
+  `reviewOptions`. Consulta [Piku Rules](/how_to_use/es/code_review/configs/kody_rules).
 </Note>

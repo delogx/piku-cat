@@ -1,13 +1,13 @@
 ---
-title: "Kodus Review"
-description: "Mide qué tan efectivas son las revisiones de Kodus — y actúa en consecuencia"
+title: "piku-cat Review"
+description: "Mide qué tan efectivas son las revisiones de piku-cat — y actúa en consecuencia"
 ---
 
-## Qué es la pestaña Kodus Review
+## Qué es la pestaña piku-cat Review
 
-La pestaña **Kodus Review** responde una sola pregunta: *¿tu equipo está actuando sobre lo que dice Kodus?*
+La pestaña **piku-cat Review** responde una sola pregunta: *¿tu equipo está actuando sobre lo que dice piku-cat?*
 
-A diferencia de la pestaña Productividad (que mide métricas generales de entrega como la frecuencia de despliegue y el tiempo de ciclo de los PR), Kodus Review trata sobre Kodus en sí — cuántas sugerencias se implementan, qué categorías y reglas se adoptan o se ignoran, y dónde el equipo expresa desacuerdo.
+A diferencia de la pestaña Productividad (que mide métricas generales de entrega como la frecuencia de despliegue y el tiempo de ciclo de los PR), piku-cat Review trata sobre piku-cat en sí — cuántas sugerencias se implementan, qué categorías y reglas se adoptan o se ignoran, y dónde el equipo expresa desacuerdo.
 
 Cada gráfico y tabla respeta los filtros globales de **repositorio** y **rango de fechas** en la parte superior de la página. Haz clic en una fila de repositorio, una barra de categoría o una regla para profundizar en las sugerencias subyacentes.
 
@@ -16,7 +16,7 @@ Cada gráfico y tabla respeta los filtros globales de **repositorio** y **rango 
 | Tarjeta | Qué significa |
 | --- | --- |
 | **Implementation rate** | % de sugerencias enviadas que el equipo implementó en el período |
-| **Suggestions sent** | Cuántas sugerencias entregó Kodus (como comentarios en los PR) en el período |
+| **Suggestions sent** | Cuántas sugerencias entregó piku-cat (como comentarios en los PR) en el período |
 | **Negative vote rate** | Proporción de reacciones que fueron 👎, con la tendencia respecto al período anterior |
 | **Criticals ignored in merged PRs** | Sugerencias críticas que quedaron sin implementar en PR que ya fueron fusionados — la lista de riesgos accionables |
 
@@ -30,7 +30,7 @@ Implementation rate = implemented suggestions ÷ sent suggestions
 
 Reglas de alcance — las mismas en todos los gráficos de implementation rate:
 
-- Solo cuentan las sugerencias **entregadas** (las que realmente se publicaron como comentarios en el PR). Los borradores que Kodus filtró antes de comentar nunca se cuentan.
+- Solo cuentan las sugerencias **entregadas** (las que realmente se publicaron como comentarios en el PR). Los borradores que piku-cat filtró antes de comentar nunca se cuentan.
 - Las sugerencias se atribuyen a la **semana en que se cerró el PR**, porque el estado de implementación solo es definitivo una vez que el PR se fusiona.
 
 ### Semana a semana
@@ -46,12 +46,12 @@ El gráfico semanal muestra la tendencia, con un selector:
 - **By severity** — implementation rate por nivel de severidad. Lo esperado es un gradiente descendente (las críticas se implementan más que las bajas). Si se ve plano o invertido, la severidad no está guiando al equipo.
 
 <Warning>
-  **El selector "All / Kodus only" del gráfico de severidad importa.** Una Kody Rule lleva la severidad que *tú* defines en la regla, no una evaluación de riesgo hecha por Kodus. Mezclar ambas distorsiona la lectura de la calibración — por ejemplo, un conjunto de Kody Rules de severidad media con alta adopción puede hacer que Kodus parezca subestimar la severidad media. Cambia a **Kodus only** para ver la calibración de severidad propia de Kodus. Las barras construidas con muy pocas sugerencias aparecen atenuadas y marcadas con `*` — un 0% o 100% a partir de un puñado de sugerencias no es una señal real.
+  **El selector "All / piku-cat only" del gráfico de severidad importa.** Una Piku Rule lleva la severidad que *tú* defines en la regla, no una evaluación de riesgo hecha por piku-cat. Mezclar ambas distorsiona la lectura de la calibración — por ejemplo, un conjunto de Piku Rules de severidad media con alta adopción puede hacer que piku-cat parezca subestimar la severidad media. Cambia a **piku-cat only** para ver la calibración de severidad propia de piku-cat. Las barras construidas con muy pocas sugerencias aparecen atenuadas y marcadas con `*` — un 0% o 100% a partir de un puñado de sugerencias no es una señal real.
 </Warning>
 
 ## Retroalimentación negativa
 
-La retroalimentación proviene de las reacciones 👍 / 👎 en los comentarios de sugerencias de Kodus.
+La retroalimentación proviene de las reacciones 👍 / 👎 en los comentarios de sugerencias de piku-cat.
 
 - **Negative vote rate** (tarjeta de resumen) — `👎 ÷ (👍 + 👎)`, con la tendencia respecto al período anterior. Cuanto más bajo, mejor.
 - **By category** — dónde el equipo está más en desacuerdo. Una categoría con muchos 👎 es candidata a reajustarse o desactivarse.
@@ -59,13 +59,13 @@ La retroalimentación proviene de las reacciones 👍 / 👎 en los comentarios 
 
 ## Repositorios — salud
 
-Una tabla por repositorio: PR revisados, sugerencias enviadas, implementation rate, 👍/👎, y la **categoría más débil** (la categoría con la menor implementation rate en ese repositorio, dada una muestra mínima). Muestra dónde Kodus está acertando frente a dónde está siendo ignorado.
+Una tabla por repositorio: PR revisados, sugerencias enviadas, implementation rate, 👍/👎, y la **categoría más débil** (la categoría con la menor implementation rate en ese repositorio, dada una muestra mínima). Muestra dónde piku-cat está acertando frente a dónde está siendo ignorado.
 
 Hacer clic en una fila enfoca todo el cockpit en ese repositorio (igual que seleccionarlo en el filtro de repositorio).
 
-## Kody Rules — salud
+## Piku Rules — salud
 
-Cómo se está desempeñando cada Kody Rule en el período: disparos, implementation rate, 👍/👎, y un estado. Solo aparecen las reglas activas — las eliminadas o inactivas se excluyen, ya que no puedes actuar sobre ellas.
+Cómo se está desempeñando cada Piku Rule en el período: disparos, implementation rate, 👍/👎, y un estado. Solo aparecen las reglas activas — las eliminadas o inactivas se excluyen, ya que no puedes actuar sobre ellas.
 
 El estado se calcula por regla, en este orden de prioridad:
 
@@ -83,4 +83,4 @@ El estado se calcula por regla, en este orden de prioridad:
 
 Cada profundización — una barra de categoría, una fila de regla, la tarjeta de "criticals ignored" — abre el **explorador de sugerencias**: una lista filtrable y paginada de las sugerencias reales detrás del número.
 
-Filtros: repositorio, categoría, severidad, estado de implementación, Kody Rule y búsqueda de texto libre. Cada fila se expande para mostrar el código existente vs. el sugerido y un enlace al comentario del PR.
+Filtros: repositorio, categoría, severidad, estado de implementación, Piku Rule y búsqueda de texto libre. Cada fila se expande para mostrar el código existente vs. el sugerido y un enlace al comentario del PR.

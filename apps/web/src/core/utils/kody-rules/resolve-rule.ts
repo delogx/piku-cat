@@ -1,7 +1,7 @@
 /**
- * Resolves a Kody rule by UUID using layered lookup strategies.
+ * Resolves a Piku rule by UUID using layered lookup strategies.
  *
- * Why this exists: Kody-generated PR comments link to rules via URLs like
+ * Why this exists: Piku-generated PR comments link to rules via URLs like
  * `/settings/code-review/{repositoryId}/kody-rules/{ruleId}`. The rule
  * detail page also expects `?teamId=...&directoryId=...` in the query
  * string, but those are not present in the generated links, so a naive

@@ -21,7 +21,7 @@ export default function RegisterPage() {
                 <div className="flex flex-1 flex-col justify-center gap-10">
                     <Heading variant="h1" className="text-[calc(3vh)]">
                         Join thousands of teams automating code reviews with
-                        Kody
+                        Piku
                     </Heading>
 
                     <div className="overflow-hidden rounded-3xl">

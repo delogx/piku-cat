@@ -1,6 +1,6 @@
 ---
 title: "Referencia de Comandos"
-description: "Referencia completa de todos los comandos, flags y opciones del CLI de Kodus."
+description: "Referencia completa de todos los comandos, flags y opciones del CLI de piku-cat."
 ---
 
 ## Flags Globales
@@ -148,7 +148,7 @@ kodus pr business-validation --task-id KC-1441 --dry-run
 
 ## `kodus auth`
 
-Gestiona la autenticación con la API de Kodus.
+Gestiona la autenticación con la API de piku-cat.
 
 ### `auth login`
 
@@ -229,7 +229,7 @@ kodus hook install --force            # Sobrescribir hook existente
 kodus hook uninstall
 ```
 
-Elimina el hook pre-push instalado por Kodus.
+Elimina el hook pre-push instalado por piku-cat.
 
 ### `hook status`
 
@@ -285,20 +285,20 @@ Para una guía completa, consulta: [/how_to_use/en/code_review/configs/centraliz
 
 ## `kodus config repo`
 
-Inspecciona y actualiza la configuración del repositorio almacenada en Kodus. Se requiere autenticación con clave de equipo. Usa `.` para apuntar al repositorio actual.
+Inspecciona y actualiza la configuración del repositorio almacenada en piku-cat. Se requiere autenticación con clave de equipo. Usa `.` para apuntar al repositorio actual.
 
 <Note>`kodus config repo` y `kodus config remote` son alias del mismo grupo de comandos.</Note>
 
 ### Uso
 
 ```bash
-kodus config repo add                                   # Agregar el repo actual a Kodus
+kodus config repo add                                   # Agregar el repo actual a piku-cat
 kodus config repo add owner/repo                        # Agregar un repo específico
 kodus config repo list                                  # Listar repos configurados
 kodus config repo show                                  # Mostrar la configuración del repo actual
 kodus config repo setup                                 # Asistente de configuración guiado
 kodus config repo set . reviewEnabled true              # Establecer una configuración directamente
-kodus config repo open                                  # Abrir el panel de Kodus
+kodus config repo open                                  # Abrir el panel de piku-cat
 kodus config repo add-ignore-file . "**/*.generated.ts"
 kodus config repo add-base-branch . "release/*"
 kodus config repo add-ignore-title . "^WIP:"
@@ -308,12 +308,12 @@ kodus config repo add-ignore-title . "^WIP:"
 
 | Subcomando                                         | Descripción                                                                 |
 | -------------------------------------------------- | --------------------------------------------------------------------------- |
-| `add [repository]`                                 | Agregar un repositorio a Kodus (atajo: `kodus config -r [repository]`)      |
-| `list`                                             | Listar repositorios configurados en Kodus                                   |
+| `add [repository]`                                 | Agregar un repositorio a piku-cat (atajo: `kodus config -r [repository]`)      |
+| `list`                                             | Listar repositorios configurados en piku-cat                                   |
 | `show [repository]`                                | Mostrar la configuración del repositorio                                    |
 | `setup [repository]`                               | Ejecutar un asistente de configuración guiado del repositorio               |
 | `set [repository] <key> <value>`                   | Establecer una configuración del repositorio directamente                   |
-| `open [repository]`                                | Abrir el panel de Kodus para configuraciones avanzadas                      |
+| `open [repository]`                                | Abrir el panel de piku-cat para configuraciones avanzadas                      |
 | `add-pattern [repository] <field> <pattern>`       | Agregar un patrón a un campo de lista (`ignore-files`, `base-branches`, `ignore-titles`) |
 | `remove-pattern [repository] <field> <pattern>`    | Eliminar un patrón de un campo de lista                                     |
 | `add-ignore-file [repository] <pattern>`           | Atajo: agregar un patrón a los patrones de archivos ignorados               |
@@ -333,7 +333,7 @@ kodus config repo add-ignore-title . "^WIP:"
 
 ## `kodus rules`
 
-Crea, actualiza y visualiza Kody Rules — reglas estructuradas que Kodus aplica durante la revisión.
+Crea, actualiza y visualiza Piku Rules — reglas estructuradas que piku-cat aplica durante la revisión.
 
 ### Uso
 
@@ -349,9 +349,9 @@ kodus rules update --uuid <rule-uuid> --severity critical
 
 | Subcomando | Descripción            |
 | ---------- | ---------------------- |
-| `create`   | Crear una nueva Kody Rule |
+| `create`   | Crear una nueva Piku Rule |
 | `update`   | Actualizar una regla existente |
-| `view`     | Ver Kody Rules         |
+| `view`     | Ver Piku Rules         |
 
 ### Flags de `rules create`
 
@@ -424,7 +424,7 @@ kodus skills uninstall                                   # Eliminar los skills i
 
 ## `kodus status`
 
-Muestra un estado consolidado de Kodus: modo de autenticación, organización, repositorio, hook, skills incluidos y versión del CLI.
+Muestra un estado consolidado de piku-cat: modo de autenticación, organización, repositorio, hook, skills incluidos y versión del CLI.
 
 ```bash
 kodus status
@@ -455,7 +455,7 @@ cualquier flag que Hunk soporte también funciona aquí.
 
 ## `kodus update`
 
-Actualiza el CLI de Kodus a la última versión desde npm.
+Actualiza el CLI de piku-cat a la última versión desde npm.
 
 ```bash
 kodus update
@@ -467,7 +467,7 @@ Resuelve el comando de instalación global correcto para tu gestor de paquetes (
 
 ## `kodus subscribe`
 
-Abre la página de precios/actualización de Kodus en tu navegador.
+Abre la página de precios/actualización de piku-cat en tu navegador.
 
 ```bash
 kodus subscribe

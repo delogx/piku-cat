@@ -5,7 +5,7 @@ import { Skeleton } from "@components/ui/skeleton";
 
 import { KodyRulesListSkeleton } from "./list-skeleton";
 
-// Page-shell skeleton for Kody Rules. Mirrors the real layout so the
+// Page-shell skeleton for Piku Rules. Mirrors the real layout so the
 // page doesn't visually jump when data lands: breadcrumb row, title +
 // description, action buttons, tabs, search/filters row, then a grid of
 // rule-card skeletons.

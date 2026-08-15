@@ -1,15 +1,15 @@
 ---
 title: "How to review PRs with project-specific context"
-description: "Give Kody access to your project docs, handbooks, and architecture guides for more relevant code reviews."
+description: "Give Piku access to your project docs, handbooks, and architecture guides for more relevant code reviews."
 ---
 
-Generic code review catches generic issues. To get feedback that's actually relevant to your project, Kody needs to understand your specific context — architecture decisions, conventions, and business rules.
+Generic code review catches generic issues. To get feedback that's actually relevant to your project, Piku needs to understand your specific context — architecture decisions, conventions, and business rules.
 
 ## Ways to provide context
 
 ### Memories
 
-Teach Kody your conventions through conversation:
+Teach Piku your conventions through conversation:
 
 ```
 @kody remember: this project uses hexagonal architecture.
@@ -30,15 +30,15 @@ defined in @file:src/shared/base-controller.ts.
 
 ### Custom prompts
 
-Add project-specific instructions that Kody includes in every review:
+Add project-specific instructions that Piku includes in every review:
 
 1. Go to **Code Review Settings** → **Custom Prompts**
 2. Add context like architecture descriptions, team guidelines, or domain knowledge
-3. Kody includes this in every code review analysis
+3. Piku includes this in every code review analysis
 
 ### MCP plugins
 
-Connect external tools to give Kody access to richer context:
+Connect external tools to give Piku access to richer context:
 
 - **Jira/Linear** — task requirements and acceptance criteria
 - **Slack** — team discussions and decisions
@@ -49,7 +49,7 @@ Connect external tools to give Kody access to richer context:
 
 1. Define architecture rules via **Memories**: `@kody remember: we follow CQRS pattern in this service`
 2. Create **Review Rules** that reference your docs: `@file:docs/architecture.md`
-3. Connect **Jira** so Kody validates PRs against task requirements
+3. Connect **Jira** so Piku validates PRs against task requirements
 4. Add **Custom Prompts** for domain-specific knowledge
 
 For details, see [Custom Prompts](/how_to_use/en/code_review/configs/custom_prompts) and [Plugins](/how_to_use/en/code_review/plugins).

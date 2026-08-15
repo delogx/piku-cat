@@ -1,6 +1,6 @@
 ---
 title: "合规性 PR 审查（SOC2、HIPAA）"
-description: "配置 Kody 规则和记忆以执行审计追踪、数据处理和访问控制要求。"
+description: "配置 Piku 规则和记忆以执行审计追踪、数据处理和访问控制要求。"
 icon: "file-shield"
 ---
 
@@ -12,7 +12,7 @@ SOC2、HIPAA 和 GDPR 等合规框架要求围绕数据处理、访问控制和�
 
 ## 步骤 1 — 定义合规记忆
 
-首先教 Kody 高级别的合规原则：
+首先教 Piku 高级别的合规原则：
 
 ```
 @kody remember: we are SOC2 compliant. All data access must be logged
@@ -141,4 +141,4 @@ New endpoints default to authenticated + authorized, never public.
 - [ ] 规则设置在组织级别以保持一致性
 - [ ] 测试 PR 验证规则正确触发
 
-有关配置规则的更多信息，请参阅 [Kody 规则](/how_to_use/zh/code_review/configs/kody_rules)。
+有关配置规则的更多信息，请参阅 [Piku 规则](/how_to_use/zh/code_review/configs/kody_rules)。

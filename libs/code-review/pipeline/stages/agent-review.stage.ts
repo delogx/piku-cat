@@ -1575,8 +1575,9 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
     }
 
     /** Embed a suggestion's description once per dedup run (memoized by index).
-     * Fail-soft: no platform embedding key or any error → null, so the caller
-     * falls back to the pre-#1527 lexical behavior (veto) instead of crashing. */
+     * Fail-soft: no platform embedding key or any error → null. piku-cat
+     * personal-use fork divergence: the caller then runs the LLM tiebreak rather
+     * than falling back to the pre-#1527 lexical veto. */
     /**
      * Embedder for the dedup semantic tier. HARDCODED to OpenAI: text-embedding
      * models are OpenAI's, so this must NEVER go through the client's BYOK
@@ -1618,7 +1619,9 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             }
         } catch (err) {
             this.logger.warn({
-                message: `[DEDUP-GUARD] embedding unavailable, falling back to lexical veto`,
+                // piku-cat personal-use fork divergence: falls through to the
+                // LLM tiebreak now, not a lexical veto.
+                message: `[DEDUP-GUARD] embedding unavailable, falling back to LLM tiebreak`,
                 context: this.stageName,
                 error: err,
             });
@@ -1633,9 +1636,12 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
      *   1. lexical overlap ≥ threshold → honor (cheap, obvious duplicates);
      *   2. else semantic cosine of the two descriptions:
      *        ≥ HIGH → honor, < LOW → veto, in-between → LLM tiebreak (full text).
-     * Every external failure (no embed key, embedding/LLM error) falls back to a
-     * veto — the exact pre-#1527 behavior — so a low-overlap merge is never
-     * honored blindly.
+     * piku-cat personal-use fork divergence: when no embedding is available (no
+     * platform embedding key, or an embedding error) the decision now goes to the
+     * LLM tiebreak instead of vetoing outright; only a tiebreak failure vetoes.
+     * Upstream vetoed on any external failure (the pre-#1527 behavior). A
+     * tiebreak/LLM error still vetoes, so a low-overlap merge is never honored
+     * blindly.
      *
      * `crossStream` mode (Kody-Rule vs suggestion): there is NO prior LLM
      * grouping to corroborate a match, so the cheap lexical-honor shortcut is
@@ -1664,7 +1670,23 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             this.embedDedupSuggestion(keep, keepKey, embedCache),
         ]);
         if (!vecDup || !vecKeep) {
-            return { honor: false, reason: 'lexical-veto (no-embed)', score: lexical };
+            // piku-cat personal-use fork divergence: a missing embedder (no
+            // platform embedding key) or an embedding error no longer hard-vetoes
+            // the merge. Fall through to the same LLM tiebreak the in-range
+            // similarity band uses below, and veto only when that also fails.
+            const sameBug = await tiebreak(dup, keep);
+            if (sameBug === null) {
+                return {
+                    honor: false,
+                    reason: 'tiebreak-error-veto (no-embed)',
+                    score: lexical,
+                };
+            }
+            return {
+                honor: sameBug,
+                reason: `llm-tiebreak=${sameBug} (no-embed)`,
+                score: lexical,
+            };
         }
 
         const cos = cosineSimilarity(vecDup, vecKeep);

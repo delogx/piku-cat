@@ -23,8 +23,8 @@ export const SyncFromIDEFilesFirstTimeModal = () => {
                     <DialogTitle>Sync repository rules now?</DialogTitle>
 
                     <DialogDescription>
-                        Kody will look for rule files in this repo and import
-                        them into Kody Rules.
+                        Piku will look for rule files in this repo and import
+                        them into Piku Rules.
                     </DialogDescription>
                 </DialogHeader>
 

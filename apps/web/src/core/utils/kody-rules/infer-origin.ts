@@ -3,7 +3,7 @@
 export type InferredRuleOrigin =
     | "Auto-sync"
     | "Onboarding"
-    | "Kody-generated"
+    | "Piku-generated"
     | "Library"
     | "MCP/Agent"
     | "CLI"
@@ -55,7 +55,7 @@ export function inferRuleOrigin(rule: {
         case "onboarding_repo_analysis":
             return "Onboarding";
         case "past_reviews":
-            return "Kody-generated";
+            return "Piku-generated";
         case "library":
             return "Library";
         case "mcp_agent":
@@ -67,7 +67,7 @@ export function inferRuleOrigin(rule: {
     }
 
     // Fallback for rows still on the legacy origin set.
-    if (rule?.origin === "generated") return "Kody-generated";
+    if (rule?.origin === "generated") return "Piku-generated";
     if (!rule?.sourcePath) return "manual";
     if (isIdeRuleSource(rule.sourcePath)) return "Auto-sync";
     return "Onboarding";

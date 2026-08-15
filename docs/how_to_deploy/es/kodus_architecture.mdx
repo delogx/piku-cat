@@ -1,12 +1,12 @@
 ---
-title: "Arquitectura de Kodus"
-description: "Un análisis profundo de la infraestructura técnica de Kodus."
+title: "Arquitectura de piku-cat"
+description: "Un análisis profundo de la infraestructura técnica de piku-cat."
 icon: "puzzle-piece"
 ---
 
 ## Descripción general
 
-Este documento describe la arquitectura que impulsa la infraestructura de Kodus. Nuestro sistema está construido sobre una arquitectura distribuida que aprovecha la containerización y la segmentación de red para garantizar la máxima escalabilidad, seguridad y mantenibilidad.
+Este documento describe la arquitectura que impulsa la infraestructura de piku-cat. Nuestro sistema está construido sobre una arquitectura distribuida que aprovecha la containerización y la segmentación de red para garantizar la máxima escalabilidad, seguridad y mantenibilidad.
 
 ## Redes y componentes clave
 
@@ -21,7 +21,7 @@ del tráfico interno entre servicios:
 
 ```mermaid
 graph LR
-    Web[Kodus Web App] --> API[API Service]
+    Web[piku-cat Web App] --> API[API Service]
     API --> RabbitMQ[(RabbitMQ)]
     Webhooks[Webhooks Service] --> API
     API --> Worker[Worker Service]
@@ -32,7 +32,7 @@ graph LR
     Worker --> Mongo
 ```
 
-### 1. Aplicación Web de Kodus
+### 1. Aplicación Web de piku-cat
 
 Nuestra plataforma frontend está construida con Next.js, brindando una experiencia de usuario fluida a través de la comunicación directa con nuestra capa de API.
 
@@ -47,12 +47,12 @@ El stack 2.0 divide las responsabilidades del backend en servicios dedicados:
 
 ### 3. MCP Manager
 
-MCP Manager cataloga proveedores e integraciones, y los expone a Kodus para que
+MCP Manager cataloga proveedores e integraciones, y los expone a piku-cat para que
 los equipos puedan instalar MCPs desde la pantalla de Plugins.
 
 ### 4. Almacenes de datos
 
-Kodus utiliza dos bases de datos:
+piku-cat utiliza dos bases de datos:
 
 - Postgres: Datos relacionales y metadatos de embeddings
 - MongoDB: Almacenamiento flexible de documentos
@@ -64,17 +64,17 @@ confiable entre la API, el worker y los webhooks.
 
 Prometheus y Grafana son opcionales y se utilizan para monitoreo y visualización.
 
-### 6. Servicios auxiliares (Kodus Cloud)
+### 6. Servicios auxiliares (piku-cat Cloud)
 
-Kodus Cloud incluye servicios auxiliares de código cerrado (facturación e
+piku-cat Cloud incluye servicios auxiliares de código cerrado (facturación e
 integraciones de chat) que no son necesarios para los despliegues auto-hospedados. Analytics no es exclusivo de la nube: el self-hosted Enterprise con licencia ejecuta el mismo worker de ingesta localmente.
 
 ## Próximos pasos
 <CardGroup cols={2}>
-  <Card title="Ejecutar Kodus localmente" icon="laptop" href="/how_to_deploy/es/local_quickstart/orchestrator">
-    Ideal para el desarrollo local y para familiarizarse con el stack completo de Kodus.
+  <Card title="Ejecutar piku-cat localmente" icon="laptop" href="/how_to_deploy/es/local_quickstart/orchestrator">
+    Ideal para el desarrollo local y para familiarizarse con el stack completo de piku-cat.
   </Card>
-  <Card title="Desplegar Kodus en producción" icon="rocket" href="/how_to_deploy/es/deploy_kodus/generic_vm">
-    Perfecto para el despliegue en producción y para experimentar todas las capacidades de Kodus.
+  <Card title="Desplegar piku-cat en producción" icon="rocket" href="/how_to_deploy/es/deploy_kodus/generic_vm">
+    Perfecto para el despliegue en producción y para experimentar todas las capacidades de piku-cat.
   </Card>
 </CardGroup>

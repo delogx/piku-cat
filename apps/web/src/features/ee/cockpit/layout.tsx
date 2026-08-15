@@ -91,7 +91,7 @@ export default async function Layout({
         return (
             <LockedFeatureOverlay
                 title="Unlock the Cockpit"
-                description="Engineering metrics and Kody review analytics for your team are available on Teams and Enterprise plans."
+                description="Engineering metrics and Piku review analytics for your team are available on Teams and Enterprise plans."
                 cta={{
                     label: "Upgrade plan",
                     href: "/settings/subscription",

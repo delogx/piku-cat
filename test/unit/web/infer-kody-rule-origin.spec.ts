@@ -87,13 +87,13 @@ describe("inferRuleOrigin", () => {
         expect(result).toBe("manual");
     });
 
-    it('returns "Kody-generated" when origin is "generated", ignoring sourcePath', () => {
+    it('returns "Piku-generated" when origin is "generated", ignoring sourcePath', () => {
         expect(
             inferRuleOrigin({
                 sourcePath: null,
                 origin: "generated",
             }),
-        ).toBe("Kody-generated");
+        ).toBe("Piku-generated");
 
         // Generated origin wins even if someone leaked a sourcePath in.
         expect(
@@ -101,7 +101,7 @@ describe("inferRuleOrigin", () => {
                 sourcePath: ".cursorrules",
                 origin: "generated",
             }),
-        ).toBe("Kody-generated");
+        ).toBe("Piku-generated");
     });
 
     it("handles missing/undefined fields gracefully", () => {
@@ -115,7 +115,7 @@ describe("inferRuleOrigin", () => {
         it.each([
             ["repo_file_sync", "Auto-sync"],
             ["onboarding_repo_analysis", "Onboarding"],
-            ["past_reviews", "Kody-generated"],
+            ["past_reviews", "Piku-generated"],
             ["library", "Library"],
             ["mcp_agent", "MCP/Agent"],
             ["cli", "CLI"],

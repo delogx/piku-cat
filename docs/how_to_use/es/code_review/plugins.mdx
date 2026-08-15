@@ -1,6 +1,6 @@
 ---
 title: "Plugins"
-description: "Los plugins son una forma de incorporar contexto de negocio externo directamente en el flujo de revisión de Kody."
+description: "Los plugins son una forma de incorporar contexto de negocio externo directamente en el flujo de revisión de Piku."
 tag: 'beta'
 ---
 
@@ -8,11 +8,11 @@ tag: 'beta'
 
 ## Descripción General
 
-Los plugins te permiten incorporar contexto de negocio externo directamente en el flujo de revisión de Kody. Amplían la comprensión de Kody con datos de herramientas como Jira, para que el feedback y las acciones se mantengan alineados con los procesos de tu equipo.
+Los plugins te permiten incorporar contexto de negocio externo directamente en el flujo de revisión de Piku. Amplían la comprensión de Piku con datos de herramientas como Jira, para que el feedback y las acciones se mantengan alineados con los procesos de tu equipo.
 
 ## Qué Son los Plugins
 
-Los plugins son servidores Model Context Protocol (MCP) curados por Kodus. Cada plugin expone capacidades específicas — como obtener tareas o verificar especificaciones — que Kody puede usar mientras colabora contigo en los pull requests.
+Los plugins son servidores Model Context Protocol (MCP) curados por piku-cat. Cada plugin expone capacidades específicas — como obtener tareas o verificar especificaciones — que Piku puede usar mientras colabora contigo en los pull requests.
 
 ## Kodus MCP
 
@@ -20,15 +20,15 @@ Cada workspace incluye el Kodus MCP ya conectado. Agrega adaptadores seguros par
 
 Más allá del control de código fuente, el Kodus MCP desbloquea automatizaciones de primera parte:
 
-- Gestionar las reglas de Kody directamente desde un hilo de revisión (crear, editar o eliminar).
-- Abrir issues de Kody manualmente cuando necesitas un seguimiento personalizado fuera del flujo automatizado.
+- Gestionar las reglas de Piku directamente desde un hilo de revisión (crear, editar o eliminar).
+- Abrir issues de Piku manualmente cuando necesitas un seguimiento personalizado fuera del flujo automatizado.
 
 ## Usar Plugins en Sugerencias
 
 <img src="https://kodus.io/wp-content/uploads/2025/10/comment-mcp.gif" alt="Ejemplo de uso de un plugin en una sugerencia" />
 
 
-Interactúa con un plugin dentro de una sugerencia de revisión de código mencionando explícitamente a Kody en tu comentario. Una vez invocado, Kody llama al plugin relevante y responde en el mismo hilo.
+Interactúa con un plugin dentro de una sugerencia de revisión de código mencionando explícitamente a Piku en tu comentario. Una vez invocado, Piku llama al plugin relevante y responde en el mismo hilo.
 
 ### Ejemplos de prompts
 
@@ -39,11 +39,11 @@ Estos prompts mantienen la discusión en contexto y permiten que los compañeros
 
 ## Validar Lógica de Negocio
 
-Usa el comando `@kody -v business-logic` cuando quieras que Kody compare un pull request con una especificación. Proporciona el contenido de la especificación en línea o comparte un enlace:
+Usa el comando `@kody -v business-logic` cuando quieras que Piku compare un pull request con una especificación. Proporciona el contenido de la especificación en línea o comparte un enlace:
 
 - `@kody -v business-logic https://jira.com/task-123`
 
-Kody obtendrá la especificación referenciada a través del plugin y confirmará si la implementación coincide con el comportamiento documentado.
+Piku obtendrá la especificación referenciada a través del plugin y confirmará si la implementación coincide con el comportamiento documentado.
 
 <Card title="Guía de Validación de Lógica de Negocio" icon="shield-check" href="/how_to_use/es/code_review/business_logic_validation">
     Explora el tutorial detallado con requisitos previos y solución de problemas para `@kody -v business-logic`.
@@ -51,7 +51,7 @@ Kody obtendrá la especificación referenciada a través del plugin y confirmar�
 
 ## Controlar el Acceso
 
-Kody solo ve las herramientas que habilitas para cada workspace. Instala los plugins que importan a tu flujo de trabajo y mantén todo lo demás privado.
+Piku solo ve las herramientas que habilitas para cada workspace. Instala los plugins que importan a tu flujo de trabajo y mantén todo lo demás privado.
 
 ## Plugins Personalizados
 
@@ -63,12 +63,12 @@ Trae tus propios servidores MCP cuando necesites capacidades más allá del cat�
    - **URL del Logo** opcional para un ícono reconocible en el catálogo.
    - La **URL** de MCP que aloja tu servidor junto con el **Protocolo** esperado (HTTP o WebSocket).
    - Cualquier método de **Autorización** requerido o encabezados personalizados para la autenticación.
-3. Haz clic en **Crear Plugin** para que esté disponible inmediatamente para Kody dentro del workspace actual.
+3. Haz clic en **Crear Plugin** para que esté disponible inmediatamente para Piku dentro del workspace actual.
 
-Los plugins personalizados siguen el mismo modelo de permisos que las integraciones curadas: solo los workspaces donde está instalado el plugin pueden invocarlo, y Kody nunca accede a endpoints que no configures explícitamente.
+Los plugins personalizados siguen el mismo modelo de permisos que las integraciones curadas: solo los workspaces donde está instalado el plugin pueden invocarlo, y Piku nunca accede a endpoints que no configures explícitamente.
 
 ## Consejos
 
-- Menciona a Kody solo una vez por solicitud para que el plugin correcto se ejecute sin duplicación.
-- Mantén los enlaces accesibles para tu workspace; Kody necesita permiso para llegar al recurso de destino a través del plugin.
-- Revisa el catálogo de plugins periódicamente — se agregan nuevas integraciones a medida que Kodus cura servidores MCP adicionales.
+- Menciona a Piku solo una vez por solicitud para que el plugin correcto se ejecute sin duplicación.
+- Mantén los enlaces accesibles para tu workspace; Piku necesita permiso para llegar al recurso de destino a través del plugin.
+- Revisa el catálogo de plugins periódicamente — se agregan nuevas integraciones a medida que piku-cat cura servidores MCP adicionales.

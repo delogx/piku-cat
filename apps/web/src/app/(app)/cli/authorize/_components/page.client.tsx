@@ -148,7 +148,7 @@ export function CliAuthorizeClient({
                     Authorize Kodus CLI
                 </Heading>
                 <p className="text-text-secondary text-pretty text-sm">
-                    A device is requesting access to your Kodus account.
+                    A device is requesting access to your piku-cat account.
                 </p>
             </div>
 

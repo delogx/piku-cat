@@ -1,10 +1,10 @@
 ---
 title: "Kubernetes と OpenShift"
-description: "公式 Helm チャートで Kodus を Kubernetes または OpenShift にデプロイします。"
+description: "公式 Helm チャートで piku-cat を Kubernetes または OpenShift にデプロイします。"
 icon: "dharmachakra"
 ---
 
-単一の VM よりもクラスターを使いたい場合は、Kodus が
+単一の VM よりもクラスターを使いたい場合は、piku-cat が
 [kodus-installer](https://github.com/kodustech/kodus-installer) リポジトリで
 Kubernetes と OpenShift 向けの **Helm チャート** を提供しています。このページは概要です
 ——完全なリファレンスはチャートの
@@ -36,7 +36,7 @@ helm install kodus . -n kodus --create-namespace \
   --set ingress.hosts.api.host=api.kodus.example.com
 ```
 
-`imageTag` はスタック全体の Kodus バージョンを固定します（Docker Compose の `IMAGE_TAG`
+`imageTag` はスタック全体の piku-cat バージョンを固定します（Docker Compose の `IMAGE_TAG`
 と同様）。本番環境では `latest` ではなく実際のタグを使用してください。認証・暗号化用の
 シークレットは正しい形式で自動生成され、アップグレード後も安定して維持されます。
 

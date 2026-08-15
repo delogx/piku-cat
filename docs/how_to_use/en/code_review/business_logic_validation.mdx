@@ -5,12 +5,12 @@ description: "Compare your pull request against business rules or specs with @ko
 
 ## Overview
 
-Business Logic Validation lets you confirm that a pull request implements the expected behaviour described in a spec, document, or ticket. Kody analyzes the PR diff, brings in the referenced business context, and flags mismatches before you merge.
+Business Logic Validation lets you confirm that a pull request implements the expected behaviour described in a spec, document, or ticket. Piku analyzes the PR diff, brings in the referenced business context, and flags mismatches before you merge.
 
 <img src="https://kodus.io/wp-content/uploads/2025/10/business-logic.gif" alt="Example of using business logic validation" />
 
 ## Prerequisites
-- If you want Kody to **automatically fetch task context** from tools like Jira, Linear, Notion, or ClickUp, the corresponding plugin must be connected in your workspace's [Plugins](/how_to_use/en/code_review/plugins) page.
+- If you want Piku to **automatically fetch task context** from tools like Jira, Linear, Notion, or ClickUp, the corresponding plugin must be connected in your workspace's [Plugins](/how_to_use/en/code_review/plugins) page.
 - Any link you share (Jira, Slack, Google Docs, etc.) must be reachable through the plugins installed in your workspace.
 - You can always **provide the spec inline** without any plugin — just paste the requirements directly in the PR comment.
 
@@ -29,20 +29,20 @@ reviewOptions:
 
 Go to **Code Review Settings** → **Repository** → **General** → **Analysis Types** and toggle **Business Logic**.
 
-When enabled, Kody runs business logic validation automatically during every PR review, in addition to the on-demand command.
+When enabled, Piku runs business logic validation automatically during every PR review, in addition to the on-demand command.
 
 ## Running On-Demand
 
 You can also trigger validation manually at any time:
 
 1. Open the main PR comment box (outside of inline code suggestions).
-2. Mention Kody and add the validation command: `@kody -v business-logic ...`.
-3. Provide the spec content inline or paste a link that Kody can fetch via the available plugins.
-4. Submit the comment and wait for Kody's response in the same thread.
+2. Mention Piku and add the validation command: `@kody -v business-logic ...`.
+3. Provide the spec content inline or paste a link that Piku can fetch via the available plugins.
+4. Submit the comment and wait for Piku's response in the same thread.
 
 The command only triggers from the main conversation box; replies inside inline suggestions are ignored.
 
-You can re-run the validation at any time — simply post the command again in a new comment. Follow-ups must be a fresh command; replying directly to Kody's message in the Git UI is not supported.
+You can re-run the validation at any time — simply post the command again in a new comment. Follow-ups must be a fresh command; replying directly to Piku's message in the Git UI is not supported.
 
 ### Examples
 
@@ -53,7 +53,7 @@ You can re-run the validation at any time — simply post the command again in a
 - Slack conversation: `@kody -v business-logic https://kodustech.slack.com/archives/C070E5E97DE/p1727814000000000`
 - Inline spec snippet: `@kody -v business-logic Rule XYZ — orders above $500 must issue cashback credits.`
 
-## What Kody Does
+## What Piku Does
 
 1. **Fetches the PR diff** and pull request metadata.
 2. **Retrieves the task context** — from the linked task management tool (Jira, Linear, etc.) or from inline text you supplied.
@@ -61,11 +61,11 @@ You can re-run the validation at any time — simply post the command again in a
 4. **Compares implementation against requirements** — checks each acceptance criterion against the PR diff.
 5. **Reports findings** with severity levels and requirement tracing.
 
-If Kody cannot reach the resource or lacks permissions, it will call that out so you can adjust access or provide the information another way.
+If Piku cannot reach the resource or lacks permissions, it will call that out so you can adjust access or provide the information another way.
 
 ## Task Context Quality
 
-Kody automatically classifies the quality of the task context before analysis, which affects the depth of validation:
+Piku automatically classifies the quality of the task context before analysis, which affects the depth of validation:
 
 | Quality | Description | Analysis Behavior |
 |---------|-------------|-------------------|
@@ -92,18 +92,18 @@ Every finding is **traceable to a specific requirement** from the task context. 
 - **Missing in code** — What is absent or wrong in the PR diff
 - **Suggested action** — A concrete implementation action
 
-Kody does not invent requirements. If a finding cannot be traced back to a specific sentence in the task, it is not reported.
+Piku does not invent requirements. If a finding cannot be traced back to a specific sentence in the task, it is not reported.
 
 ### Scope Mismatch Detection
 
-If the PR diff appears to be working in a different domain than the task itself, Kody detects this as a **scope mismatch** and reports it as the leading finding, rather than producing misleading gap analysis.
+If the PR diff appears to be working in a different domain than the task itself, Piku detects this as a **scope mismatch** and reports it as the leading finding, rather than producing misleading gap analysis.
 
 ### Example Output
 
 ```markdown
 ## Business Rules Validation
 
-**Task:** KC-1441 - Team-scoped Kody rules
+**Task:** KC-1441 - Team-scoped Piku rules
 **Task Link:** https://kodustech.atlassian.net/browse/KC-1441
 **Status:** Issues Found
 **Confidence:** high
@@ -130,7 +130,7 @@ scoped to team.
 - AC #2: "Multi-workspace billing path" — Implemented in `billing.service.ts:118`
 
 ---
-*Analysis performed by Kodus AI Business Rules Validator*
+*Analysis performed by piku-cat AI Business Rules Validator*
 ```
 
 ## Tips

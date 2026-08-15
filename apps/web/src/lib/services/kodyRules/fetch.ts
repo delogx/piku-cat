@@ -399,7 +399,7 @@ export const manageImportedKodyRules = async (params: {
 
 export type PastReviewer = { id: string; name: string };
 
-// Candidate git reviewers a client can exclude from Kody Rules learning
+// Candidate git reviewers a client can exclude from Piku Rules learning
 // (issue #1497): current members ∪ authors of PRs in the window.
 export const getPastReviewers = async (params: {
     teamId: string;
