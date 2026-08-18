@@ -42,6 +42,73 @@ const LIGHT_THRESHOLD = 32_000;
 const COMPACT_THRESHOLD = 16_000;
 const MINIMAL_THRESHOLD = 8_000;
 
+/**
+ * piku-cat fork addition: what the run actually needs, so the profile can
+ * escalate on DEMAND rather than only on window size.
+ *
+ * Upstream classifies purely by `contextWindowTokens`, so any window >= 64K
+ * resolves to `full`, which switches every mitigation OFF ("`full` because it
+ * doesn't need them"). That assumption breaks on a big model reviewing a big
+ * PR: the non-diff overhead is dominated by `callGraph`, which scales with the
+ * repo, not the window. A 500-file PR can need ~930K chars (~230K tokens) of
+ * call graph alone — so the preflight throws AgentContextWindowTooSmallError
+ * while `dropCallGraph`, the one lever that would have rescued it, stays false
+ * because it only fires under 32K. Chunking cannot help either: it splits
+ * diffs, and this is the non-diff part.
+ *
+ * `estimatedPromptTokens` is the caller's estimate for the FULL profile (see
+ * estimatePromptTokens). When it exceeds the usable budget we walk the bands
+ * down one at a time — the same bands, same flags, just reached for a
+ * different reason — and stop as soon as the estimate fits. Small-window
+ * behaviour is untouched: without `demand` this is byte-identical to upstream.
+ */
+export interface AdaptiveDemand {
+    /** Estimated full-fidelity prompt size, in tokens. */
+    estimatedPromptTokens: number;
+    /** Fraction of the window usable by the prompt (PROMPT_BUDGET_RATIO). */
+    promptBudgetRatio: number;
+    /** Tokens saved by dropping the call graph, if known. */
+    callGraphTokens?: number;
+}
+
+const ESCALATION_ORDER: AdaptiveProfileKind[] = [
+    'full',
+    'light',
+    'compact',
+    'minimal',
+];
+
+function escalateForDemand(
+    kind: AdaptiveProfileKind,
+    contextWindowTokens: number,
+    demand?: AdaptiveDemand,
+): AdaptiveProfileKind {
+    if (!demand || kind === 'unviable') return kind;
+    if (!Number.isFinite(contextWindowTokens) || contextWindowTokens <= 0) {
+        return kind;
+    }
+
+    const budget = Math.floor(contextWindowTokens * demand.promptBudgetRatio);
+    if (budget <= 0) return kind;
+
+    let need = demand.estimatedPromptTokens;
+    if (need <= budget) return kind;
+
+    let idx = ESCALATION_ORDER.indexOf(kind);
+    if (idx < 0) return kind;
+
+    // light+ drops the call graph, which is the single biggest non-diff term.
+    // Subtract it once, when we first cross into light or beyond.
+    while (need > budget && idx < ESCALATION_ORDER.length - 1) {
+        idx += 1;
+        if (ESCALATION_ORDER[idx] === 'light' && demand.callGraphTokens) {
+            need -= demand.callGraphTokens;
+        }
+    }
+
+    return ESCALATION_ORDER[idx];
+}
+
 function classify(contextWindowTokens: number): AdaptiveProfileKind {
     if (!Number.isFinite(contextWindowTokens)) return 'full';
     if (contextWindowTokens <= 0) return 'unviable';
@@ -73,8 +140,50 @@ const MINIMAL_PROFILE_MAX_DIFF_CHARS = 4_000;
  */
 export function resolveAdaptiveProfile(
     contextWindowTokens: number,
+    demand?: AdaptiveDemand,
 ): AdaptiveProfile {
-    const kind = classify(contextWindowTokens);
+    const kind = escalateForDemand(
+        classify(contextWindowTokens),
+        contextWindowTokens,
+        demand,
+    );
+    return buildProfile(kind, contextWindowTokens);
+}
+
+/**
+ * piku-cat fork addition: escalate an ALREADY-RESOLVED profile against demand.
+ *
+ * Needed because the two resolution sites know different things. The stage
+ * (agent-review.stage.ts) resolves the profile BEFORE the call graph exists —
+ * it has to, since `dropCallGraph` is what decides whether to build it — so it
+ * cannot measure the dominant term. The provider receives `input.callGraph` and
+ * therefore knows the real cost, but upstream it just accepts the stage's
+ * profile verbatim (`input.adaptiveProfile ?? resolve(...)`), so a `full`
+ * profile from the stage can never be reconsidered no matter how big the graph
+ * turned out to be. Dropping it from the prompt at that point still saves every
+ * one of its tokens.
+ *
+ * Returns the input profile unchanged when it already fits, when no demand is
+ * supplied, or when the run is `unviable` — so behaviour only changes for runs
+ * that would otherwise have hard-failed the preflight.
+ */
+export function escalateAdaptiveProfileForDemand(
+    profile: AdaptiveProfile,
+    demand?: AdaptiveDemand,
+): AdaptiveProfile {
+    const kind = escalateForDemand(
+        profile.kind,
+        profile.contextWindowTokens,
+        demand,
+    );
+    if (kind === profile.kind) return profile;
+    return buildProfile(kind, profile.contextWindowTokens);
+}
+
+function buildProfile(
+    kind: AdaptiveProfileKind,
+    contextWindowTokens: number,
+): AdaptiveProfile {
     const resolvedWindow = Number.isFinite(contextWindowTokens)
         ? contextWindowTokens
         : 0;

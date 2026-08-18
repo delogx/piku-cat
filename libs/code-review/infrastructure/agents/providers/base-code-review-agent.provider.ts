@@ -13,6 +13,7 @@ import { ObservabilityService } from '@libs/core/log/observability.service';
 import { PermissionValidationService } from '@libs/ee/shared/services/permissionValidation.service';
 import { assignFileTiers, computeFileScores } from '@libs/code-review/infrastructure/agents/engine/file-priority-scorer';
 import {
+    CHARS_PER_TOKEN,
     PROMPT_BUDGET_RATIO,
     assertContextWindowFitsOverhead,
     estimateNonDiffOverheadTokens,
@@ -30,7 +31,10 @@ import {
     buildProviderFallbackWarning,
     type ReviewWarning,
 } from '@libs/code-review/infrastructure/agents/engine/review-warnings';
-import { resolveAdaptiveProfile } from '@libs/code-review/infrastructure/agents/engine/adaptive-fit';
+import {
+    escalateAdaptiveProfileForDemand,
+    resolveAdaptiveProfile,
+} from '@libs/code-review/infrastructure/agents/engine/adaptive-fit';
 import { runAgentLoopViaCore } from '@libs/code-review/infrastructure/agents/core/core-agent-loop.adapter';
 import {
     type AgentLoopSecrets,
@@ -227,8 +231,32 @@ export abstract class BaseCodeReviewAgentProvider {
         // skipHeavyPasses decisions and we need to agree). Falling back
         // to local resolution covers callers (CLI trial, ad-hoc tests)
         // that didn't go through the stage.
-        const adaptiveProfile =
+        // piku-cat fork divergence: escalate the profile against the run's
+        // actual DEMAND, not just the window size. Upstream keys only off the
+        // window, so any >=64K model gets `full` (every mitigation off) and a
+        // large PR preflight-fails while `dropCallGraph` — the lever that would
+        // have rescued it — never fires. This is also the only site that CAN
+        // decide it: the stage resolves the profile before the call graph
+        // exists, so only here is its true size known.
+        // Estimated WITHOUT the profile on purpose, so the estimate reflects
+        // full fidelity rather than presuming the mitigations under decision.
+        const suppliedProfile =
             input.adaptiveProfile ?? resolveAdaptiveProfile(contextWindow);
+        const adaptiveProfile = escalateAdaptiveProfileForDemand(
+            suppliedProfile,
+            {
+                estimatedPromptTokens: estimatePromptTokens({
+                    changedFiles: input.changedFiles,
+                    callGraph: input.callGraph,
+                    prTitle: input.prTitle,
+                    prBody: input.prBody,
+                }),
+                promptBudgetRatio: PROMPT_BUDGET_RATIO,
+                callGraphTokens: Math.ceil(
+                    (input.callGraph || '').length / CHARS_PER_TOKEN,
+                ),
+            },
+        );
         // Ensure downstream estimators (estimateNonDiffOverheadTokens,
         // estimatePromptTokens, the prompt builders) all see the same
         // profile — without this the preflight would be computing the
