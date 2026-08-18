@@ -1,13 +1,18 @@
 /**
- * piku-cat fork: bot names the command parser answers to, most-preferred
- * first. `piku` is the brand; `kody` stays accepted because comments already
- * posted to open PRs say `@kody`, and the echo-detection below has to keep
- * recognising them or the bot re-reviews its own old trigger comments.
+ * piku-cat fork: bot names the command parser answers to. `piku-cat` is the
+ * GitHub App's login, so it is what mention autocomplete inserts; `piku` is the
+ * short brand people actually type; `kody` stays accepted because comments
+ * already posted to open PRs say `@kody`, and the echo-detection below has to
+ * keep recognising them or the bot re-reviews its own old trigger comments.
+ *
+ * LONGEST FIRST. Regex alternation is ordered, so `piku` listed before
+ * `piku-cat` would match the prefix of `@piku-cat` and leave `-cat` to be
+ * parsed as the command.
  */
-const BOT_NAME_ALIASES = ['piku', 'kody'] as const;
+const BOT_NAME_ALIASES = ['piku-cat', 'piku', 'kody'] as const;
 
-/** Alternation group matching any accepted bot name, e.g. `(?:piku|kody)`. */
-const BOT_NAME_GROUP = `(?:${BOT_NAME_ALIASES.join('|')})`;
+/** Alternation group matching any accepted bot name, plus its right boundary. */
+const BOT_NAME_GROUP = `(?:${BOT_NAME_ALIASES.join('|')})(?![\\w-])`;
 
 const KODY_CODE_REVIEW_COMPLETED_MARKER = '## Code Review Completed! 🔥';
 const KODY_CODE_REVIEW_COMPLETED_MARKER_ENCODED =
