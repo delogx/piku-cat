@@ -68,7 +68,7 @@ export interface ICockpitReviewAnalyticsService {
     /**
      * Map of `repositoryId` → `repo_full_name` for the org, from the
      * warehouse. Lets the rule-health table label scope ("which repo")
-     * without a second round-trip — Kody rules only carry the external
+     * without a second round-trip — Piku rules only carry the external
      * `repositoryId`, not the name.
      */
     getRepositoryNames(organizationId: string): Promise<Map<string, string>>;

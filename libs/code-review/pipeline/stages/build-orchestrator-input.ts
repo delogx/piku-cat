@@ -35,7 +35,7 @@ export type OrchestratorInputComputed = Pick<
  * Maps the pipeline context (+ stage-computed locals) into the agent
  * OrchestratorInput. Extracted as a PURE function so the context→input wiring is
  * unit-testable without standing up the whole AgentReviewStage — notably that
- * `reviewDirective` (from `@kody review <directive>`) actually reaches the
+ * `reviewDirective` (from `@piku review <directive>`) actually reaches the
  * finder, an optional field that no typecheck would flag if a refactor silently
  * dropped it. Keep this the single place that builds the input.
  */
@@ -72,7 +72,7 @@ export function buildOrchestratorInput(
             sha: c.sha,
             message: c.commit?.message ?? '',
         })),
-        // Free-text steering directive from `@kody review <directive>`.
+        // Free-text steering directive from `@piku review <directive>`.
         reviewDirective: context.reviewDirective,
         kodyRules: computed.kodyRules ?? context.codeReviewConfig?.kodyRules,
         reviewOptions: computed.reviewOptions,
@@ -86,7 +86,7 @@ export function buildOrchestratorInput(
         callGraph: computed.callGraph,
         callGraphJson: context.callGraphJson,
         reviewMode: context.codeReviewConfig?.reviewMode || 'normal',
-        // HEAVY mode — opt-in per review (CLI `--heavy` / PR `@kody review
+        // HEAVY mode — opt-in per review (CLI `--heavy` / PR `@piku review
         // --heavy`), gated to the alpha release track by the stage. The stage
         // resolves the requested flag AND the feature gate into `computed.heavy`;
         // this reads only that so the gate can't be bypassed here.

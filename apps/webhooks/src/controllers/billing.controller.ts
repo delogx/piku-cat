@@ -164,13 +164,13 @@ export class BillingController {
                 teamId: body.teamId,
             });
             this.logger.log({
-                message: 'Kody Rules synced after billing plan-changed webhook',
+                message: 'Piku Rules synced after billing plan-changed webhook',
                 context: BillingController.name,
                 metadata: { organizationId: body.organizationId },
             });
         } catch (error) {
             this.logger.error({
-                message: 'Failed to sync Kody Rules after billing plan-changed webhook',
+                message: 'Failed to sync Piku Rules after billing plan-changed webhook',
                 context: BillingController.name,
                 error,
                 metadata: { organizationId: body.organizationId },

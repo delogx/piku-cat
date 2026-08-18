@@ -35,7 +35,7 @@ import {
 } from '@libs/kodyRules/domain/interfaces/kodyRules.interface';
 
 /**
- * Agent that validates code changes against Kody Rules (team-defined rules).
+ * Agent that validates code changes against Piku Rules (team-defined rules).
  *
  * Unlike the bug/security/performance agents that look for general issues,
  * this agent focuses exclusively on checking whether changed code violates
@@ -279,7 +279,7 @@ export class KodyRulesAgentProvider extends BaseCodeReviewAgentProvider {
             // the shard warn logs.
             if (shardsRun > 0 && shardsErrored === shardsRun) {
                 throw new Error(
-                    `Kody Rules could not be evaluated: all ${shardsRun} rule check(s) failed to run. Your semantic Kody Rules were not applied to this PR.`,
+                    `Piku Rules could not be evaluated: all ${shardsRun} rule check(s) failed to run. Your semantic Piku Rules were not applied to this PR.`,
                 );
             }
 
@@ -589,7 +589,7 @@ If no violations found, respond with \`{"reasoning": "Checked all rules, no viol
     }
 
     /**
-     * Format Kody Rules into a structured prompt section.
+     * Format Piku Rules into a structured prompt section.
      * Filters rules by path applicability to changed files.
      */
     private formatKodyRules(

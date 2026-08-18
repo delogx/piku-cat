@@ -27,7 +27,7 @@ export class SendRulesNotificationUseCase {
     async execute(organizationId: string, rules: string[]): Promise<void> {
         try {
             this.logger.log({
-                message: 'Starting Kody Rules notification process',
+                message: 'Starting Piku Rules notification process',
                 context: SendRulesNotificationUseCase.name,
                 metadata: {
                     organizationId,
@@ -83,7 +83,7 @@ export class SendRulesNotificationUseCase {
             }));
 
             this.logger.log({
-                message: 'Emitting Kody Rules notification',
+                message: 'Emitting Piku Rules notification',
                 context: SendRulesNotificationUseCase.name,
                 metadata: {
                     organizationId,
@@ -112,13 +112,13 @@ export class SendRulesNotificationUseCase {
             });
 
             this.logger.log({
-                message: 'Kody Rules notification emitted successfully',
+                message: 'Piku Rules notification emitted successfully',
                 context: SendRulesNotificationUseCase.name,
                 metadata: { organizationId },
             });
         } catch (error) {
             this.logger.error({
-                message: 'Error in Kody Rules notification process',
+                message: 'Error in Piku Rules notification process',
                 context: SendRulesNotificationUseCase.name,
                 error,
                 metadata: {

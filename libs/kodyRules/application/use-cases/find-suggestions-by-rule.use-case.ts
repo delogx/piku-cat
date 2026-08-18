@@ -50,7 +50,7 @@ export class FindSuggestionsByRuleUseCase {
 
             if (!existingRules) {
                 throw new NotFoundException(
-                    'No Kody rules found for the given organization ID',
+                    'No Piku rules found for the given organization ID',
                 );
             }
 

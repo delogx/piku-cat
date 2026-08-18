@@ -722,7 +722,7 @@ export class PermissionValidationService {
             // Development mode doesn't limit resources
             // piku-cat personal-use fork divergence: this install is never
             // resource-limited. Upstream returns `true` below for an unlicensed
-            // self-hosted (CE) install, which is what caps Kody Rules at 10,
+            // self-hosted (CE) install, which is what caps Piku Rules at 10,
             // caps MCP plugins at 3, disables audit logs, and truncates the rule
             // set sent into each review. This is the same path a licensed/paid
             // org already takes, and it also drops the fail-closed catch that
@@ -927,7 +927,7 @@ export class PermissionValidationService {
     }
 
     /**
-     * Access tier for the global Kody Rules import feature:
+     * Access tier for the global Piku Rules import feature:
      *   - `free`  → blocked (no valid license, or an explicit Free plan);
      *   - `trial` → capped (see GLOBAL_RULES_TRIAL_IMPORT_LIMIT);
      *   - `paid`  → unlimited (any other valid plan).
@@ -958,7 +958,7 @@ export class PermissionValidationService {
             }
         }
 
-        // piku-cat personal-use fork divergence: global Kody Rules import is
+        // piku-cat personal-use fork divergence: global Piku Rules import is
         // unlimited on this install. Upstream resolves an unlicensed self-hosted
         // install to 'free' (and fails closed to 'free' on a license lookup
         // error), which blocks the feature outright; 'trial' would cap it at

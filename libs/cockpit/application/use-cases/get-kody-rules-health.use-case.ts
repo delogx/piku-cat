@@ -34,7 +34,7 @@ import {
 import { computeRuleState } from '../../domain/helpers/kody-rules-health.helper';
 
 /**
- * "Kody Rules — health" table: merges warehouse usage (triggers /
+ * "Piku Rules — health" table: merges warehouse usage (triggers /
  * implementation rate per rule, from `suggestions_mv.brokenKodyRulesIds`)
  * with rule metadata from Mongo `kodyRules` — which is also what surfaces
  * ACTIVE rules that never triggered in the window (`stale`).

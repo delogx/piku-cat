@@ -397,10 +397,10 @@ describe('AgentReviewStage', () => {
     });
 
     describe('kody rules severity', () => {
-        it('should use severity from the Kody Rule, not from the LLM or classifier', async () => {
+        it('should use severity from the Piku Rule, not from the LLM or classifier', async () => {
             // Orchestrator returns a finding with ruleUuid and a LOW severity
             // (whatever the LLM decided). The stage should override it with
-            // the severity from the matched Kody Rule (HIGH).
+            // the severity from the matched Piku Rule (HIGH).
             mockOrchestrator.execute.mockResolvedValue({
                 suggestions: [
                     {

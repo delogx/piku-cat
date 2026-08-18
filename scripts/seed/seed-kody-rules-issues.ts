@@ -162,7 +162,7 @@ const pickRulesForOrg = async (
 
     if (!orgRules || !Array.isArray(orgRules.rules)) {
         throw new Error(
-            `No Kody Rules found for organization ${organizationId}.`,
+            `No Piku Rules found for organization ${organizationId}.`,
         );
     }
 
@@ -172,7 +172,7 @@ const pickRulesForOrg = async (
 
     if (!activeRules.length) {
         throw new Error(
-            `Organization ${organizationId} does not have active Kody Rules.`,
+            `Organization ${organizationId} does not have active Piku Rules.`,
         );
     }
 
@@ -189,10 +189,10 @@ const buildIssueDoc = (
     const suggestionId = new ObjectId().toString();
 
     return {
-        title: `[Kody Rule] ${rule.title}`,
+        title: `[Piku Rule] ${rule.title}`,
         description:
             (rule.rule as string)?.slice(0, 400) ||
-            'Automatically seeded issue to test Kody Rules screens.',
+            'Automatically seeded issue to test Piku Rules screens.',
         filePath: rule.sourcePath || `src/seeded/rule-${rule.uuid}.ts`,
         language: rule.language || 'typescript',
         label: LabelType.KODY_RULES,
@@ -279,7 +279,7 @@ async function main() {
         });
     } catch (error) {
         console.error(
-            '❌ Failed to seed Kody Rules issues:',
+            '❌ Failed to seed Piku Rules issues:',
             (error as Error).message,
         );
         process.exitCode = 1;

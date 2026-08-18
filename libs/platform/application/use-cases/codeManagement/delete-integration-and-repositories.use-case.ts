@@ -103,11 +103,11 @@ export class DeleteIntegrationAndRepositoriesUseCase {
                 },
             });
 
-            // 5. Inativar Kody rules associadas aos repositórios
+            // 5. Inativar Piku rules associadas aos repositórios
             await this.inactivateKodyRules(organizationId, repositoriesIds);
 
             this.logger.log({
-                message: 'Kody rules inactivated successfully',
+                message: 'Piku rules inactivated successfully',
                 context: DeleteIntegrationAndRepositoriesUseCase.name,
                 metadata: {
                     organizationId,
@@ -308,7 +308,7 @@ export class DeleteIntegrationAndRepositoriesUseCase {
                             );
 
                         this.logger.log({
-                            message: 'Kody rules inactivation attempt',
+                            message: 'Piku rules inactivation attempt',
                             context:
                                 DeleteIntegrationAndRepositoriesUseCase.name,
                             metadata: {
@@ -322,7 +322,7 @@ export class DeleteIntegrationAndRepositoriesUseCase {
                     } catch (error) {
                         this.logger.error({
                             message:
-                                'Error inactivating Kody rules for repository',
+                                'Error inactivating Piku rules for repository',
                             context:
                                 DeleteIntegrationAndRepositoriesUseCase.name,
                             error: error,
@@ -340,7 +340,7 @@ export class DeleteIntegrationAndRepositoriesUseCase {
             await Promise.all(inactivationPromises);
         } catch (error) {
             this.logger.error({
-                message: 'Error inactivating Kody rules',
+                message: 'Error inactivating Piku rules',
                 context: DeleteIntegrationAndRepositoriesUseCase.name,
                 error: error,
                 metadata: {

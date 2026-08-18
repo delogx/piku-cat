@@ -43,13 +43,13 @@ The review failed before suggestions could be generated.
 
 **Reason:** The configured AI provider rejected the request (invalid or missing API key).
 
-After fixing the issue, comment \`@kody review\` on this PR to re-run the review.`;
+After fixing the issue, comment \`@piku review\` on this PR to re-run the review.`;
 
 // Piku always appends this guide footer to its review comments (success and
 // error alike), generated server-side by generateConfigReviewMarkdown. It is
 // NOT part of the custom message and can't be edited — shown here (static) only
 // so the preview matches what actually lands on the PR.
-const KODY_GUIDE_FOOTER_SAMPLE = `<details><summary>Kody Guide: Usage and Configuration</summary>
+const KODY_GUIDE_FOOTER_SAMPLE = `<details><summary>Piku Guide: Usage and Configuration</summary>
 
 - Interacting with Piku
 - Current Piku Configuration

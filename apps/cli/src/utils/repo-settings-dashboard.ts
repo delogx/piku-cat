@@ -20,7 +20,7 @@ const SECTION_LABELS: Record<RepositorySettingsSection, string> = {
     'custom-prompts': 'Custom Prompts',
     'suggestion-control': 'Suggestion Control',
     'pr-summary': 'PR Summary',
-    'kody-rules': 'Kody Rules',
+    'kody-rules': 'Piku Rules',
     'custom-messages': 'Custom Messages',
     'business-rules': 'Business Rules',
 };

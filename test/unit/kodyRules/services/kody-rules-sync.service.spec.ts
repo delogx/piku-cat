@@ -32,7 +32,7 @@ describe('KodyRulesSyncService.syncRepositoryMain', () => {
         const ideRulesSyncEnabled = opts.ideRulesSyncEnabled ?? false;
         const fileContent =
             opts.fileContent ??
-            ['---', '# @kody-sync', '---', 'Logging rule content'].join('\n');
+            ['---', '# @piku-sync', '---', 'Logging rule content'].join('\n');
 
         const kodyRulesService = {
             createOrUpdate: jest.fn().mockResolvedValue({ uuid: 'rule-1' }),
@@ -148,7 +148,7 @@ describe('KodyRulesSyncService.syncRepositoryMain', () => {
             organizationAndTeamData,
             expect.objectContaining({
                 sourcePath: 'qantilever/.cursor/rules/logging.mdc',
-                // Source file carries `@kody-sync` → rule is pinned.
+                // Source file carries `@piku-sync` → rule is pinned.
                 // Drives the UI's orphan-chip exclusion so this rule
                 // doesn't get flagged as orphan when the toggle is off.
                 pinnedSync: true,
@@ -157,7 +157,7 @@ describe('KodyRulesSyncService.syncRepositoryMain', () => {
         );
     });
 
-    it('marks pinnedSync=false when the source file has no @kody-sync marker (toggle on)', async () => {
+    it('marks pinnedSync=false when the source file has no @piku-sync marker (toggle on)', async () => {
         const { service, kodyRulesService } = createService({
             ideRulesSyncEnabled: true,
             fileContent: [
@@ -651,7 +651,7 @@ describe('KodyRulesSyncService — Bug: orphaned rules after IDE sync toggle-off
     it('purgeAllIdeSyncRulesForRepository skips pinnedSync rules (their next sync would resurrect them)', async () => {
         // BUG: previously the bulk purge would soft-delete pinned IDE rules
         // even though the very next PR-driven sync would re-import them as
-        // ACTIVE via the `@kody-sync` force-sync path. The user saw rules
+        // ACTIVE via the `@piku-sync` force-sync path. The user saw rules
         // they had explicitly asked to delete come back without explanation.
         // The chip already excludes pinned from the "orphan" count, so the
         // bulk action must match for the two surfaces to agree.
@@ -859,7 +859,7 @@ describe('KodyRulesSyncService — Bug: stale pinnedSync after marker removal (d
         return { service, kodyRulesService, codeManagementService };
     }
 
-    it('depins a previously-pinned rule when the PR drops the @kody-sync marker (toggle off)', async () => {
+    it('depins a previously-pinned rule when the PR drops the @piku-sync marker (toggle off)', async () => {
         // BUG: with the toggle off, the force-sync loop skips the modified
         // file (no marker → not in forceSyncFiles). The normal sync path
         // never runs either. Without an explicit depin pass, the rule
@@ -989,7 +989,7 @@ describe('KodyRulesSyncService — depin pass: syncRepositoryMain full-scan + sy
         existingRules: any[];
         allFiles?: Array<{ path: string; size?: number }>;
         // Maps `filename` → file content. `null` means "file not found".
-        // Missing key falls back to a default content WITHOUT @kody-sync.
+        // Missing key falls back to a default content WITHOUT @piku-sync.
         fileContents?: Record<string, string | null>;
     }) {
         const { existingRules, allFiles = [], fileContents = {} } = opts;
@@ -1059,7 +1059,7 @@ describe('KodyRulesSyncService — depin pass: syncRepositoryMain full-scan + sy
         return { service, kodyRulesService, codeManagementService };
     }
 
-    it('full-scan depin: depins pinned rules whose source file lost the @kody-sync marker', async () => {
+    it('full-scan depin: depins pinned rules whose source file lost the @piku-sync marker', async () => {
         // The full-scan is invoked from the "Resync rules from IDE" button
         // (no `path` arg). With the toggle off, the depin pass walks every
         // pinned rule and reconciles against the filesystem snapshot.
@@ -1139,7 +1139,7 @@ describe('KodyRulesSyncService — depin pass: syncRepositoryMain full-scan + sy
             ],
             allFiles: [{ path: '.cursorrules' }],
             fileContents: {
-                '.cursorrules': ['# @kody-sync', 'rule body'].join('\n'),
+                '.cursorrules': ['# @piku-sync', 'rule body'].join('\n'),
             },
         });
 
@@ -1177,7 +1177,7 @@ describe('KodyRulesSyncService — depin pass: syncRepositoryMain full-scan + sy
         );
     });
 
-    it('single-file (syncSingleFileFromMain via path arg): depins existing pinned rule when file no longer has @kody-sync (toggle off)', async () => {
+    it('single-file (syncSingleFileFromMain via path arg): depins existing pinned rule when file no longer has @piku-sync (toggle off)', async () => {
         // The single-file path is used by the "Resync this specific file"
         // entry point. With the toggle off + no marker, the existing
         // pinned rule should be depinned before early-returning.
@@ -1737,9 +1737,9 @@ describe('KodyRulesSyncService.inlineAtFileReferences — @file inlining (#1486)
         await expect(inline(service, content)).resolves.toBe(content);
     });
 
-    it('ignores non-file @ tokens like @kody-sync and emails', async () => {
+    it('ignores non-file @ tokens like @piku-sync and emails', async () => {
         const { service, getFileContent } = createService({});
-        const content = '@kody-sync\nContact bot@kodus.io for help.';
+        const content = '@piku-sync\nContact bot@kodus.io for help.';
 
         await expect(inline(service, content)).resolves.toBe(content);
         expect(getFileContent).not.toHaveBeenCalled();

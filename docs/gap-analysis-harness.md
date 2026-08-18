@@ -14,7 +14,7 @@ Ordenado por ROI (impacto × reuso de infra que já temos):
 
 1. **Grafo de código consultável dentro do loop** — maior ROI: a infra (índice AST nodes/edges em banco) **já existe**, só não está exposta ao agente.
 2. **Verify com prova executável/simbólica** — gap com respaldo peer-reviewed e bônus de robustez para BYOK; sandbox E2B já existe.
-3. **Memória que aprende de falhas (não só de sucesso), recuperável no loop** — reposiciona o Kody Fine-Tuning de filtro pós-geração para guardrail recuperável.
+3. **Memória que aprende de falhas (não só de sucesso), recuperável no loop** — reposiciona o Piku Fine-Tuning de filtro pós-geração para guardrail recuperável.
 4. **Camada crítica/judge sobre a saída + self-consistency cross-model** — FP-reducer documentado; complementa (não substitui) o item 2.
 
 Nota de tempero: reabrir o trio temático Bug/Security/Perf **não** é claramente a jogada (ver "O que NÃO fazer").
@@ -54,7 +54,7 @@ Nota de tempero: reabrir o trio temático Bug/Security/Perf **não** é claramen
 
 - **O que o estado da arte mostra:**
   - ReasoningBank (ICLR): memória **recuperável em runtime** que destila estratégias de **sucessos E falhas** num loop fechado retrieve → extract → consolidate; falhas viram **guardrails preventivos**. Supera agentes sem memória em **+4.6% (SWE-bench-Verified)** e **+8.3% (WebArena)**. **[verificado]**
-- **Nosso estado (código):** **temos aprendizado** (e ele alimenta o agente via Kody Rules / IDE-sync / memory rules). Mas o componente que usa feedback de outcome — **Kody Fine-Tuning** — é:
+- **Nosso estado (código):** **temos aprendizado** (e ele alimenta o agente via Piku Rules / IDE-sync / memory rules). Mas o componente que usa feedback de outcome — **Piku Fine-Tuning** — é:
   - um **filtro pós-geração** (cluster k-means → KEEP/DISCARD por similaridade);
   - alimentado **principalmente por sucesso** (`IMPLEMENTED` + reações 👍/👎) — **não destila falhas/ignorados** em guardrail;
   - roda **só no engine EE/legacy** (não no agent path default), **opt-in**, exige ≥ 50 sugestões. **[inferido]**

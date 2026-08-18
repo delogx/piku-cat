@@ -40,7 +40,7 @@ Esse comportamento é intencional. No fluxo interno do Kodus, contexto de tenant
 4. **`get_pull_request_details`** - Obtém detalhes específicos de um pull request
 5. **`get_repository_files`** - Lista arquivos de um repositório com filtros
 
-#### Kody Issues Management Tools
+#### Piku Issues Management Tools
 6. **`KODUS_CREATE_KODY_ISSUE`** - Cria uma nova issue manualmente
 7. **`KODUS_LIST_KODY_ISSUES`** - Lista issues com filtros opcionais
 8. **`KODUS_GET_KODY_ISSUE_DETAILS`** - Obtém detalhes de uma issue específica
@@ -179,7 +179,7 @@ O client `StreamableHTTPClientTransport` do SDK funciona com esse modelo porque:
 }
 ```
 
-#### 6. Criar Kody Issue
+#### 6. Criar Piku Issue
 
 ```json
 {
@@ -208,9 +208,9 @@ O client `StreamableHTTPClientTransport` do SDK funciona com esse modelo porque:
 }
 ```
 
-**Note**: `owner` and `reporter` are optional. If `reporter` is not provided, defaults to Kody-MCP.
+**Note**: `owner` and `reporter` are optional. If `reporter` is not provided, defaults to Piku-MCP.
 
-#### 7. Listar Kody Issues
+#### 7. Listar Piku Issues
 
 ```json
 {
@@ -226,7 +226,7 @@ O client `StreamableHTTPClientTransport` do SDK funciona com esse modelo porque:
 
 All filters are optional.
 
-#### 8. Detalhes de Kody Issue
+#### 8. Detalhes de Piku Issue
 
 ```json
 {

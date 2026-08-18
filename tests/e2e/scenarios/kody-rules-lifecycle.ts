@@ -15,7 +15,7 @@ const log = logger('kody-rules-lifecycle');
 //    sync listener racing in multiple processes) → uniqueness assert;
 //  * a sync error, once stamped, was IMMORTAL (clean re-detection skipped
 //    the save, so the errored revision stayed latest) → self-clear assert;
-//  * '@kody-sync' itself was reported as a missing file, and the LLM
+//  * '@piku-sync' itself was reported as a missing file, and the LLM
 //    detector contaminated real reference names with a fabricated
 //    'kody-sync/' repo prefix → clean-error-content asserts;
 //  * removing the rule file must remove the rule (the delete path had no
@@ -40,7 +40,7 @@ function ruleFile(title: string, phase: 'broken-ref' | 'fixed'): string {
         'enabled: true',
         '---',
         '',
-        '@kody-sync',
+        '@piku-sync',
         '',
         '## Instructions',
         instructions,
@@ -164,7 +164,7 @@ export const kodyRulesLifecycle: Scenario = {
             );
             ctx.assert(
                 !errorText.toLowerCase().includes('kody-sync'),
-                `Sync errors must never mention the @kody-sync control marker (spurious-marker regression). errors=${errorText.slice(0, 400)}`,
+                `Sync errors must never mention the @piku-sync control marker (spurious-marker regression). errors=${errorText.slice(0, 400)}`,
             );
             log.info(
                 `[lifecycle] rule ${ruleId} imported once, with a clean sync error — merging the fix`,

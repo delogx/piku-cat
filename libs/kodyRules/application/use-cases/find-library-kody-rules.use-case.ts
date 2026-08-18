@@ -50,7 +50,7 @@ export class FindLibraryKodyRulesUseCase {
             };
 
             this.logger.log({
-                message: 'Successfully retrieved library Kody Rules',
+                message: 'Successfully retrieved library Piku Rules',
                 context: FindLibraryKodyRulesUseCase.name,
                 metadata: {
                     totalItems,
@@ -66,7 +66,7 @@ export class FindLibraryKodyRulesUseCase {
             };
         } catch (error) {
             this.logger.error({
-                message: 'Error finding library Kody Rules',
+                message: 'Error finding library Piku Rules',
                 context: FindLibraryKodyRulesUseCase.name,
                 error: error,
             });

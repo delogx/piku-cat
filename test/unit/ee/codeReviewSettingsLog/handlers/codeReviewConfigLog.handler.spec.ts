@@ -213,7 +213,7 @@ describe('CodeReviewConfigLogHandler', () => {
             const data = extractChangedData(mockUnified.saveLogEntry);
             expect(data).toHaveLength(1);
             expect(data[0].description).toContain(
-                'Apply Filters to Kody Rules',
+                'Apply Filters to Piku Rules',
             );
         });
     });
@@ -229,7 +229,7 @@ describe('CodeReviewConfigLogHandler', () => {
 
             const data = extractChangedData(mockUnified.saveLogEntry);
             expect(data).toHaveLength(1);
-            expect(data[0].description).toContain('Kody Rules Generator');
+            expect(data[0].description).toContain('Piku Rules Generator');
         });
 
         it('detects kodyKnowledgeApproval toggle', async () => {
@@ -240,7 +240,7 @@ describe('CodeReviewConfigLogHandler', () => {
 
             const data = extractChangedData(mockUnified.saveLogEntry);
             expect(data).toHaveLength(1);
-            expect(data[0].description).toContain('Kody Knowledge Approval');
+            expect(data[0].description).toContain('Piku Knowledge Approval');
         });
 
         it('detects enableCommittableSuggestions toggle', async () => {

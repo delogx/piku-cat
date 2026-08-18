@@ -291,7 +291,7 @@ const KodyRulesPageContent = () => {
     // count here.
     //
     // Rules with `pinnedSync=true` are EXCLUDED: their source file
-    // carries `@kody-sync`, so the backend keeps syncing them even
+    // carries `@piku-sync`, so the backend keeps syncing them even
     // when the repo toggle is off. They're actively maintained, not
     // orphans. See `kodyRulesSync.service.ts:shouldForceSync`.
     // Orphan auto-sync count is derived from the rules ACTUALLY ON SCREEN

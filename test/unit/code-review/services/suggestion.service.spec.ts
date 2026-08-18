@@ -88,7 +88,7 @@ describe('SuggestionService', () => {
 
     describe('normalizeLabel', () => {
         it('should convert label to lowercase and replace spaces with underscores', () => {
-            expect(service.normalizeLabel('Kody Rules')).toBe('kody_rules');
+            expect(service.normalizeLabel('Piku Rules')).toBe('kody_rules');
             expect(service.normalizeLabel('Breaking Changes')).toBe(
                 'breaking_changes',
             );
@@ -1083,8 +1083,8 @@ __new hunk__
         });
     });
 
-    describe('prioritizeSuggestionsLegacy - Kody Rules deterministic grouping', () => {
-        it('should group same Kody Rule suggestions in FULL mode before LLM clustering', async () => {
+    describe('prioritizeSuggestionsLegacy - Piku Rules deterministic grouping', () => {
+        it('should group same Piku Rule suggestions in FULL mode before LLM clustering', async () => {
             mockCommentManagerService.repeatedCodeReviewSuggestionClustering.mockImplementation(
                 async (_org, _pr, _provider, inputSuggestions) =>
                     inputSuggestions,
@@ -1346,8 +1346,8 @@ __new hunk__
         });
     });
 
-    describe('prioritizeSuggestions - Kody Rules control branch', () => {
-        it('should group Kody Rules in FULL mode even when applyFiltersToKodyRules is false', async () => {
+    describe('prioritizeSuggestions - Piku Rules control branch', () => {
+        it('should group Piku Rules in FULL mode even when applyFiltersToKodyRules is false', async () => {
             const suggestionControl = {
                 groupingMode: GroupingModeSuggestions.FULL,
                 limitationType: LimitationType.PR,

@@ -8,7 +8,7 @@ import {
 
 // Same fixture branches as code-review-basic. The diff doesn't matter
 // for the command-review path — what's under test is whether posting
-// `@kody review` on an EXISTING (already-opened) PR triggers a fresh
+// `@piku review` on an EXISTING (already-opened) PR triggers a fresh
 // review pipeline run, not whether the LLM finds anything in this
 // particular diff. The diff just has to be non-empty so the review
 // has something to chew on.
@@ -26,7 +26,7 @@ const FIXTURE_BRANCHES: Record<
 export const commandReview: Scenario = {
     id: "command-review",
     title:
-        "Kody re-reviews a PR after the user posts `@kody review` (or `@kody start-review`)",
+        "Piku re-reviews a PR after the user posts `@piku review` (or `@piku start-review`)",
     priority: "P0",
     appliesTo: {
         target: ["cloud", "self-hosted"],
@@ -52,7 +52,7 @@ export const commandReview: Scenario = {
         await ctx.kodus.registerIntegration(session);
         const repo = await ctx.kodus.registerRepo(session);
         await ctx.kodus.finishOnboarding(session, repo);
-        // The @kody review command still runs through the prerequisites
+        // The @piku review command still runs through the prerequisites
         // gate; on licensed self-hosted the PR author needs a seat.
         await ensureLicenseSeat(ctx.target, session, ctx.provider);
 
@@ -69,7 +69,7 @@ export const commandReview: Scenario = {
 
         // Critical: disable automatic review at the org level. Without
         // this, when we open the PR the auto-review pipeline fires
-        // immediately and the `@kody review` we post seconds later
+        // immediately and the `@piku review` we post seconds later
         // would race with (or be confused with) the auto-review. By
         // forcing automatedReviewActive=false up front, the ONLY way
         // a review can happen on this PR is via the command — which
@@ -102,7 +102,7 @@ export const commandReview: Scenario = {
             head: fixture!.head,
             base: fixture!.base,
             title: `[e2e] command-review ${ctx.runId.slice(0, 8)}`,
-            body: `Automated PR opened by Kodus E2E run ${ctx.runId}. Auto-review disabled — the review on this PR can only come from the @kody review command this scenario posts below.`,
+            body: `Automated PR opened by Kodus E2E run ${ctx.runId}. Auto-review disabled — the review on this PR can only come from the @piku review command this scenario posts below.`,
         });
 
         try {
@@ -115,7 +115,7 @@ export const commandReview: Scenario = {
             // decides anything. This scenario disables auto-review, so that
             // run ends in `skipped` -- but it holds the lock while it gets
             // there (clone, config, validation), and the lock is only
-            // released when it finishes. A `@kody review` arriving inside
+            // released when it finishes. A `@piku review` arriving inside
             // that window is refused with "Code review already being
             // processed" and never retried, so NO review ever happens.
             //
@@ -135,9 +135,9 @@ export const commandReview: Scenario = {
             // Post the trigger comment AFTER we've snapshot pre-state.
             // The webhook handlers detect this exact pattern (see
             // libs/common/utils/codeManagement/codeCommentMarkers.ts:48
-            // KODY_REVIEW_COMMAND_PATTERN = /^\s*@kody\s+(start-review|review)\b/i).
+            // KODY_REVIEW_COMMAND_PATTERN = /^\s*@piku\s+(start-review|review)\b/i).
             const sinceIso = new Date().toISOString();
-            await ctx.provider.postComment(pr.number, "@kody review");
+            await ctx.provider.postComment(pr.number, "@piku review");
 
             const pollStartMs = Date.now();
             const review = await ctx.provider.pollForReview(
@@ -149,7 +149,7 @@ export const commandReview: Scenario = {
             ctx.assert(
                 review.reviewComments + review.issueComments + review.reviews >
                     0,
-                `No review findings on PR/MR #${pr.number} within ${reviewLatencySec}s after posting "@kody review". pre-command findings count was ${preCount}.`,
+                `No review findings on PR/MR #${pr.number} within ${reviewLatencySec}s after posting "@piku review". pre-command findings count was ${preCount}.`,
             );
 
             // Execution HEALTH, not just output: a command-triggered review can
@@ -168,7 +168,7 @@ export const commandReview: Scenario = {
                 preCommandFindings: preCount,
                 reviewLatencySec,
                 executionStatus,
-                command: "@kody review",
+                command: "@piku review",
             };
         } finally {
             try {

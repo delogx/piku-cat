@@ -602,7 +602,7 @@ describe('SandboxLeaseManager', () => {
         const prKey = '7e2e97b8-aefa-422e-92d4-30b378c0332e:repo:201';
 
         // Scenario: worker A scheduled a kill (lease has killAt set). Worker
-        // B receives a new @kody and calls acquire — must clear killAt
+        // B receives a new @piku and calls acquire — must clear killAt
         // atomically so the cron doesn't kill the sandbox under us.
         leaseRepo.upsertAcquire.mockResolvedValue({
             _id: prKey,
@@ -625,7 +625,7 @@ describe('SandboxLeaseManager', () => {
     // ─── Test 9e: stale connect → delete lease + cold-start ───────────────
 
     it('joiner falls back to cold-start when E2B sandbox no longer exists', async () => {
-        // Scenario: review released and the idle-kill fired, but a slow @kody
+        // Scenario: review released and the idle-kill fired, but a slow @piku
         // arrives just after — the lease doc may still exist for a tick.
         // Sandbox.connect throws "sandbox not found" → we delete the stale
         // lease and re-acquire as creator with a fresh sandbox.

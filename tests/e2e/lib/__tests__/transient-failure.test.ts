@@ -14,9 +14,9 @@ const TRANSIENT = [
     // license-attribution expectReview path: review never materialized
     "Assertion failed: Expected a real review for license=trial but none arrived within 900s. licenseBlockedNotice=undefined",
     // blocked-tier notice that never showed up (absence)
-    "Assertion failed: License=free should have triggered a trial-ended / BYOK / no-license notice from Kody, but the PR has no such comment after 180s. review={}",
+    "Assertion failed: License=free should have triggered a trial-ended / BYOK / no-license notice from Piku, but the PR has no such comment after 180s. review={}",
     // command-review: no findings after the command (absence)
-    'Assertion failed: No review findings on PR/MR #8 within 900s after posting "@kody review". pre-command findings count was 0.',
+    'Assertion failed: No review findings on PR/MR #8 within 900s after posting "@piku review". pre-command findings count was 0.',
     // network / gateway shapes
     "onboarding:login HTTP 502: <html>Bad Gateway</html>",
     "request to https://qa.web.kodus.io failed, reason: ECONNRESET",
@@ -29,7 +29,7 @@ const DETERMINISTIC = [
     // rbac route-guard verdict mismatch — re-running cannot flip a policy
     "Frontend route mismatches (2):\n  billing_manager on /settings/git: expected deny, got allow",
     // entitlement gate posted the WRONG thing (value present, not absent)
-    'Assertion failed: Expected NO real review for license=free but Kody posted one: {"reviewComments":1}',
+    'Assertion failed: Expected NO real review for license=free but Piku posted one: {"reviewComments":1}',
     // wrong subscription state — fresh org provisioning produced bad data
     "Assertion failed: Expected subscriptionStatus='trial' (the state that makes the entitlement gate allow managed reviews with no BYOK), got 'active'. Full license={}",
     // registry/config errors

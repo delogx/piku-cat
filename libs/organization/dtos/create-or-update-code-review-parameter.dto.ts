@@ -522,7 +522,7 @@ class CodeReviewConfigWithoutLLMProviderDto {
     @ApiPropertyOptional({
         type: [LinkedRepositoryDto],
         description:
-            'Sibling repositories Kody may grep/read during review for cross-boundary checks.',
+            'Sibling repositories Piku may grep/read during review for cross-boundary checks.',
     })
     linkedRepositories?: LinkedRepositoryDto[];
 }

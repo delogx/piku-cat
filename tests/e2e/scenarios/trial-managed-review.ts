@@ -49,7 +49,7 @@ import { makeProvider } from "../providers/index.js";
 const REPO_PREFIX = "tiny-url-trial-e2e-";
 
 // Same head/base pair license-attribution uses: a persistent committed diff
-// (/stats endpoint, ~30 lines) meaty enough that Kody reliably surfaces
+// (/stats endpoint, ~30 lines) meaty enough that Piku reliably surfaces
 // SOMETHING. The mirror copies all branches, and the repo is exclusive to
 // this run, so there is no open-PR collision with other scenarios.
 const FIXTURE = { head: "feature/add-stats", base: "main" };
@@ -173,7 +173,7 @@ export const trialManagedReview: Scenario = {
                 );
                 ctx.assert(
                     !review.licenseBlockedNotice,
-                    `Trial must NOT trigger a BYOK/trial-ended notice, but Kody posted one: ${JSON.stringify(review.licenseBlockedNotice)}`,
+                    `Trial must NOT trigger a BYOK/trial-ended notice, but Piku posted one: ${JSON.stringify(review.licenseBlockedNotice)}`,
                 );
 
                 // Execution HEALTH: the trial managed-LLM review can post

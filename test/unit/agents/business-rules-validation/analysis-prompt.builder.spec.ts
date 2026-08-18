@@ -11,7 +11,7 @@ describe('buildBusinessRulesAnalysisPrompt', () => {
             userLanguage: 'en-US',
             taskQuality: 'COMPLETE',
             taskContext:
-                'Task ID: 15604\n\nTitle: Kody rules por time\n\nDescription: Review billing lookup by team.',
+                'Task ID: 15604\n\nTitle: Piku rules por time\n\nDescription: Review billing lookup by team.',
             prDiff: '',
             prBody: '',
         } as BusinessRulesContext);
@@ -69,7 +69,7 @@ describe('buildBusinessRulesAnalysisPrompt', () => {
             taskContext: 'Task context',
             taskContextNormalized: {
                 id: 'KC-1441',
-                title: 'Kody rules por time',
+                title: 'Piku rules por time',
                 links: ['https://kodustech.atlassian.net/browse/KC-1441'],
             },
             prDiff: 'diff --git a/file.ts b/file.ts',

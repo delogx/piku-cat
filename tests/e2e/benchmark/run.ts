@@ -2,7 +2,7 @@
 //
 // For each recommended model (curated-models.json): point ONE QA benchmark
 // tenant's BYOK at the model, open the fixed 5-PR set (1 per repo) on the
-// shared kodus-e2e benchmark repos, wait for Kody to review each, and collect
+// shared kodus-e2e benchmark repos, wait for Piku to review each, and collect
 // the findings. Sequential across models (single tenant, BYOK swapped) so the
 // lone webhook never cross-fires. Emits results.json:
 //   { model, pr: {repo, number, head, golden_comments, findings[] } }
@@ -101,7 +101,7 @@ async function listOrgRepos(
 // Onboard the benchmark repos for review — but ONLY if they aren't already.
 // Re-running type:"replace" on a tenant that already has them deletes +
 // recreates the repo records and their webhooks, and the recreated state
-// stops firing reviews (webhook delivers 200 but Kody never reviews — observed
+// stops firing reviews (webhook delivers 200 but Piku never reviews — observed
 // repeatedly). So this is strictly idempotent: if every benchmark repo is
 // already `selected`, do nothing; the existing (working) webhooks stay intact.
 async function registerRepos(
@@ -248,11 +248,11 @@ async function collectFindings(repo: string, prNumber: number): Promise<string[]
     );
     return (body ?? [])
         .map((c) => (c.body ?? "").trim())
-        .filter((b) => b && !b.toLowerCase().startsWith("@kody"))
+        .filter((b) => b && !b.toLowerCase().startsWith("@piku"))
         .map((b) => b.replace(/^(?:\s*!\[[^\]]*\]\([^)]*\)\s*)+/i, "").trim());
 }
 
-// Wait for the EXPLICIT completion signal — Kody posts a "## Code Review
+// Wait for the EXPLICIT completion signal — Piku posts a "## Code Review
 // Completed! 🔥" issue comment when it finishes (verified on every reviewed
 // PR). This is deterministic: a slow model (e.g. Moonshot took 42min) just
 // waits longer; we never falsely declare "no review" on a blind timer (the old
@@ -285,9 +285,9 @@ async function waitForReviewOutcome(
             if (fresh.some((c) => /could not complete|review failed before/i.test(c.body ?? ""))) {
                 return "failed";
             }
-            // Kody posts ONE of two completion banners depending on findings:
+            // Piku posts ONE of two completion banners depending on findings:
             //   "## Code Review Completed! 🔥"   (issues found / standard)
-            //   "# Kody Review Complete … No issues were found"  (zero findings)
+            //   "# Piku Review Complete … No issues were found"  (zero findings)
             if (fresh.some((c) => /review complet(ed|e)\b/i.test(c.body ?? ""))) {
                 return "completed";
             }
@@ -312,7 +312,7 @@ async function collectFindingsStable(repo: string, prNumber: number): Promise<st
 
 type ModelOutcome = { ok: number; fail: number; results: unknown[] };
 
-// Open each PR, wait for Kody, collect findings, close. `prs` already carry the
+// Open each PR, wait for Piku, collect findings, close. `prs` already carry the
 // right repo names (shared fixtures in sequential mode, per-model copies in
 // parallel mode), so this is topology-agnostic.
 async function reviewOnePR(model: BenchModel, pr: BenchPR): Promise<{ ok: boolean; result: unknown }> {
@@ -322,16 +322,16 @@ async function reviewOnePR(model: BenchModel, pr: BenchPR): Promise<{ ok: boolea
     try {
         const openedAt = Date.now();
         opened = await provider.openPRFromBranches!({ head: pr.head, base: pr.base, title: `[bench] ${model.slug} ${repoShort}`, body: `Model benchmark: ${model.id}` });
-        // Wait for Kody's terminal marker (Completed / Could-Not-Complete /
+        // Wait for Piku's terminal marker (Completed / Could-Not-Complete /
         // timeout). A non-completed first attempt is retried ONCE via
-        // `@kody review`: a "Could Not Complete" is usually a transient model/
-        // provider error (Kody itself tells you to re-run), and a single flake
+        // `@piku review`: a "Could Not Complete" is usually a transient model/
+        // provider error (Piku itself tells you to re-run), and a single flake
         // would otherwise red the whole 25-review gate.
         let outcome = await waitForReviewOutcome(pr.repo, opened.number, openedAt - 5_000);
         let retried = false;
         if (outcome !== "completed") {
             retried = true;
-            log.info(`${model.slug} ${repoShort}: review ${outcome} — retrying once via @kody review (PR #${opened.number})`);
+            log.info(`${model.slug} ${repoShort}: review ${outcome} — retrying once via @piku review (PR #${opened.number})`);
             // GitHub comment `created_at` is second-precision, so `sinceMs` needs
             // the same -5s padding `openedAt` uses or a banner posted in the same
             // second would be filtered out (its timestamp truncates to .000 <
@@ -340,7 +340,7 @@ async function reviewOnePR(model: BenchModel, pr: BenchPR): Promise<{ ok: boolea
             // sleep 5s to push it outside the window, then pad.
             await sleep(5_000);
             const retryAt = Date.now() - 5_000;
-            await provider.postComment(opened.number, "@kody review").catch(() => {});
+            await provider.postComment(opened.number, "@piku review").catch(() => {});
             outcome = await waitForReviewOutcome(pr.repo, opened.number, retryAt);
         }
         const reviewed = outcome === "completed";

@@ -150,14 +150,14 @@ produce suggestions.
 13.x Note Hook payloads omit `object_attributes.action` and may also
 omit `object_attributes.discussion_id`, so this is the pin to use for
 shaking out any "missing field on the webhook" assumption in handlers
-or the chat-with-Kody paths.
+or the chat-with-Piku paths.
 
 ```sh
 GITLAB_IMAGE=gitlab/gitlab-ce:13.12.15-ce.0 \
     WEBHOOK_URL="<your-kodus-webhook>" \
     bash scripts/gitlab-dev/run.sh
 
-bash scripts/gitlab-dev/post-comment.sh --body "@kody start-review"
+bash scripts/gitlab-dev/post-comment.sh --body "@piku start-review"
 ```
 
 Confirm the comment is received and routed. Optionally, manually post

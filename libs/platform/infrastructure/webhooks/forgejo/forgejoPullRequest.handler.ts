@@ -262,7 +262,7 @@ export class ForgejoPullRequestHandler implements IWebhookEventHandler {
                         });
                     });
 
-                // If merged into default branch, trigger Kody Rules sync for main
+                // If merged into default branch, trigger Piku Rules sync for main
                 const merged = payload?.pull_request?.merged === true;
                 const baseRef = payload?.pull_request?.base?.ref;
 
@@ -323,7 +323,7 @@ export class ForgejoPullRequestHandler implements IWebhookEventHandler {
                         }
                     } catch (e) {
                         this.logger.error({
-                            message: 'Failed to sync Kody Rules after PR merge',
+                            message: 'Failed to sync Piku Rules after PR merge',
                             context: ForgejoPullRequestHandler.name,
                             error: e,
                             metadata: {
@@ -533,7 +533,7 @@ export class ForgejoPullRequestHandler implements IWebhookEventHandler {
 
             if (isStartCommand && !hasMarker) {
                 this.logger.log({
-                    message: `@kody start command detected in Forgejo comment for PR#${pullRequest?.number}`,
+                    message: `@piku start command detected in Forgejo comment for PR#${pullRequest?.number}`,
                     serviceName: ForgejoPullRequestHandler.name,
                     metadata: {
                         prNumber,

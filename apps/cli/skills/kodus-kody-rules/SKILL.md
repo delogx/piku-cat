@@ -1,19 +1,19 @@
 ---
 name: kodus-kody-rules
-description: Use when the user wants to create, update or view Kody Rules via `kodus rules` command.
+description: Use when the user wants to create, update or view Piku Rules via `kodus rules` command.
 ---
 
-# Kodus Kody Rules
+# Kodus Piku Rules
 
 ## Overview
 
-Kody Rules are a set of guidelines that Kody follows when generating code. They help ensure that the generated code is consistent, high-quality, and aligned with the user's preferences and project requirements.
+Piku Rules are a set of guidelines that Piku follows when generating code. They help ensure that the generated code is consistent, high-quality, and aligned with the user's preferences and project requirements.
 
 ## Goal
 
-Manage Kody Rules through Kodus CLI only. Do not suggest creating rule files manually.
+Manage Piku Rules through Kodus CLI only. Do not suggest creating rule files manually.
 
-ALWAYS Use `kodus rules` subcommands for all create, update, and view operations. All these rules are ALWAYS managed by the `kodus rules` command from the CLI. Do NOT suggest creating files or storing rules in any other way. When the user wants to create, update or view Kody Rules, utilize the `kodus rules` command with the appropriate subcommands and options as outlined in the instructions files.
+ALWAYS Use `kodus rules` subcommands for all create, update, and view operations. All these rules are ALWAYS managed by the `kodus rules` command from the CLI. Do NOT suggest creating files or storing rules in any other way. When the user wants to create, update or view Piku Rules, utilize the `kodus rules` command with the appropriate subcommands and options as outlined in the instructions files.
 
 ## Centralized Config Convention
 
@@ -58,19 +58,19 @@ Then select and pass `--repo-id <id>`.
 
 Read individual instructions files for detailed explanations and examples:
 
-- [instructions/create-kody-rule.md](instructions/create-kody-rule.md): Guidelines for creating new Kody Rules.
-- [instructions/update-kody-rule.md](instructions/update-kody-rule.md): Guidelines for updating existing Kody Rules.
-- [instructions/view-kody-rules.md](instructions/view-kody-rules.md): Guidelines for viewing and retrieving Kody Rules.
+- [instructions/create-kody-rule.md](instructions/create-kody-rule.md): Guidelines for creating new Piku Rules.
+- [instructions/update-kody-rule.md](instructions/update-kody-rule.md): Guidelines for updating existing Piku Rules.
+- [instructions/view-kody-rules.md](instructions/view-kody-rules.md): Guidelines for viewing and retrieving Piku Rules.
 
-You MUST always load at least one of these instructions files to handle the specific user request related to Kody Rules. Each file contains detailed steps and examples for the corresponding action (create, update, view). Always ensure that you are following the instructions in these files when managing Kody Rules through the `kodus rules` command.
+You MUST always load at least one of these instructions files to handle the specific user request related to Piku Rules. Each file contains detailed steps and examples for the corresponding action (create, update, view). Always ensure that you are following the instructions in these files when managing Piku Rules through the `kodus rules` command.
 
-Should the user request an action that is not covered by these instructions, you should first clarify the user's intent and then determine if it falls under create, update, or view operations. If it does, proceed to load the corresponding instructions file to ensure that you are following the correct workflow for managing Kody Rules through the `kodus rules` command.
+Should the user request an action that is not covered by these instructions, you should first clarify the user's intent and then determine if it falls under create, update, or view operations. If it does, proceed to load the corresponding instructions file to ensure that you are following the correct workflow for managing Piku Rules through the `kodus rules` command.
 
-Should the user request a new action related to Kody Rules that differs from the initial action, you should load the appropriate instructions file for that new action to ensure that you are following the correct workflow for managing Kody Rules through the `kodus rules` command.
+Should the user request a new action related to Piku Rules that differs from the initial action, you should load the appropriate instructions file for that new action to ensure that you are following the correct workflow for managing Piku Rules through the `kodus rules` command.
 
-## Structure of a Kody Rule
+## Structure of a Piku Rule
 
-A Kody Rule typically consists of the following components:
+A Piku Rule typically consists of the following components:
 
 - **Repository ID**: The repository scope where the rule is stored and applied.
     - Use `global` for shared rules that apply across all repositories.
@@ -88,7 +88,7 @@ A Kody Rule typically consists of the following components:
     - For example, `src/**/*.js` would apply the rule to all JavaScript files in the `src` directory and its subdirectories.
     - Default is all files, `**/*`.
 
-## Example of a Kody Rule
+## Example of a Piku Rule
 
 **Title**: Use Async/Await for Asynchronous Operations
 

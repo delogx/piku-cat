@@ -221,7 +221,7 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
         if (globalRulesSourceDisablesReviewForRepository) {
             this.logger.log({
                 message:
-                    'Repository is a global Kody Rules source, skipping automation',
+                    'Repository is a global Piku Rules source, skipping automation',
                 context: this.stageName,
                 metadata: {
                     organizationAndTeamData,
@@ -236,7 +236,7 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
                 draft.statusInfo = {
                     status: AutomationStatus.SKIPPED,
                     message:
-                        'Code reviews are disabled for the global Kody Rules source repository',
+                        'Code reviews are disabled for the global Piku Rules source repository',
                 };
             });
         }
@@ -755,7 +755,7 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
     }
 
     /**
-     * A repository selected purely as a source of GLOBAL Kody Rules is a
+     * A repository selected purely as a source of GLOBAL Piku Rules is a
      * config/data repository, not a codebase to review — mirror the
      * centralized-config behaviour and skip the automation for its PRs.
      */
@@ -787,7 +787,7 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
 
             if (isSource) {
                 this.logger.log({
-                    message: 'Global Kody Rules source repository identified',
+                    message: 'Global Piku Rules source repository identified',
                     context: this.stageName,
                     metadata: {
                         organizationAndTeamData,
@@ -801,7 +801,7 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
         } catch (error) {
             this.logger.warn({
                 message:
-                    'Error resolving global Kody Rules source repository review exclusion',
+                    'Error resolving global Piku Rules source repository review exclusion',
                 context: this.stageName,
                 error,
                 metadata: {
@@ -948,7 +948,7 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
             'Your trial is still active — this just means the PR reviews we ' +
             'cover during the trial are used up.\n\n' +
             '**[Connect your own AI key](https://app.kodus.io/organization/byok)** ' +
-            'to keep Kody reviewing — unlimited reviews, on any plan (Free included).\n\n' +
+            'to keep Piku reviewing — unlimited reviews, on any plan (Free included).\n\n' +
             'Want more trial reviews to finish evaluating before adding a key? ' +
             '[Talk to our founders](https://cal.com/gabrielmalinosqui/30min). 😎\n\n' +
             '<!-- kody-codereview -->'
@@ -961,7 +961,7 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
             "We couldn't confirm your subscription right now — the license " +
             'service is temporarily unreachable.\n\n' +
             'Please re-run the review in a few minutes (or push a new commit) ' +
-            "and Kody will pick it up.\n\n" +
+            "and Piku will pick it up.\n\n" +
             '<!-- kody-codereview -->'
         );
     }

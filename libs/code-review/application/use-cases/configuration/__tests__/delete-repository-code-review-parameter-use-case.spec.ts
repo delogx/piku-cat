@@ -1,7 +1,7 @@
 import { DeleteRepositoryCodeReviewParameterUseCase } from '../delete-repository-code-review-parameter.use-case';
 
 describe('DeleteRepositoryCodeReviewParameterUseCase', () => {
-    it('includes scoped Kody Rules files when creating centralized delete PR for repository config', async () => {
+    it('includes scoped Piku Rules files when creating centralized delete PR for repository config', async () => {
         const createMutationPullRequestIfEnabled = jest.fn().mockResolvedValue({
             mode: 'centralized-pr',
             prUrl: 'https://example.test/pr/42',

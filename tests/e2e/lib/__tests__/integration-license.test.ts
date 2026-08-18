@@ -20,7 +20,7 @@ const TEAM_ID = "team-license-test";
 interface RunOpts {
     license: "paid" | "license-paid" | "free" | "license-free" | "trial";
     target: "cloud" | "self-hosted";
-    /** If true, the mock returns a Kody response; if false, it stays silent. */
+    /** If true, the mock returns a Piku response; if false, it stays silent. */
     kodyResponds: boolean;
 }
 
@@ -40,7 +40,7 @@ async function runLicenseScenario(opts: RunOpts): Promise<{
         },
         {
             // openPRFromBranches → new PR. Stash the creation time so the
-            // polling routes below can return a Kody response that lands
+            // polling routes below can return a Piku response that lands
             // AFTER the PR was opened (mirrors `since=` filter semantics).
             method: "POST",
             pathRegex: /^\/repos\/[^/]+\/[^/]+\/pulls$/,
@@ -107,7 +107,7 @@ async function runLicenseScenario(opts: RunOpts): Promise<{
                 const responseTime = new Date(
                     new Date(reviewWindow.triggeredAt).getTime() + 1000,
                 ).toISOString();
-                // Inline review comment from Kody — counts as
+                // Inline review comment from Piku — counts as
                 // `reviewComments`. We can't return only an issueComment
                 // because the scenario's "expectReview" branch accepts any
                 // bucket and the "expectNoReview" branch wants zero in any
@@ -115,7 +115,7 @@ async function runLicenseScenario(opts: RunOpts): Promise<{
                 json(res, 200, [
                     {
                         id: 3003,
-                        body: "Kody mock: 1 issue.",
+                        body: "Piku mock: 1 issue.",
                         created_at: responseTime,
                     },
                 ]);
@@ -125,9 +125,9 @@ async function runLicenseScenario(opts: RunOpts): Promise<{
             method: "GET",
             pathRegex: /^\/repos\/[^/]+\/[^/]+\/issues\/\d+\/comments/,
             handler: (_req, res) => {
-                // When the tenant is on a license-blocked tier and Kody
+                // When the tenant is on a license-blocked tier and Piku
                 // is otherwise silent on review comments, the production
-                // behavior is for Kody to post a "Your trial has ended"
+                // behavior is for Piku to post a "Your trial has ended"
                 // notification as a top-level issue comment carrying the
                 // `<!-- kody-codereview -->` marker. The scenario layer
                 // detects that pattern via `licenseBlockedNotice` and
@@ -285,7 +285,7 @@ test("integration license: self-hosted license-paid expects review but none arri
 });
 
 // Blocked-tier mechanic (no real review + a "trial ended / BYOK" notice)
-// is validated on CLOUD `free` — the only tier+target where Kody actually
+// is validated on CLOUD `free` — the only tier+target where Piku actually
 // emits that notice. It used to be tested on self-hosted `license-free`,
 // but that combination was removed from license-attribution.appliesTo:
 // on self-hosted, an invalid/absent license drops to Community Edition
@@ -310,7 +310,7 @@ test("integration license: cloud free expects no review and gets license-block n
     );
 });
 
-test("integration license: cloud free expects no review but Kody answers → fails (entitlement leak)", async () => {
+test("integration license: cloud free expects no review but Piku answers → fails (entitlement leak)", async () => {
     const r = await runLicenseScenario({
         target: "cloud",
         license: "free",

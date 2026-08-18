@@ -23,7 +23,7 @@ function strategyReturning(raw: string): ReActStrategy {
 
 function makeContext(): any {
     return {
-        input: '@kody esse cron desativa licenças todo dia? resume rapidinho.',
+        input: '@piku esse cron desativa licenças todo dia? resume rapidinho.',
         mode: 'executor',
         history: [],
         scratchpad: undefined,

@@ -29,7 +29,7 @@ export const FEATURES_SNAPSHOT: FeaturesSnapshot = {
         "kodus-trace-review-context": {
             "name": "Kodus Trace review context",
             "stage": "alpha",
-            "description": "Use sanitized decisions distilled from local coding-agent sessions as repository-scoped context for Kody code reviews.",
+            "description": "Use sanitized decisions distilled from local coding-agent sessions as repository-scoped context for Piku code reviews.",
             "audience": [
                 "cloud"
             ]

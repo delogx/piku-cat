@@ -32,7 +32,7 @@ export interface UserInfo {
     userEmail: string;
 }
 
-// Specific types for Kody Rules
+// Specific types for Piku Rules
 export interface KodyRuleLogData {
     ruleId?: string;
     title: string;

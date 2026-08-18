@@ -238,7 +238,7 @@ export class UnifiedLogHandler {
         actionType: ActionType,
     ): string {
         const entityDisplayNames = {
-            kodyRule: 'Kody Rule',
+            kodyRule: 'Piku Rule',
             config: 'Configuration',
             repository: 'Repository',
             integration: 'Integration',

@@ -100,7 +100,7 @@ import {
     KodyRulesSyncStatusResponseDto,
 } from '../dtos/kody-rules-response.dto';
 
-@ApiTags('Kody Rules')
+@ApiTags('Piku Rules')
 @ApiStandardResponses()
 @Controller('kody-rules')
 export class KodyRulesController {
@@ -583,7 +583,7 @@ export class KodyRulesController {
     @ApiOperation({
         summary: 'List past reviewers',
         description:
-            'Candidate git reviewers (current members ∪ PR authors in the window) a client can exclude from Kody Rules learning.',
+            'Candidate git reviewers (current members ∪ PR authors in the window) a client can exclude from Piku Rules learning.',
     })
     @ApiQuery({ name: 'teamId', type: String, required: true })
     @ApiQuery({ name: 'repositoryId', type: String, required: false })
@@ -665,7 +665,7 @@ export class KodyRulesController {
     @ApiOperation({
         summary: 'List global-rules source repositories',
         description:
-            'Return the repositories currently selected as sources of global Kody Rules.',
+            'Return the repositories currently selected as sources of global Piku Rules.',
     })
     @ApiQuery({ name: 'teamId', type: String, required: true })
     public async getGlobalSourceRepositories(
@@ -707,7 +707,7 @@ export class KodyRulesController {
     @ApiOperation({
         summary: 'Set global-rules source repositories',
         description:
-            'Persist the selected source repositories for global Kody Rules; imports added repos and removes rules from deselected ones.',
+            'Persist the selected source repositories for global Piku Rules; imports added repos and removes rules from deselected ones.',
     })
     public async setGlobalSourceRepositories(
         @Body()
@@ -752,7 +752,7 @@ export class KodyRulesController {
     @ApiOperation({
         summary: 'List pending rules and memories',
         description:
-            'Return every pending Kody Rule and Memory for the org (optionally scoped to a repository), with counts for the Pending badge.',
+            'Return every pending Piku Rule and Memory for the org (optionally scoped to a repository), with counts for the Pending badge.',
     })
     @ApiQuery({ name: 'repositoryId', type: String, required: false })
     @ApiOkResponse({ type: KodyRulesPendingResponseDto })
@@ -928,7 +928,7 @@ export class KodyRulesController {
     @ApiOperation({
         summary: 'Pause / resume / delete imported (auto-synced) rules',
         description:
-            'Acts on the IDE-synced Kody Rules of a repository in bulk. ' +
+            'Acts on the IDE-synced Piku Rules of a repository in bulk. ' +
             'Used by the toggle-off modal in the web UI and by the orphan-rules ' +
             'banner. See ManageImportedRulesAction for action semantics.',
     })

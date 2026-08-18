@@ -6,7 +6,7 @@ import { buildKodyRuleAppLink } from '@libs/ee/kodyRules/utils/build-rule-link';
 import { KodyRulesStatus } from '@libs/kodyRules/domain/interfaces/kodyRules.interface';
 
 /**
- * Every external app link Kody pastes into a PR must land on a real web
+ * Every external app link Piku pastes into a PR must land on a real web
  * route — a dead link in a PR comment is invisible to unit tests of the
  * builders alone (they only check the string shape). This spec closes
  * the loop: it generates every link VARIATION the backend can emit into

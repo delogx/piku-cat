@@ -19,7 +19,7 @@ export const getSelectedLabels = (
         documentation_and_comments:
             'Suggestions related to improving code documentation.',
         kody_rules:
-            'Suggestions that enforce the rules defined in the Kody configuration.',
+            'Suggestions that enforce the rules defined in the Piku configuration.',
         breaking_changes:
             'Suggestions that address breaking changes in the code.',
     } as const;

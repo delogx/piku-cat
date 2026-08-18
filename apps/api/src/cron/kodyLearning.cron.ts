@@ -56,7 +56,7 @@ export class KodyLearningCronProvider {
     ) {}
 
     @Cron(CRON_KODY_LEARNING, {
-        name: 'Kody Learning',
+        name: 'Piku Learning',
         timeZone: 'America/Sao_Paulo',
     })
     async handleCron() {
@@ -92,7 +92,7 @@ export class KodyLearningCronProvider {
 
         try {
             this.logger.log({
-                message: 'Kody Rules generator cron started',
+                message: 'Piku Rules generator cron started',
                 context: KodyLearningCronProvider.name,
                 metadata: {
                     timestamp: new Date().toISOString(),
@@ -147,7 +147,7 @@ export class KodyLearningCronProvider {
                     kodyLearningStatus === KodyLearningStatus.DISABLED
                 ) {
                     this.logger.log({
-                        message: 'Kody learning is disabled',
+                        message: 'Piku learning is disabled',
                         context: KodyLearningCronProvider.name,
                         metadata: {
                             teamId,
@@ -174,7 +174,7 @@ export class KodyLearningCronProvider {
                         )
                     ) {
                         this.logger.log({
-                            message: 'Kody learning is already generating',
+                            message: 'Piku learning is already generating',
                             context: KodyLearningCronProvider.name,
                             metadata: {
                                 teamId,
@@ -196,7 +196,7 @@ export class KodyLearningCronProvider {
                     ) {
                         this.logger.error({
                             message:
-                                'Kody learning stuck and exhausted retries — giving up',
+                                'Piku learning stuck and exhausted retries — giving up',
                             context: KodyLearningCronProvider.name,
                             metadata: {
                                 teamId,
@@ -213,7 +213,7 @@ export class KodyLearningCronProvider {
 
                     this.logger.warn({
                         message:
-                            'Kody learning stuck in a generating state — regenerating',
+                            'Piku learning stuck in a generating state — regenerating',
                         context: KodyLearningCronProvider.name,
                         metadata: {
                             teamId,
@@ -230,7 +230,7 @@ export class KodyLearningCronProvider {
             }
         } catch (error) {
             this.logger.error({
-                message: 'Error in Kody Rules generator cron',
+                message: 'Error in Piku Rules generator cron',
                 context: KodyLearningCronProvider.name,
                 error,
                 metadata: {
@@ -315,7 +315,7 @@ export class KodyLearningCronProvider {
 
             if (enabledRepos.length === 0) {
                 this.logger.log({
-                    message: 'Kody rules generator is disabled',
+                    message: 'Piku rules generator is disabled',
                     context: KodyLearningCronProvider.name,
                     metadata: {
                         organizationId,

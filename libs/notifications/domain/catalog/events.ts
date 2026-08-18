@@ -17,7 +17,7 @@ export enum NotificationEvent {
     ORG_MEMBER_REMOVED = 'org.member_removed',
     ORG_ROLE_CHANGED = 'org.role_changed',
 
-    // ── Kody Rules ─────────────────────────────────────────────
+    // ── Piku Rules ─────────────────────────────────────────────
     KODY_RULES_GENERATED = 'kody_rules.generated',
 
     // ── IDE rule sync ──────────────────────────────────────────
@@ -47,7 +47,7 @@ export enum NotificationEvent {
     SPEND_LIMIT_THRESHOLD_REACHED = 'spend_limit.threshold_reached',
     SPEND_LIMIT_EXCEEDED_FINAL = 'spend_limit.exceeded_final',
 
-    // ── Kody Rules (continued) ─────────────────────────────────
+    // ── Piku Rules (continued) ─────────────────────────────────
     RULE_FILE_REFERENCES_INVALID = 'rule.file_references_invalid',
 
     // ── Security (future — critical) ───────────────────────────
@@ -205,7 +205,7 @@ export interface NotificationPayloadMap {
         periodKey: string;
     };
 
-    // ── Kody Rules (file reference validation) ────────────────
+    // ── Piku Rules (file reference validation) ────────────────
 
     [NotificationEvent.RULE_FILE_REFERENCES_INVALID]: {
         source: 'ide' | 'manual' | 'auto_recheck';

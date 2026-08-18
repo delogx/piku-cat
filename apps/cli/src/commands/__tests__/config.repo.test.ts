@@ -454,7 +454,7 @@ describe('config repo command', () => {
             'Choose the review behaviors you want for this repository.',
         );
         expect(output).toContain(
-            'Kody automatically reviews pull requests when they are opened or updated.',
+            'Piku automatically reviews pull requests when they are opened or updated.',
         );
         expect(output).toContain(
             'Automatically approves the pull request when the review finishes without issues.',

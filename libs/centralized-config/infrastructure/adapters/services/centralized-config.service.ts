@@ -592,7 +592,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
             //    whose scope it was meant to clean and the scope outlived its
             //    own removal;
             //  - and reconciling by repository is too coarse in the other
-            //    direction. `mergeConfigScopes` folds Kody-rule files into the
+            //    direction. `mergeConfigScopes` folds Piku-rule files into the
             //    config scopes, so `{repo}/.kody-rules/review/x.yml` makes the
             //    repository look managed while saying nothing about its
             //    directories — and every directory scope created in the UI
@@ -1792,7 +1792,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
     }
     //#endregion
 
-    //#region Kody Rules Sync Helpers
+    //#region Piku Rules Sync Helpers
     async discoverKodyRulesFiles(params: {
         organizationAndTeamData: OrganizationAndTeamData;
         repository: { name: string; id: string };
@@ -1878,7 +1878,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
                         if (!decoded) {
                             this.logger.warn({
                                 message:
-                                    'Skipping Kody rule — group folder is not a valid path encoding',
+                                    'Skipping Piku rule — group folder is not a valid path encoding',
                                 context: CentralizedConfigService.name,
                                 metadata: {
                                     organizationAndTeamData,
@@ -1897,7 +1897,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
                     } else {
                         this.logger.warn({
                             message:
-                                'Skipping Kody rule at unsupported nested path',
+                                'Skipping Piku rule at unsupported nested path',
                             context: CentralizedConfigService.name,
                             metadata: {
                                 organizationAndTeamData,
@@ -1998,7 +1998,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
         } catch (error) {
             this.logger.error({
                 message:
-                    'Error fetching centralized Kody rule file from repository',
+                    'Error fetching centralized Piku rule file from repository',
                 context: CentralizedConfigService.name,
                 metadata: {
                     organizationAndTeamData,
@@ -2330,7 +2330,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
                     });
 
                     this.logger.error({
-                        message: 'Error syncing individual Kody rule file',
+                        message: 'Error syncing individual Piku rule file',
                         context: CentralizedConfigService.name,
                         metadata: {
                             organizationAndTeamData,
@@ -2343,8 +2343,8 @@ export class CentralizedConfigService implements ICentralizedConfigService {
 
             const hasFailures = failureDetails.length > 0;
             const message = hasFailures
-                ? `Kody rules sync incomplete — synced ${syncedCount}, failed ${failureDetails.length}`
-                : `Kody rules synchronized successfully. Synced: ${syncedCount}, Failed: 0`;
+                ? `Piku rules sync incomplete — synced ${syncedCount}, failed ${failureDetails.length}`
+                : `Piku rules synchronized successfully. Synced: ${syncedCount}, Failed: 0`;
 
             if (failureDetails.length > 0) {
                 this.logger.warn({
@@ -2380,7 +2380,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
             };
         } catch (error) {
             this.logger.error({
-                message: 'Error synchronizing Kody rules',
+                message: 'Error synchronizing Piku rules',
                 context: CentralizedConfigService.name,
                 metadata: {
                     organizationAndTeamData,
@@ -2391,7 +2391,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
 
             return {
                 success: false,
-                message: 'Error synchronizing Kody rules',
+                message: 'Error synchronizing Piku rules',
                 failureDetails: [
                     {
                         file: 'general',
@@ -2469,7 +2469,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
             if (!existingEntity) {
                 return {
                     success: true,
-                    message: 'No existing Kody rules to check for staleness',
+                    message: 'No existing Piku rules to check for staleness',
                 };
             }
 
@@ -2503,7 +2503,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
             ) {
                 this.logger.warn({
                     message:
-                        'Skipping stale Kody rule removal: discovery returned zero rule files but centralized rules exist — refusing to wipe (likely a failed read)',
+                        'Skipping stale Piku rule removal: discovery returned zero rule files but centralized rules exist — refusing to wipe (likely a failed read)',
                     context: CentralizedConfigService.name,
                     metadata: {
                         organizationAndTeamData,
@@ -2513,7 +2513,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
                 return {
                     success: true,
                     message:
-                        'Skipped stale Kody rule removal (empty-discovery guard)',
+                        'Skipped stale Piku rule removal (empty-discovery guard)',
                     removedRuleCount: 0,
                 };
             }
@@ -2541,7 +2541,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
 
                         this.logger.log({
                             message:
-                                'Marked stale centralized Kody rule as deleted',
+                                'Marked stale centralized Piku rule as deleted',
                             context: CentralizedConfigService.name,
                             metadata: {
                                 organizationAndTeamData,
@@ -2552,7 +2552,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
                         });
                     } catch (error) {
                         this.logger.error({
-                            message: 'Error marking stale Kody rule as deleted',
+                            message: 'Error marking stale Piku rule as deleted',
                             context: CentralizedConfigService.name,
                             metadata: {
                                 organizationAndTeamData,
@@ -2567,8 +2567,8 @@ export class CentralizedConfigService implements ICentralizedConfigService {
 
             const message =
                 removedCount > 0
-                    ? `Removed ${removedCount} stale Kody rules`
-                    : 'No stale Kody rules to remove';
+                    ? `Removed ${removedCount} stale Piku rules`
+                    : 'No stale Piku rules to remove';
 
             this.logger.log({
                 message,
@@ -2586,7 +2586,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
             };
         } catch (error) {
             this.logger.error({
-                message: 'Error removing stale Kody rules',
+                message: 'Error removing stale Piku rules',
                 context: CentralizedConfigService.name,
                 metadata: {
                     organizationAndTeamData,
@@ -2597,7 +2597,7 @@ export class CentralizedConfigService implements ICentralizedConfigService {
 
             return {
                 success: false,
-                message: 'Error removing stale Kody rules',
+                message: 'Error removing stale Piku rules',
             };
         }
     }

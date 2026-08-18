@@ -337,7 +337,7 @@ export function buildAgentTools(
                         }
                         return tagged;
                     } catch (err) {
-                        // Kody rule: never swallow — the agent sees the string,
+                        // Piku rule: never swallow — the agent sees the string,
                         // operators need the log (repo + pattern for tracing).
                         logger.warn({
                             message: `[LINKED-REPO] grep failed in ${linked.repository}: ${err instanceof Error ? err.message : String(err)}`,

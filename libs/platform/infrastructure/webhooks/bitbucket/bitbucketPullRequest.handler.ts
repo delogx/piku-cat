@@ -401,7 +401,7 @@ export class BitbucketPullRequestHandler implements IWebhookEventHandler {
                         } catch (e) {
                             this.logger.error({
                                 message:
-                                    'Failed to sync Kody Rules after PR merge',
+                                    'Failed to sync Piku Rules after PR merge',
                                 context: BitbucketPullRequestHandler.name,
                                 error: e,
                                 metadata: {
@@ -526,7 +526,7 @@ export class BitbucketPullRequestHandler implements IWebhookEventHandler {
 
             if (isStartCommand && !hasMarker) {
                 this.logger.log({
-                    message: `@kody start command detected in Bitbucket comment for PR#${prId}`,
+                    message: `@piku start command detected in Bitbucket comment for PR#${prId}`,
                     serviceName: BitbucketPullRequestHandler.name,
                     metadata: {
                         prId,

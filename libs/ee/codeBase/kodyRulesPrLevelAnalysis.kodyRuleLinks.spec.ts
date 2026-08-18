@@ -1,6 +1,6 @@
 import { KodyRulesPrLevelAnalysisService } from './kodyRulesPrLevelAnalysis.service';
 
-describe('KodyRulesPrLevelAnalysisService — Kody Rule link generation', () => {
+describe('KodyRulesPrLevelAnalysisService — Piku Rule link generation', () => {
     let service: KodyRulesPrLevelAnalysisService;
     let kodyRulesService: { findById: jest.Mock };
 

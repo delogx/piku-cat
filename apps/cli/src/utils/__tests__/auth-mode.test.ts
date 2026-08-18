@@ -52,7 +52,7 @@ describe('getAuthModeSummary', () => {
         });
         mockLoadConfig.mockResolvedValue({
             teamKey: 'stored-team-key',
-            teamName: 'Kody Copilot',
+            teamName: 'Piku Copilot',
             organizationName: 'Kodus',
         });
 
@@ -97,7 +97,7 @@ describe('getAuthModeSummary', () => {
     it('reports stored team key when no bearer auth exists', async () => {
         mockLoadConfig.mockResolvedValue({
             teamKey: 'stored-team-key',
-            teamName: 'Kody Copilot',
+            teamName: 'Piku Copilot',
             organizationName: 'Kodus',
         });
 

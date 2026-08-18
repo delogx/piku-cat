@@ -428,7 +428,7 @@ export class PullRequestsRepository implements IPullRequestsRepository {
                                 ],
                             },
                         },
-                        // Delivery failures (Kody tried to post but couldn't) —
+                        // Delivery failures (Piku tried to post but couldn't) —
                         // kept distinct from `filtered` (a config decision) so
                         // they aren't silently dropped from the totals.
                         failed: {
@@ -564,7 +564,7 @@ export class PullRequestsRepository implements IPullRequestsRepository {
     }
 
     // Keys of still-open PRs opened on/after `since` (ISO string). Used by the
-    // daily-digest to compute "awaiting review" = opened today but with no Kody
+    // daily-digest to compute "awaiting review" = opened today but with no Piku
     // execution yet. openedAt is stored as an ISO-8601 string, so a lexicographic
     // $gte against an ISO cutoff is a correct range compare.
     async findOpenPullRequestKeysOpenedSince(

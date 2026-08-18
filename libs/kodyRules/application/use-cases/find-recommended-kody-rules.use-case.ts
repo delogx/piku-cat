@@ -92,7 +92,7 @@ export class FindRecommendedKodyRulesUseCase implements IUseCase {
             const limitedRules = uniqueRules.slice(0, limit);
 
             this.logger.log({
-                message: 'Successfully retrieved recommended Kody Rules',
+                message: 'Successfully retrieved recommended Piku Rules',
                 context: FindRecommendedKodyRulesUseCase.name,
                 metadata: {
                     organizationId: organizationAndTeamData.organizationId,
@@ -106,7 +106,7 @@ export class FindRecommendedKodyRulesUseCase implements IUseCase {
             return limitedRules;
         } catch (error) {
             this.logger.error({
-                message: 'Error finding recommended Kody Rules',
+                message: 'Error finding recommended Piku Rules',
                 context: FindRecommendedKodyRulesUseCase.name,
                 error: error,
                 metadata: {

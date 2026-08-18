@@ -56,7 +56,7 @@ export const DisableIdeSyncModal = ({ counts }: Props) => {
                             <strong>{counts.pinned}</strong> of{" "}
                             {counts.active === 1 ? "it" : "them"}{" "}
                             {counts.pinned === 1 ? "is" : "are"} pinned via{" "}
-                            <code className="text-xs">@kody-sync</code> and
+                            <code className="text-xs">@piku-sync</code> and
                             will keep syncing regardless of your choice.
                         </DialogDescription>
                     )}

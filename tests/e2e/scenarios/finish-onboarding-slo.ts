@@ -8,7 +8,7 @@ const log = logger("finish-onboarding-slo");
 /**
  * Onboarding SLO (issue #1452 matrix-gaps item 6).
  *
- * finish-onboarding runs the per-repo Kody-rules generation + repo-file sync
+ * finish-onboarding runs the per-repo Piku-rules generation + repo-file sync
  * SYNCHRONOUSLY inside the HTTP request. #1494 made that sync expensive (it now
  * calls the LLM), pushing the request past the cloud proxy's 60s read-timeout →
  * nginx 504 → the onboarding UI showed a spinner-then-error while the work
@@ -28,7 +28,7 @@ const log = logger("finish-onboarding-slo");
 export const finishOnboardingSlo: Scenario = {
     id: "finish-onboarding-slo",
     title:
-        "finish-onboarding completes within the proxy window and enables Kody (no 504, rules generated)",
+        "finish-onboarding completes within the proxy window and enables Piku (no 504, rules generated)",
     priority: "P0",
     appliesTo: {
         target: ["cloud"],
@@ -106,7 +106,7 @@ export const finishOnboardingSlo: Scenario = {
                 `finish-onboarding — the analysis path did not complete (ONBOARDING_REPO_ANALYSIS).`,
         );
 
-        // Post-condition 2: ≥1 Kody rule generated. The ONBOARDING_REPO_ANALYSIS
+        // Post-condition 2: ≥1 Piku rule generated. The ONBOARDING_REPO_ANALYSIS
         // path is supposed to seed rules; a 0-rule "enabled" onboarding is the
         // silent half-failure no scenario caught.
         const ruleCount = await pollUntil<number>(
@@ -118,7 +118,7 @@ export const finishOnboardingSlo: Scenario = {
         );
         ctx.assert(
             (ruleCount ?? 0) >= 1,
-            `finish-onboarding enabled Kody but generated 0 rules within 120s — ` +
+            `finish-onboarding enabled Piku but generated 0 rules within 120s — ` +
                 `the ONBOARDING_REPO_ANALYSIS rule-seeding produced nothing.`,
         );
 
@@ -157,7 +157,7 @@ async function readKodyLearningStatus(
     );
 }
 
-/** Count Kody rules for the org (defensive walk of the listing shape). */
+/** Count Piku rules for the org (defensive walk of the listing shape). */
 async function countOrgKodyRules(
     ctx: RunContext,
     session: { teamId: string; accessToken: string },

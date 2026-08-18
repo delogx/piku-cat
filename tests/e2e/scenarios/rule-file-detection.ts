@@ -111,13 +111,13 @@ export const ruleFileDetection: Scenario = {
         await ensureLicenseSeat(ctx.target, session, ctx.provider);
 
         const runTag = `${ctx.runId.slice(-6)}-${randomUUID().slice(0, 6)}`;
-        // @kody-sync in every file so the merged PR force-syncs them even
+        // @piku-sync in every file so the merged PR force-syncs them even
         // with the repo's auto-sync toggle off (scenario stays independent
         // of tenant configuration).
         const fixtureFiles = Object.fromEntries(
             Object.entries(FILES).map(([path, f]) => [
                 path,
-                `${f.content(runTag)}\n\n@kody-sync\n`,
+                `${f.content(runTag)}\n\n@piku-sync\n`,
             ]),
         );
 

@@ -437,7 +437,7 @@ export const FilterPopoverContent = ({
                                     })
                                 }
                             />
-                            <Label htmlFor="origin-kody-sync">@kody-sync</Label>
+                            <Label htmlFor="origin-kody-sync">@piku-sync</Label>
                         </div>
                     </div>
                 </section>

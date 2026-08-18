@@ -60,7 +60,7 @@ describe('GithubChecksService', () => {
             organizationAndTeamData: mockOrganizationAndTeamData,
             repository: mockRepository,
             headSha: 'sha123',
-            name: 'Kody Code Review',
+            name: 'Piku Code Review',
         };
 
         it('should return the id of an in-progress check run (reusable)', async () => {
@@ -76,7 +76,7 @@ describe('GithubChecksService', () => {
                 owner: 'kodus-ai',
                 repo: 'kodus',
                 ref: 'sha123',
-                check_name: 'Kody Code Review',
+                check_name: 'Piku Code Review',
                 filter: 'latest',
                 per_page: 1,
             });

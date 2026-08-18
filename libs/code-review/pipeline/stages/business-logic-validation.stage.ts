@@ -158,7 +158,7 @@ export class BusinessLogicValidationStage extends BasePipelineStage<CodeReviewPi
 
         try {
             const prepareContext = {
-                userQuestion: '@kody -v business-logic',
+                userQuestion: '@piku -v business-logic',
                 pullRequest: {
                     pullRequestNumber: context.pullRequest.number,
                     headRef: context.pullRequest?.head?.ref,

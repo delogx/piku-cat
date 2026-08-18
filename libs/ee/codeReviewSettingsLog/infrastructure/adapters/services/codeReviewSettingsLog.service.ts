@@ -100,7 +100,7 @@ export class CodeReviewSettingsLogService implements ICodeReviewSettingsLogServi
         return this.codeReviewSettingsLogRepository.find(filter);
     }
 
-    // Kody Rules
+    // Piku Rules
     public async registerKodyRulesLog(
         params: KodyRuleLogParams,
     ): Promise<void> {

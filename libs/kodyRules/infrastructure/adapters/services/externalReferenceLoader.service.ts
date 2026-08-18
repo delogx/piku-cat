@@ -131,7 +131,7 @@ export class ExternalReferenceLoaderService {
             if (references.length) {
                 this.logger.log({
                     message:
-                        'Loaded references via Context Pack for Kody Rule context',
+                        'Loaded references via Context Pack for Piku Rule context',
                     context: ExternalReferenceLoaderService.name,
                     metadata: {
                         ruleUuid: rule.uuid,

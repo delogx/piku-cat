@@ -199,7 +199,7 @@ function hasDirSegment(pathLower: string, dirPrefix: string): number {
 }
 
 /**
- * Whether `filePath` is a structured Kody rule template file (the only
+ * Whether `filePath` is a structured Piku rule template file (the only
  * sources parsed verbatim): anything under `.kody/rules/`, or a `.md`
  * file under `rules/` — at the repo root or any subdirectory, matching
  * the discovery globs (dot-files like `rules/.md` included, since the

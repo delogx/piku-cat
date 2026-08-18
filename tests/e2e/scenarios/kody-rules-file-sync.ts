@@ -18,7 +18,7 @@ const log = logger('kody-rules-file-sync');
 // picomatch pattern, which matches zero files.
 //
 // This scenario pins the full chain:
-//   merged PR with a @kody-sync template file
+//   merged PR with a @piku-sync template file
 //     → rule imported VERBATIM (identifier + multi-glob path preserved)
 //     → violation in a file matching the SECOND glob gets flagged.
 //
@@ -45,7 +45,7 @@ function ruleFileContent(ruleTitle: string): string {
         'enabled: true',
         '---',
         '',
-        '@kody-sync',
+        '@piku-sync',
         '',
         '## Instructions',
         `- ${VERBATIM_ID} Mechanical static-analysis check (no intent reasoning, no fixture exemption): flag EVERY occurrence of the substring \`${MARKER}\` anywhere in the diff — identifiers, string literals, comments, fixtures, test code included. The presence of the substring is the violation. Do NOT skip an occurrence because a file claims to be a test fixture.`,
@@ -116,7 +116,7 @@ export const kodyRulesFileSync: Scenario = {
         const rulePr = await ctx.provider.openPR({
             branch: `e2e/kody-rules-file-sync-rule-${runTag}`,
             title: `[e2e] sync rule file ${runTag}`,
-            body: `Automated by Kodus E2E run ${ctx.runId}: merges a .kody/rules template (@kody-sync) so the repo-file importer creates the rule.`,
+            body: `Automated by Kodus E2E run ${ctx.runId}: merges a .kody/rules template (@piku-sync) so the repo-file importer creates the rule.`,
             fixtureFiles: { [RULE_FILE_PATH]: ruleFileContent(ruleTitle) },
         });
         await ctx.provider.mergePR!(rulePr);
@@ -168,7 +168,7 @@ export const kodyRulesFileSync: Scenario = {
             );
             ctx.assert(
                 synced,
-                `Merged PR #${rulePr.number} with ${RULE_FILE_PATH} (@kody-sync) but no rule with sourcePath=${RULE_FILE_PATH} and title="${ruleTitle}" appeared within 7min — repo-file sync did not import the template`,
+                `Merged PR #${rulePr.number} with ${RULE_FILE_PATH} (@piku-sync) but no rule with sourcePath=${RULE_FILE_PATH} and title="${ruleTitle}" appeared within 7min — repo-file sync did not import the template`,
             );
             syncedRuleId = synced!.uuid;
 

@@ -112,7 +112,7 @@ export class ResyncRulesFromIdeUseCase {
             }
         } catch (error) {
             this.logger.error({
-                message: 'Failed to sync selected repositories Kody Rules',
+                message: 'Failed to sync selected repositories Piku Rules',
                 context: ResyncRulesFromIdeUseCase.name,
                 error,
                 metadata: {

@@ -157,7 +157,7 @@ export class FinishOnboardingUseCase {
                     .catch((error) => {
                         this.logger.error({
                             message:
-                                'Background Kody Rules sync from repo files failed after onboarding',
+                                'Background Piku Rules sync from repo files failed after onboarding',
                             context: FinishOnboardingUseCase.name,
                             error:
                                 error instanceof Error
@@ -172,7 +172,7 @@ export class FinishOnboardingUseCase {
                             .catch((error) => {
                                 this.logger.error({
                                     message:
-                                        'Background Kody Rules generation failed after onboarding',
+                                        'Background Piku Rules generation failed after onboarding',
                                     context: FinishOnboardingUseCase.name,
                                     error:
                                         error instanceof Error

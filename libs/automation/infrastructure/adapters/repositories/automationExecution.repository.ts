@@ -502,8 +502,8 @@ export class AutomationExecutionRepository implements IAutomationExecutionReposi
     }
 
     // Distinct PRs that are "Awaiting review": the screen is driven by
-    // automation_execution (a PR only appears if Kody has an execution for it),
-    // and awaiting = the PRs Kody was triggered on but SKIPPED and never
+    // automation_execution (a PR only appears if Piku has an execution for it),
+    // and awaiting = the PRs Piku was triggered on but SKIPPED and never
     // actually reviewed. A PR qualifies when ALL of its executions have
     // status='skipped' — i.e. it has a skipped execution (no license, BYOK
     // missing, manual/auto-pause cadence, ignored user, centralized config)

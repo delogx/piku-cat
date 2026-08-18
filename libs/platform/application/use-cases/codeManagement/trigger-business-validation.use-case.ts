@@ -207,8 +207,8 @@ export class TriggerBusinessValidationUseCase implements IUseCase {
 
     private buildBusinessValidationCommand(taskReference?: string): string {
         return taskReference
-            ? `@kody -v business-logic ${taskReference}`
-            : '@kody -v business-logic';
+            ? `@piku -v business-logic ${taskReference}`
+            : '@piku -v business-logic';
     }
 
     private async resolvePullRequestContext(params: {

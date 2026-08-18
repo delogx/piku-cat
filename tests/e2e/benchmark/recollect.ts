@@ -1,7 +1,7 @@
 // Re-collect findings from the FINAL (settled) state of each benchmark PR.
 //
 // A run that collected findings the instant the review started can undercount
-// (Kody posts inline findings over several seconds). The PRs persist (closed,
+// (Piku posts inline findings over several seconds). The PRs persist (closed,
 // comments intact), so this re-reads each PR's inline comments now that they've
 // settled and rewrites results.json — making the scorecard accurate without
 // re-running the benchmark. Idempotent; safe to run repeatedly.
@@ -48,7 +48,7 @@ async function collectFindings(repo: string, prNumber: number): Promise<string[]
     if (!Array.isArray(arr)) return [];
     return arr
         .map((c) => (c.body ?? "").trim())
-        .filter((b) => b && !b.toLowerCase().startsWith("@kody"))
+        .filter((b) => b && !b.toLowerCase().startsWith("@piku"))
         .map((b) => b.replace(/^(?:\s*!\[[^\]]*\]\([^)]*\)\s*)+/i, "").trim());
 }
 

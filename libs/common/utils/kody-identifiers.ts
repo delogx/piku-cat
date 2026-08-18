@@ -1,15 +1,15 @@
 /**
- * Signatures Kody injects at the end (or, on bitbucket, the start) of
+ * Signatures Piku injects at the end (or, on bitbucket, the start) of
  * every comment it posts. Used by:
  *
  *   - Per-provider comment emitters
  *     (`github.service.ts`, `gitlab.service.ts`, `azureRepos.service.ts`,
  *      `forgejo.service.ts`, `bitbucket.service.ts`,
  *      `chatWithKodyFromGit.use-case.ts`, `commentManager.service.ts`)
- *     append the right marker to each Kody comment.
+ *     append the right marker to each Piku comment.
  *
  *   - Read-side filters that need to recognize "this comment was
- *     written by Kody, don't treat it as human signal":
+ *     written by Piku, don't treat it as human signal":
  *     `commentAnalysis.service.ts` (rule-generator input filter),
  *     `validate-prerequisites.stage.ts` (skip re-review on standing
  *     PRs), etc.
@@ -21,7 +21,13 @@
  * visible chip at the start of each comment instead.
  */
 export const KODY_IDENTIFIERS = {
-    LOGIN_KEYWORDS: ['kody', 'kodus'],
+    // piku-cat fork: `piku` first (our bot logs in as `piku-cat[bot]`);
+    // `kody`/`kodus` stay so comments posted before the rename are still
+    // recognised as bot-authored and not fed back in as human signal.
+    LOGIN_KEYWORDS: ['piku', 'kody', 'kodus'],
+    // Deliberately NOT rebranded: these strings are embedded in every
+    // comment already posted, and they are how the bot finds its own
+    // comments to edit. Renaming them would duplicate comments instead.
     MARKDOWN_IDENTIFIERS: {
         DEFAULT: 'kody-codereview',
         BITBUCKET: 'kody|code-review',
@@ -29,7 +35,7 @@ export const KODY_IDENTIFIERS = {
 } as const;
 
 /**
- * True when the given comment body looks like one Kody itself
+ * True when the given comment body looks like one Piku itself
  * authored. Checks BOTH provider signatures so callers don't have to
  * special-case bitbucket. Case-insensitive on the body to match what
  * the existing filter sites have always done.

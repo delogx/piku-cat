@@ -101,7 +101,7 @@ describe('ChatWithKodyFromGitUseCase', () => {
                 },
                 comment: {
                     id: 123,
-                    body: '@kody -v business-logic validate this change',
+                    body: '@piku -v business-logic validate this change',
                 },
                 sender: {
                     id: 'user-1',
@@ -120,7 +120,7 @@ describe('ChatWithKodyFromGitUseCase', () => {
                 },
                 prepareContext: expect.objectContaining({
                     userQuestion:
-                        '@kody -v business-logic validate this change',
+                        '@piku -v business-logic validate this change',
                     pullRequestDescription: 'PR description body',
                     platformType: PlatformType.GITHUB,
                     repository: expect.objectContaining({
@@ -168,7 +168,7 @@ describe('ChatWithKodyFromGitUseCase', () => {
                 },
                 comment: {
                     id: 123,
-                    body: `@kody -v business-logic ${jiraUrl}`,
+                    body: `@piku -v business-logic ${jiraUrl}`,
                 },
                 sender: {
                     id: 'user-1',
@@ -182,7 +182,7 @@ describe('ChatWithKodyFromGitUseCase', () => {
         ).toHaveBeenCalledWith(
             expect.objectContaining({
                 prepareContext: expect.objectContaining({
-                    userQuestion: `@kody -v business-logic ${jiraUrl}`,
+                    userQuestion: `@piku -v business-logic ${jiraUrl}`,
                     pullRequestDescription: 'PR description body',
                     repository: expect.objectContaining({
                         name: 'kodus-extension',
@@ -220,7 +220,7 @@ describe('ChatWithKodyFromGitUseCase', () => {
                     },
                     comment: {
                         id: 123,
-                        body: '@kody can we use optional chaining here?',
+                        body: '@piku can we use optional chaining here?',
                     },
                     sender: {
                         id: 'user-1',
@@ -246,7 +246,7 @@ describe('ChatWithKodyFromGitUseCase', () => {
                 [
                     {
                         id: 123,
-                        body: '@kody can we use optional chaining here?',
+                        body: '@piku can we use optional chaining here?',
                         user: { login: 'alice' },
                     },
                 ],

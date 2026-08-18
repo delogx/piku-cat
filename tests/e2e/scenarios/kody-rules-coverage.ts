@@ -36,7 +36,7 @@ const COVERAGE_MIN = Number(process.env.KODY_RULES_COVERAGE_MIN ?? 2);
 
 export const kodyRulesCoverage: Scenario = {
     id: "kody-rules-coverage",
-    title: "A Kody Rule is flagged at every site in a PR (sharding coverage, #1449)",
+    title: "A Piku Rule is flagged at every site in a PR (sharding coverage, #1449)",
     priority: "P1",
     appliesTo: {
         target: ["cloud", "self-hosted"],

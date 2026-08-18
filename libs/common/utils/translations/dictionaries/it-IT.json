@@ -1,13 +1,13 @@
 {
     "reviewComment": {
-        "talkToKody": "Parla con Piku menzionando @kody",
+        "talkToKody": "Parla con Piku menzionando @piku",
         "feedback": "Questo suggerimento è stato utile? Reagisci con 👍 o 👎 per aiutare Piku a imparare da questa interazione."
     },
     "pullRequestFinishSummaryMarkdown": {
         "withComments": "## Revisione del codice completata! 🔥\n\nLa revisione del codice è stata completata con successo in base alle tue configurazioni attuali.\n\n",
         "withoutComments": "# Revisione di Piku completata\n**Ottime notizie!** 🎉\nNon sono stati trovati problemi che corrispondono alle tue configurazioni di revisione attuali.\n\nContinua così! 🚀",
-        "withErrors": "## Revisione del codice non completata ⚠️\n\nLa revisione è fallita prima che fosse possibile generare suggerimenti.\n\n**Motivo:** {{errorMessage}}\n\nDopo aver risolto il problema, commenta `@kody review` su questa PR per rieseguire la revisione.\n\n",
-        "partialErrorsNotice": "\n\n> ⚠️ Nota: alcune fasi della revisione non hanno potuto essere completate in questa esecuzione, quindi l'approvazione automatica (quando abilitata) è stata saltata. Consulta i dettagli su {{dashboardUrl}} e poi commenta `@kody review` su questa PR per riprovare una volta risolto il problema.\n"
+        "withErrors": "## Revisione del codice non completata ⚠️\n\nLa revisione è fallita prima che fosse possibile generare suggerimenti.\n\n**Motivo:** {{errorMessage}}\n\nDopo aver risolto il problema, commenta `@piku review` su questa PR per rieseguire la revisione.\n\n",
+        "partialErrorsNotice": "\n\n> ⚠️ Nota: alcune fasi della revisione non hanno potuto essere completate in questa esecuzione, quindi l'approvazione automatica (quando abilitata) è stata saltata. Consulta i dettagli su {{dashboardUrl}} e poi commenta `@piku review` su questa PR per riprovare una volta risolto il problema.\n"
     },
     "pullRequestSummaryMarkdown": {
         "title": "Riepilogo PR (Commento creato da [Piku](https://kodus.io) 🤖)",
@@ -31,9 +31,9 @@
         "title": "Guida di Piku: Uso e Configurazione",
         "interactingTitle": "Interagire con Piku",
         "requestReview": "Richiedi una revisione",
-        "requestReviewDesc": "Chiedi a Piku di rivedere manualmente il tuo PR aggiungendo un commento con il comando `@kody start-review` alla radice del tuo PR.",
+        "requestReviewDesc": "Chiedi a Piku di rivedere manualmente il tuo PR aggiungendo un commento con il comando `@piku start-review` alla radice del tuo PR.",
         "validateBusinessLogic": "Valida Logica di Business",
-        "validateBusinessLogicDesc": "Chiedi a Piku di validare il tuo codice contro le regole di business aggiungendo un commento con il comando `@kody -v business-logic`.",
+        "validateBusinessLogicDesc": "Chiedi a Piku di validare il tuo codice contro le regole di business aggiungendo un commento con il comando `@piku -v business-logic`.",
         "provideFeedback": "Fornisci feedback",
         "provideFeedbackDesc": "Aiuta Piku a imparare e migliorare reagendo ai suoi commenti con un 👍 per suggerimenti utili o un 👎 se sono necessarie migliorie.",
         "configurationTitle": "Configurazione attuale di Piku",

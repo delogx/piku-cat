@@ -6664,7 +6664,7 @@ This is an experimental feature that generates committable changes. Review the d
         try {
             const { organizationAndTeamData, repository, filters } = params;
             // Oversampled against the ~100 the consumer keeps: bot authors,
-            // Kody's own past comments and denylisted reviewers are all
+            // Piku's own past comments and denylisted reviewers are all
             // dropped downstream, so collecting exactly 100 here would leave
             // fewer than that after filtering.
             const limit = params.limit ?? 300;

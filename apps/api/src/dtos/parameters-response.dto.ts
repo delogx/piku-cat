@@ -194,7 +194,7 @@ export class CodeReviewConfigDataDto {
         type: 'array',
         required: false,
         description:
-            'Sibling repositories Kody may consult during review (cross-repo context).',
+            'Sibling repositories Piku may consult during review (cross-repo context).',
         items: {
             type: 'object',
             properties: {

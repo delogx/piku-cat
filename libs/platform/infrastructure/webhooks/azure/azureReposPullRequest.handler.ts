@@ -372,7 +372,7 @@ export class AzureReposPullRequestHandler implements IWebhookEventHandler {
                         }
                     } catch (e) {
                         this.logger.error({
-                            message: 'Failed to sync Kody Rules after PR merge',
+                            message: 'Failed to sync Piku Rules after PR merge',
                             context: AzureReposPullRequestHandler.name,
                             error: e instanceof Error ? e : undefined,
                             metadata: {
@@ -520,7 +520,7 @@ export class AzureReposPullRequestHandler implements IWebhookEventHandler {
 
             if (isStartCommand && !hasMarker) {
                 this.logger.log({
-                    message: `@kody start command detected in Azure Repos comment for PR#${prId}`,
+                    message: `@piku start command detected in Azure Repos comment for PR#${prId}`,
                     serviceName: AzureReposPullRequestHandler.name,
                     metadata: {
                         prId,

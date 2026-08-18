@@ -19,7 +19,7 @@ const FIXTURE_BRANCHES: Record<
     github: {
         // Feature add in the tiny-url fixture repo (kodus-e2e/tiny-url):
         // /stats endpoint + per-code hit counter. ~30 lines, two files
-        // touched — meaty enough that Kody usually surfaces real findings
+        // touched — meaty enough that Piku usually surfaces real findings
         // (paid path observed ~10–11 min end-to-end on Kimi K2.6), but
         // still a realistic PR-sized change. Different head→base from
         // code-review-basic and kody-rules so all three scenarios can
@@ -109,7 +109,7 @@ export const licenseAttribution: Scenario = {
         await ensureLicenseSeat(ctx.target, session, ctx.provider);
 
         // Tiers where the entitlement gate BLOCKS the LLM review. On
-        // cloud these tenants are "trial expired without BYOK" — Kody
+        // cloud these tenants are "trial expired without BYOK" — Piku
         // posts a "trial ended / activate plan" notification on the PR
         // instead of running the review pipeline. On self-hosted with
         // no license key (`license-free`), reviews stop similarly when
@@ -129,11 +129,11 @@ export const licenseAttribution: Scenario = {
             // `paid`/`trial` paths get a 900s poll budget to cover the
             // slowest legitimate review (Kimi K2.6 on tiny-url measures
             // ~10–11 min end-to-end, with variance). Blocked paths only
-            // need to confirm Kody posted the license-block notice — that
+            // need to confirm Piku posted the license-block notice — that
             // shows up in seconds. A short window also keeps the false-
             // positive surface tight: a gate that fails open and starts
             // a review would still race the poll, but the longer the
-            // wait the more likely Kody will post the notice anyway.
+            // wait the more likely Piku will post the notice anyway.
             const pollWindow = expectReview ? 900 : 180;
             const review = await ctx.provider.pollForReview(
                 { number: pr.number },
@@ -154,7 +154,7 @@ export const licenseAttribution: Scenario = {
                 );
                 ctx.assert(
                     !sawLicenseNotice,
-                    `License=${ctx.license} should NOT trigger a trial/BYOK notice, but Kody posted one: ${JSON.stringify(review.licenseBlockedNotice)}`,
+                    `License=${ctx.license} should NOT trigger a trial/BYOK notice, but Piku posted one: ${JSON.stringify(review.licenseBlockedNotice)}`,
                 );
                 // Execution HEALTH: a licensed review that posts findings can
                 // still hide a crashed agent/stage (partial_error). Only the
@@ -163,17 +163,17 @@ export const licenseAttribution: Scenario = {
                 await assertHealthyExecution(ctx, session, pr.number);
             } else {
                 // Blocked tier — gate must stop the real review pipeline
-                // AND Kody should explain why with a notice on the PR.
+                // AND Piku should explain why with a notice on the PR.
                 // Bare silence (no review, no notice) is a different
                 // failure mode (webhook never arrived, pipeline crashed
                 // silently, filter regression) and we'd rather fail loud.
                 ctx.assert(
                     !sawRealReview,
-                    `Expected NO real review for license=${ctx.license} but Kody posted one: ${JSON.stringify(review)}`,
+                    `Expected NO real review for license=${ctx.license} but Piku posted one: ${JSON.stringify(review)}`,
                 );
                 ctx.assert(
                     sawLicenseNotice,
-                    `License=${ctx.license} should have triggered a trial-ended / BYOK / no-license notice from Kody, but the PR has no such comment after ${pollWindow}s. review=${JSON.stringify(review)}`,
+                    `License=${ctx.license} should have triggered a trial-ended / BYOK / no-license notice from Piku, but the PR has no such comment after ${pollWindow}s. review=${JSON.stringify(review)}`,
                 );
             }
 

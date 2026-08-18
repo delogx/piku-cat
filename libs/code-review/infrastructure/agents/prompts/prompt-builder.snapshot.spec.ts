@@ -370,7 +370,7 @@ describe('rendered prompt snapshots', () => {
         `);
     });
 
-    it('full user prompt with review directive (@kody review <focus>)', () => {
+    it('full user prompt with review directive (@piku review <focus>)', () => {
         expect(
             buildUserPrompt(
                 baseInput({ reviewDirective: 'focus on auth' }),

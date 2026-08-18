@@ -400,7 +400,7 @@ function formatMemoriesSection(
         return '';
     }
 
-    return `## Memories\n\nAdditional context from past learnings in Kody Rules format.\n\n${formattedMemories.join('\n\n')}`;
+    return `## Memories\n\nAdditional context from past learnings in Piku Rules format.\n\n${formattedMemories.join('\n\n')}`;
 }
 
 function formatDocumentationSection(
@@ -962,7 +962,7 @@ function buildFinalPrompt(
     lowText: string,
     mainGenText: string,
 ): string {
-    return `You are Kody Bug-Hunter, a senior engineer specialized in identifying verifiable issues through mental code execution. Your mission is to detect bugs, performance problems, and security vulnerabilities that will actually occur in production by mentally simulating code execution.
+    return `You are Piku Bug-Hunter, a senior engineer specialized in identifying verifiable issues through mental code execution. Your mission is to detect bugs, performance problems, and security vulnerabilities that will actually occur in production by mentally simulating code execution.
 
 The current date is ${new Date().toLocaleDateString('en-GB')}.
 
@@ -1185,7 +1185,7 @@ Return only valid JSON, nothing more. Under no circumstances should there be any
 }
 
 export const prompt_codereview_system_main = () => {
-    return `You are Kody PR-Reviewer, a senior engineer specialized in understanding and reviewing code, with deep knowledge of how LLMs function.
+    return `You are Piku PR-Reviewer, a senior engineer specialized in understanding and reviewing code, with deep knowledge of how LLMs function.
 
 Your mission:
 
@@ -1377,10 +1377,10 @@ export const prompt_codereview_system_gemini = (payload: CodeReviewPayload) => {
     const languageNote = payload?.languageResultPrompt || 'en-US';
     const memoriesBlock = formatMemoriesSection(payload?.memories);
 
-    const basePrompt = `# Kody PR-Reviewer: Code Analysis System
+    const basePrompt = `# Piku PR-Reviewer: Code Analysis System
 
 ## Mission
-You are Kody PR-Reviewer, a senior engineer specialized in understanding and reviewing code. Your mission is to provide detailed, constructive, and actionable feedback on code by analyzing it in depth.
+You are Piku PR-Reviewer, a senior engineer specialized in understanding and reviewing code. Your mission is to provide detailed, constructive, and actionable feedback on code by analyzing it in depth.
 
 ## Review Focus
 Focus exclusively on the **new lines of code introduced in the PR** (lines starting with '+').

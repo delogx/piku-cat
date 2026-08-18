@@ -2171,7 +2171,7 @@ export class BitbucketCloudService implements Omit<
         const thumbsUpBlock = `\`\`\`\n👍\n\`\`\`\n`;
         const thumbsDownBlock = `\`\`\`\n👎\n\`\`\`\n`;
 
-        const footer = `Was this suggestion helpful? reply with 👍 or 👎 to help Kody learn from this interaction.\n`;
+        const footer = `Was this suggestion helpful? reply with 👍 or 👎 to help Piku learn from this interaction.\n`;
 
         return [
             header,

@@ -22,7 +22,7 @@ const noOverride = (level: string, value: unknown = false) => ({
 describe("countConfigOverridesByRoute — kody-rules", () => {
     it("does NOT count ideRulesSyncEnabled overrides", () => {
         // REGRESSION: the auto-sync toggle is an import action, not a rule
-        // policy. Including it in the override count made the Kody Rules
+        // policy. Including it in the override count made the Piku Rules
         // nav badge read "1" on repos that had simply toggled IDE sync,
         // which users interpreted as "1 custom rule".
         const config: any = {

@@ -2,14 +2,14 @@ import type { OrganizationAndTeamData } from '@libs/core/infrastructure/config/t
 import type { IKodyRule } from '@libs/kodyRules/domain/interfaces/kodyRules.interface';
 
 /**
- * Build a deep link to a Kody Rule's settings page.
+ * Build a deep link to a Piku Rule's settings page.
  *
  * The web route is `/settings/code-review/<repoId>/kody-rules/<ruleId>`,
  * but for directory-scoped rules the UI also needs `directoryId` and
  * `teamId` in the query string — without them the page renders a 404
  * (the rule lives under a directory scope the page can't resolve from
  * the path segment alone). Reported by quintoandar (David B): every
- * link Kody pasted into a PR comment for a directory-scoped rule was
+ * link Piku pasted into a PR comment for a directory-scoped rule was
  * dead.
  *
  * Three callsites used to inline this URL build (one per pipeline:

@@ -165,7 +165,7 @@ export class CreateKodyRuleDto {
     @IsString()
     @ApiPropertyOptional({
         description:
-            'Team identifier used to resolve team-scoped centralized configuration for global Kody Rules.',
+            'Team identifier used to resolve team-scoped centralized configuration for global Piku Rules.',
         example: '2e4f7a61-3c8c-4af5-bf25-2d0cbb19c4d1',
     })
     teamId?: string;
@@ -292,7 +292,7 @@ export class CreateKodyRuleDto {
     @IsBoolean()
     @ApiPropertyOptional({
         description:
-            'True when the source file currently carries an `@kody-sync` marker — the per-file override that keeps the rule in sync even with `ideRulesSyncEnabled=false`. Set by the sync service, recomputed on every sync.',
+            'True when the source file currently carries an `@piku-sync` marker — the per-file override that keeps the rule in sync even with `ideRulesSyncEnabled=false`. Set by the sync service, recomputed on every sync.',
     })
     pinnedSync?: boolean;
 }

@@ -1,5 +1,5 @@
 // Verbatim claude-sonnet-4-5 responses (extended thinking, thinking blocks stripped
-// as CustomStringOutputParser does) captured live for the @kody conversation bug.
+// as CustomStringOutputParser does) captured live for the @piku conversation bug.
 // Each starts with a natural-language preamble before the fenced JSON — the exact
 // shape that crashed parseLLMResponse in production (jsonrepair mangled it to an array).
 

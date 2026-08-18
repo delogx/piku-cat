@@ -24,7 +24,7 @@ test("success anywhere wins over an incidental skip", () => {
     );
 });
 
-// The bug behind #1699. Bitbucket delivers the @kody comment webhook twice;
+// The bug behind #1699. Bitbucket delivers the @piku comment webhook twice;
 // the product dedupes the second into a `skipped` row while the real review
 // is still running. Ranking that skip above the running row made the poll
 // verdict "skipped" at 90s, for a review that had not finished yet.

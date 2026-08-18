@@ -744,7 +744,7 @@ describe('ExecuteCliReviewUseCase', () => {
             mockExecute.mockRestore();
         });
 
-        it('forwards config.focus to context.reviewDirective (CLI @kody review focus), sanitized', async () => {
+        it('forwards config.focus to context.reviewDirective (CLI @piku review focus), sanitized', async () => {
             const { useCase, parametersService } = createMocks();
             parametersService.findByKey.mockResolvedValue(null);
 

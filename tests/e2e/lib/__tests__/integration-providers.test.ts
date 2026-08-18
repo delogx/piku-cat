@@ -172,7 +172,7 @@ test("integration: GitLab — runner drives MR review through provider abstracti
                     const created = new Date().toISOString();
                     json(res, 201, {
                         id: 5555,
-                        body: "@kody review",
+                        body: "@piku review",
                         created_at: created,
                         author: { id: 1, username: "kodus-bot" },
                         system: false,
@@ -189,7 +189,7 @@ test("integration: GitLab — runner drives MR review through provider abstracti
                     json(res, 200, [
                         {
                             id: 5556,
-                            body: "Kody (mock) found 1 issue in this MR.",
+                            body: "Piku (mock) found 1 issue in this MR.",
                             created_at: responseTime,
                             author: { id: 1, username: "kodus-bot" },
                             system: false,
@@ -316,7 +316,7 @@ test("integration: Bitbucket — runner drives PR review through provider abstra
                     const created = new Date().toISOString();
                     json(res, 201, {
                         id: 4001,
-                        content: { raw: "@kody review" },
+                        content: { raw: "@piku review" },
                         created_on: created,
                         user: { uuid: "{user}", display_name: "kodus-bot" },
                     });
@@ -333,7 +333,7 @@ test("integration: Bitbucket — runner drives PR review through provider abstra
                         values: [
                             {
                                 id: 4002,
-                                content: { raw: "Kody (mock) flagged 2 issues." },
+                                content: { raw: "Piku (mock) flagged 2 issues." },
                                 created_on: responseTime,
                                 user: { uuid: "{user}", display_name: "kodus-bot" },
                             },
@@ -443,7 +443,7 @@ test("integration: Azure DevOps — runner drives PR review through provider abs
                         comments: [
                             {
                                 id: 9001,
-                                content: "@kody review",
+                                content: "@piku review",
                                 publishedDate: created,
                             },
                         ],
@@ -465,13 +465,13 @@ test("integration: Azure DevOps — runner drives PR review through provider abs
                                 comments: [
                                     {
                                         id: 9001,
-                                        content: "@kody review",
+                                        content: "@piku review",
                                         publishedDate: reviewWindow.triggeredAt,
                                     },
                                     {
                                         id: 9002,
                                         content:
-                                            "Kody (mock) found 3 issues in this PR.",
+                                            "Piku (mock) found 3 issues in this PR.",
                                         publishedDate: responseTime,
                                     },
                                 ],

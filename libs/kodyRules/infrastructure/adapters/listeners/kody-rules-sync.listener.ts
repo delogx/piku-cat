@@ -79,7 +79,7 @@ export class KodyRulesSyncListener {
         if (!event.repository || !event.repository.id) {
             this.logger.warn({
                 message:
-                    'Received pull-request.closed event without repository information, skipping Kody rules sync',
+                    'Received pull-request.closed event without repository information, skipping Piku rules sync',
                 context: KodyRulesSyncListener.name,
                 metadata: {
                     pullRequestNumber: event.pullRequestNumber,
@@ -91,7 +91,7 @@ export class KodyRulesSyncListener {
         if (!event.merged) {
             this.logger.log({
                 message:
-                    'Received non-merged pull-request.closed event, skipping Kody rules sync',
+                    'Received non-merged pull-request.closed event, skipping Piku rules sync',
                 context: KodyRulesSyncListener.name,
                 metadata: {
                     pullRequestNumber: event.pullRequestNumber,
@@ -104,7 +104,7 @@ export class KodyRulesSyncListener {
         if (await this.isCentralizedConfigRepo(event)) {
             this.logger.log({
                 message:
-                    'Pull request closed in centralized config repository, skipping Kody rules sync',
+                    'Pull request closed in centralized config repository, skipping Piku rules sync',
                 context: KodyRulesSyncListener.name,
                 metadata: {
                     pullRequestNumber: event.pullRequestNumber,
@@ -115,7 +115,7 @@ export class KodyRulesSyncListener {
         }
 
         this.logger.log({
-            message: 'Handling pull-request.closed event for Kody Rules Sync',
+            message: 'Handling pull-request.closed event for Piku Rules Sync',
             context: KodyRulesSyncListener.name,
             metadata: {
                 prNumber: event.pullRequestNumber,
@@ -264,7 +264,7 @@ export class KodyRulesSyncListener {
         } catch (error) {
             this.logger.warn({
                 message:
-                    'Failed to determine centralized config status for Kody rules listener',
+                    'Failed to determine centralized config status for Piku rules listener',
                 context: KodyRulesSyncListener.name,
                 metadata: {
                     organizationAndTeamData: event.organizationAndTeamData,

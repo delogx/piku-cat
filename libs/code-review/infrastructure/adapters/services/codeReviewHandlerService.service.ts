@@ -185,9 +185,9 @@ export class CodeReviewHandlerService {
         lastExecutionData?: any, // Data from the last successful execution
         correlationId?: string,
         parentSignal?: AbortSignal,
-        // Free-text steering directive from `@kody review <directive>`.
+        // Free-text steering directive from `@piku review <directive>`.
         reviewDirective?: string,
-        // `@kody review --heavy` — extra critic pass in the finder.
+        // `@piku review --heavy` — extra critic pass in the finder.
         heavy?: boolean,
     ) {
         let initialContext: CodeReviewPipelineContext;
@@ -253,7 +253,7 @@ export class CodeReviewHandlerService {
             // is NOT a usable fallback here: stages that fail without throwing
             // never update it, so it still holds whatever the pipeline set at
             // startup — which is how a failed review ended up reported as
-            // "Kody Review Finished / Error / Pipeline started" (#1568).
+            // "Piku Review Finished / Error / Pipeline started" (#1568).
             const failureReason =
                 result.lastReviewError?.friendlyMessage ||
                 describePipelineError(

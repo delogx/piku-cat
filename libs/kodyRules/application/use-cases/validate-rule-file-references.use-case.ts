@@ -39,7 +39,7 @@ interface RuleWithReferences {
 }
 
 /**
- * Validates that every external file reference attached to a Kody Rule
+ * Validates that every external file reference attached to a Piku Rule
  * still points to a file that exists in the repository's default
  * branch. When one or more references are stale, emits the
  * `rule.file_references_invalid` notification to the right audience

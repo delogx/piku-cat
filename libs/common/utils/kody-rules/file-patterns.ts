@@ -169,7 +169,7 @@ export function extractRepoSubdirFromIdeSource(
 /**
  * Splits a rule `path` value into its individual glob patterns.
  *
- * Kody Rules support OR-joined globs in a single `path` string (the
+ * Piku Rules support OR-joined globs in a single `path` string (the
  * importer comma-joins declared multi-glob frontmatter). Commas that are
  * part of a single valid picomatch pattern are NOT separators: inside
  * braces ("{app,lib}/**"), character classes ("src/[ab,cd]/**"),

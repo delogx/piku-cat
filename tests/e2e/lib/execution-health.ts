@@ -278,7 +278,7 @@ export function findExecutionStatus(
 
     // A single PR can carry MULTIPLE execution rows: a duplicate delivery adds
     // a `skipped` row next to the real review (seen on the QA gitlab tenant,
-    // and on every bitbucket run — bitbucket delivers the @kody comment
+    // and on every bitbucket run — bitbucket delivers the @piku comment
     // webhook twice and the product correctly dedupes the second).
     //
     // Success anywhere wins: the review happened, and an incidental skip

@@ -30,7 +30,7 @@
                     "type": "string",
                     "enum": ["none", "replace", "concatenate"],
                     "default": "none",
-                    "description": "Defines how Kody updates the summary when new commits arrive."
+                    "description": "Defines how Piku updates the summary when new commits arrive."
                 }
             },
             "required": [
@@ -79,7 +79,7 @@
                 "kody_rules": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Enable Kody rules checks during the review."
+                    "description": "Enable Piku rules checks during the review."
                 },
                 "refactoring": {
                     "type": "boolean",
@@ -161,7 +161,7 @@
                 "applyFiltersToKodyRules": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Whether to apply all filters (severity and quantity) to Kody Rules. When false, Kody Rules ignore all filters."
+                    "description": "Whether to apply all filters (severity and quantity) to Piku Rules. When false, Piku Rules ignore all filters."
                 },
                 "severityLimits": {
                     "type": "object",
@@ -237,7 +237,7 @@
         "showStatusFeedback": {
             "type": "boolean",
             "default": true,
-            "description": "Indicates whether Kody should send skip/error status feedback using emoji reactions or comments."
+            "description": "Indicates whether Piku should send skip/error status feedback using emoji reactions or comments."
         },
         "pullRequestApprovalActive": {
             "type": "boolean",

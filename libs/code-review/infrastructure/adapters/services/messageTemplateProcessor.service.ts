@@ -283,7 +283,7 @@ ${reviewOptionsMarkdown}
                 statusText = translation.automaticTitle || 'Automatic Review';
                 description =
                     translation.automaticDesc ||
-                    'Kody will automatically review every push to this PR.';
+                    'Piku will automatically review every push to this PR.';
                 break;
 
             case ReviewCadenceType.AUTO_PAUSE: {
@@ -296,7 +296,7 @@ ${reviewOptionsMarkdown}
                     translation.autoPauseDesc
                         ?.replace('{timeWindow}', String(timeWindow))
                         ?.replace('{pushes}', String(pushes)) ||
-                    `Kody reviews the first push automatically, then pauses if you make ${pushes}+ pushes in ${timeWindow} minutes. Use @kody start-review to continue.`;
+                    `Piku reviews the first push automatically, then pauses if you make ${pushes}+ pushes in ${timeWindow} minutes. Use @piku start-review to continue.`;
                 break;
             }
 
@@ -304,7 +304,7 @@ ${reviewOptionsMarkdown}
                 statusText = translation.manualTitle || 'Manual Review';
                 description =
                     translation.manualDesc ||
-                    'Kody only reviews when you request with @kody start-review command.';
+                    'Piku only reviews when you request with @piku start-review command.';
                 break;
 
             default:
@@ -442,7 +442,7 @@ ${reviewOptionsMarkdown}
         const fence = '`'.repeat(Math.max(3, longestBacktickRun + 1));
 
         return [
-            `**Kody Code Review** — ${prompts.length} suggested fix${prompts.length > 1 ? 'es' : ''}.`,
+            `**Piku Code Review** — ${prompts.length} suggested fix${prompts.length > 1 ? 'es' : ''}.`,
             `Paste the prompt below to your agent and all review fixed at once!\n`,
             `<details>`,
             `<summary>🛠️ Open Agent Prompt</summary>`,

@@ -276,8 +276,8 @@ export class AutomationCodeReviewService implements Omit<
                     lastExecution?.dataExecution, // Pass last execution data
                     correlationId,
                     signal, // parentSignal — forwarded to pipeline context
-                    reviewDirective, // @kody review <directive> steering text
-                    heavy, // @kody review --heavy — extra critic pass
+                    reviewDirective, // @piku review <directive> steering text
+                    heavy, // @piku review --heavy — extra critic pass
                 );
 
             await this._handleExecutionCompletion(execution, result, payload);
@@ -365,7 +365,7 @@ export class AutomationCodeReviewService implements Omit<
                         repositoryId: repository?.id,
                     },
                     message,
-                    'Kody Review Started',
+                    'Piku Review Started',
                 );
 
             if (result?.stageLog) {
@@ -468,7 +468,7 @@ export class AutomationCodeReviewService implements Omit<
             finalStatus,
             finalMessage,
             newData,
-            'Kody Review Finished',
+            'Piku Review Finished',
         );
 
         this.logger.log({
@@ -505,12 +505,12 @@ export class AutomationCodeReviewService implements Omit<
      * observer's behavior.
      */
     /**
-     * The message shown on the final "Kody Review Finished" row.
+     * The message shown on the final "Piku Review Finished" row.
      *
      * `statusInfo.message` is only meaningful for a SKIPPED run — the stages
      * that fail without throwing never update it, so it still holds whatever
      * the pipeline set at startup. Using it verbatim rendered a failed review
-     * as "Kody Review Finished / Error / Pipeline started" (#1568). For a
+     * as "Piku Review Finished / Error / Pipeline started" (#1568). For a
      * failed run, report the actual reason instead.
      */
     private buildFinalMessage(

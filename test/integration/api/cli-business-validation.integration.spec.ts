@@ -223,7 +223,7 @@ describe('CLI business-validation integration', () => {
                 },
                 thread: 'vbl-thread-id',
                 prepareContext: expect.objectContaining({
-                    userQuestion: '@kody -v business-logic KD-1234',
+                    userQuestion: '@piku -v business-logic KD-1234',
                     taskId: 'KD-1234',
                     taskReference: 'KD-1234',
                     platformType: PlatformType.GITHUB,
@@ -317,7 +317,7 @@ describe('CLI business-validation integration', () => {
 
         const providerPayload = mockBusinessProvider.execute.mock.calls[0][0];
         expect(providerPayload.prepareContext).toMatchObject({
-            userQuestion: '@kody -v business-logic KD-1234',
+            userQuestion: '@piku -v business-logic KD-1234',
             taskId: 'KD-1234',
             taskReference: 'KD-1234',
             pullRequestDescription:

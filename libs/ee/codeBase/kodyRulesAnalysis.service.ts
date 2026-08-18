@@ -166,7 +166,7 @@ export class KodyRulesAnalysisService implements IKodyRulesAnalysisService {
                 );
             } catch (error) {
                 this.logger.error({
-                    message: 'Error fetching Kody Rule details',
+                    message: 'Error fetching Piku Rule details',
                     context: KodyRulesAnalysisService.name,
                     error: error,
                     metadata: {
@@ -261,7 +261,7 @@ export class KodyRulesAnalysisService implements IKodyRulesAnalysisService {
                 } catch (error) {
                     this.logger.error({
                         message:
-                            'Error processing suggestion for Kody Rule links',
+                            'Error processing suggestion for Piku Rule links',
                         context: KodyRulesAnalysisService.name,
                         error,
                         metadata: {
@@ -355,7 +355,7 @@ export class KodyRulesAnalysisService implements IKodyRulesAnalysisService {
                 });
 
             if (!extraction) {
-                const message = `No Kody Rule IDs extracted from content for PR#${prNumber}`;
+                const message = `No Piku Rule IDs extracted from content for PR#${prNumber}`;
                 this.logger.warn({
                     message,
                     context: KodyRulesAnalysisService.name,
@@ -418,7 +418,7 @@ export class KodyRulesAnalysisService implements IKodyRulesAnalysisService {
 
         if (!baseContext.kodyRules?.length) {
             this.logger.log({
-                message: `No Kody Rules applicable for file: ${fileContext?.file?.filename} from PR#${prNumber}`,
+                message: `No Piku Rules applicable for file: ${fileContext?.file?.filename} from PR#${prNumber}`,
                 context: KodyRulesAnalysisService.name,
                 metadata: {
                     organizationAndTeamData,
@@ -988,7 +988,7 @@ export class KodyRulesAnalysisService implements IKodyRulesAnalysisService {
     }
 
     /**
-     * ✨ SIMPLIFIED: Determines if severityLevelFilter should be passed for Kody Rules analysis
+     * ✨ SIMPLIFIED: Determines if severityLevelFilter should be passed for Piku Rules analysis
      */
     private shouldPassSeverityFilter(
         suggestionControl?: SuggestionControlConfig,
@@ -997,7 +997,7 @@ export class KodyRulesAnalysisService implements IKodyRulesAnalysisService {
             return false;
         }
 
-        // Returns true only if filters are explicitly enabled for Kody Rules
+        // Returns true only if filters are explicitly enabled for Piku Rules
         return suggestionControl.applyFiltersToKodyRules === true;
     }
 

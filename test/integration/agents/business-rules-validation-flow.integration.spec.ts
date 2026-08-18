@@ -242,7 +242,7 @@ describe('BusinessRulesValidation flow integration', () => {
             organizationAndTeamData,
             prepareContext: {
                 userQuestion:
-                    '@kody -v business-logic https://kodustech.atlassian.net/jira/software/c/projects/KC/boards/2?selectedIssue=KC-1441',
+                    '@piku -v business-logic https://kodustech.atlassian.net/jira/software/c/projects/KC/boards/2?selectedIssue=KC-1441',
                 repository: {
                     id: 'repo-1',
                     name: 'kodus-extension',
@@ -264,11 +264,11 @@ describe('BusinessRulesValidation flow integration', () => {
                 prDiff: '',
                 task: {
                     id: 'KC-1441',
-                    title: 'Kody rules por time',
+                    title: 'Piku rules por time',
                     description:
                         'Atualmente as kodyRules são cadastradas somente com organizationId. Billing e licença precisam respeitar o time correto.',
                     acceptanceCriteria: [
-                        'Kody rules must be scoped by team, not only organization',
+                        'Piku rules must be scoped by team, not only organization',
                         'Billing resolution must use the correct team context',
                     ],
                 },
@@ -288,7 +288,7 @@ describe('BusinessRulesValidation flow integration', () => {
         const result = await useCase.execute({
             organizationAndTeamData,
             prepareContext: {
-                userQuestion: '@kody -v business-logic KC-1441',
+                userQuestion: '@piku -v business-logic KC-1441',
                 repository: {
                     id: 'repo-1',
                     name: 'kodus-extension',

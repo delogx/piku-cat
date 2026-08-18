@@ -61,7 +61,7 @@ export type ValidateCliKeyResult = {
  * Validates a CLI request (team key OR JWT) and, when device headers
  * are provided, validates or registers the device. Replaces the
  * `validateKeyInternal` helper that used to live inside
- * CliReviewController — controller stays thin per the Kody rule.
+ * CliReviewController — controller stays thin per the Piku rule.
  *
  * Returns a payload that is wire-compatible with the existing
  * /cli/validate-key endpoints; the controller only deals with HTTP

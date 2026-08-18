@@ -6,7 +6,7 @@
  * responses captured from claude-sonnet-4-5 (extended thinking enabled, thinking
  * blocks stripped exactly as CustomStringOutputParser does), each prefixed with
  * a natural-language preamble ("Sim, esse cron roda diariamente, ...") — the
- * exact shape that crashed the @kody conversation in production.
+ * exact shape that crashed the @piku conversation in production.
  *
  * These run the REAL (fixed) EnhancedJSONParser and the REAL ReActStrategy
  * parseLLMResponse — no port, no synthetic strings — and assert they no longer

@@ -58,7 +58,7 @@ export const KodyRuleItem = ({
     onAnyChange: () => void;
     showSuggestionsButton?: boolean;
     /** Repo's `ideRulesSyncEnabled`; forwarded to OriginBadge so it can
-     *  show the @kody-sync / Orphan maintenance badge only when off. */
+     *  show the @piku-sync / Orphan maintenance badge only when off. */
     syncEnabledForRepo?: boolean;
     /** Optional bulk-selection wiring. When omitted the row renders
      *  without a checkbox (legacy / read-only views). When the rule

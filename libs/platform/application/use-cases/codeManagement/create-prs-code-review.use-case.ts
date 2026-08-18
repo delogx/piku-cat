@@ -47,7 +47,7 @@ export class CreatePRCodeReviewUseCase implements IUseCase {
                 name: payload.repository,
             },
             prNumber: payload?.pull_number,
-            body: '@kody start-review',
+            body: '@piku start-review',
         };
 
         const response =

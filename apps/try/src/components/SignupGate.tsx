@@ -126,7 +126,7 @@ function SignupGateModal({
                         {[
                             "Reviews on PRs of any size — no caps",
                             "Auto-reviews on every PR you open",
-                            "Your own Kody rules per repo",
+                            "Your own Piku rules per repo",
                             "GitHub, GitLab, Bitbucket, Azure DevOps",
                         ].map((perk) => (
                             <li

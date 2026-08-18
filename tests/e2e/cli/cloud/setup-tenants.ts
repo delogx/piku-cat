@@ -122,7 +122,7 @@ function targetForCloud(): TargetContext {
 //
 // Tier handling per matrix label:
 //   - `free`            → leave subscription empty (= "trial expired,
-//                          no BYOK"). Gate blocks; Kody posts the
+//                          no BYOK"). Gate blocks; Piku posts the
 //                          trial-ended notice.
 //   - `community-byok`  → leave subscription empty BUT configure BYOK
 //                          (`/organization-parameters/create-or-update`

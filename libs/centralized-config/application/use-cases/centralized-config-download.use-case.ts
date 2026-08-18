@@ -389,7 +389,7 @@ export class CentralizedConfigDownloadUseCase implements IUseCase {
 
         if (rules.length === 0) {
             this.logger.log({
-                message: 'No Kody rules found for organization',
+                message: 'No Piku rules found for organization',
                 context: CentralizedConfigDownloadUseCase.name,
                 metadata: { teamId, organizationId },
             });
@@ -410,7 +410,7 @@ export class CentralizedConfigDownloadUseCase implements IUseCase {
             if (!entryPath) {
                 this.logger.warn({
                     message:
-                        'Skipping Kody rule export because entry path could not be resolved',
+                        'Skipping Piku rule export because entry path could not be resolved',
                     context: CentralizedConfigDownloadUseCase.name,
                     metadata: {
                         teamId,
@@ -474,7 +474,7 @@ export class CentralizedConfigDownloadUseCase implements IUseCase {
             organizationId,
             {
                 // Use the internal sync actor so the centralized PR flow is
-                // bypassed. The init PR already contains all Kody Rule files,
+                // bypassed. The init PR already contains all Piku Rule files,
                 // so we must not create separate PRs for each rule here.
                 userId: 'kody',
                 userEmail: 'kody@kodus.io',

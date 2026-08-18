@@ -100,12 +100,12 @@ customMessages:
 
 
             <details>
-            <summary>Kody Guide: Usage and Configuration</summary>
+            <summary>Piku Guide: Usage and Configuration</summary>
 
             <details>
             <summary>Interacting with Piku</summary>
 
-            - **Request a Review:** Ask Piku to review your PR manually by adding a comment with the \`@kody start-review\` command at the root of your PR.
+            - **Request a Review:** Ask Piku to review your PR manually by adding a comment with the \`@piku start-review\` command at the root of your PR.
 
             - **Provide Feedback:** Help Piku learn and improve by reacting to its comments with a 👍 for helpful suggestions or a 👎 if improvements are needed.
 

@@ -260,7 +260,7 @@ describe('ChatWithKodyFromGitUseCase business-logic integration', () => {
                 },
                 comment: {
                     id: 123,
-                    body: '@kody -v business-logic https://kodustech.atlassian.net/jira/software/c/projects/KC/boards/2?selectedIssue=KC-1441',
+                    body: '@piku -v business-logic https://kodustech.atlassian.net/jira/software/c/projects/KC/boards/2?selectedIssue=KC-1441',
                 },
                 sender: {
                     id: 'user-1',
@@ -295,7 +295,7 @@ describe('ChatWithKodyFromGitUseCase business-logic integration', () => {
                 },
                 prepareContext: expect.objectContaining({
                     userQuestion:
-                        '@kody -v business-logic https://kodustech.atlassian.net/jira/software/c/projects/KC/boards/2?selectedIssue=KC-1441',
+                        '@piku -v business-logic https://kodustech.atlassian.net/jira/software/c/projects/KC/boards/2?selectedIssue=KC-1441',
                     pullRequestDescription: 'PR description body',
                     pullRequest: expect.objectContaining({
                         pullRequestNumber: 132,

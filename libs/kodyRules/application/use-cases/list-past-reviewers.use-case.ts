@@ -12,7 +12,7 @@ export type PastReviewer = { id: string; name: string };
 
 /**
  * Candidate reviewers a client can pick from when choosing whose past review
- * comments Kody should exclude from learning (issue #1497).
+ * comments Piku should exclude from learning (issue #1497).
  *
  * Source = current git members ∪ authors of PRs opened in the window. The PR
  * authors are what makes departed-but-recently-active devs selectable (a dev

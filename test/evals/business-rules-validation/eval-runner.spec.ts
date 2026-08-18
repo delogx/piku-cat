@@ -215,8 +215,8 @@ describe('business-rules-validation eval runner', () => {
                     (typeof fixture.input.taskContext === 'object' &&
                     fixture.input.taskContext !== null &&
                     fixture.input.taskContext.id
-                        ? `@kody -v business-logic ${fixture.input.taskContext.id}`
-                        : '@kody -v business-logic'),
+                        ? `@piku -v business-logic ${fixture.input.taskContext.id}`
+                        : '@piku -v business-logic'),
                 pullRequestDescription: '',
                 taskContext:
                     typeof fixture.input.taskContext === 'string'

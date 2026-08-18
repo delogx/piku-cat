@@ -1,13 +1,13 @@
 {
     "reviewComment": {
-        "talkToKody": "Поговоріть з Piku, згадавши @kody",
+        "talkToKody": "Поговоріть з Piku, згадавши @piku",
         "feedback": "Чи була ця пропозиція корисною? Реагуйте за допомогою 👍 або 👎, щоб допомогти Piku навчитися з цієї взаємодії."
     },
     "pullRequestFinishSummaryMarkdown": {
         "withComments": "## Перевірка коду завершена! 🔥\n\nПеревірка коду успішно завершена на основі ваших поточних конфігурацій.\n\n",
         "withoutComments": "# Перевірка Piku завершена\n**Чудові новини!** 🎉\nНе знайдено жодних проблем, які б відповідали вашим поточним конфігураціям перевірки.\n\nПродовжуйте чудову роботу! 🚀",
-        "withErrors": "## Code Review Could Not Complete ⚠️\n\nThe review failed before suggestions could be generated.\n\n**Reason:** {{errorMessage}}\n\nAfter fixing the issue, comment `@kody review` on this PR to re-run the review.\n\n",
-        "partialErrorsNotice": "\n\n> ⚠️ Note: some checks couldn't be completed in this run, so auto-approval (when enabled) was skipped. Check the details at {{dashboardUrl}} and then comment `@kody review` on this PR to retry once the issue is resolved.\n"
+        "withErrors": "## Code Review Could Not Complete ⚠️\n\nThe review failed before suggestions could be generated.\n\n**Reason:** {{errorMessage}}\n\nAfter fixing the issue, comment `@piku review` on this PR to re-run the review.\n\n",
+        "partialErrorsNotice": "\n\n> ⚠️ Note: some checks couldn't be completed in this run, so auto-approval (when enabled) was skipped. Check the details at {{dashboardUrl}} and then comment `@piku review` on this PR to retry once the issue is resolved.\n"
     },
     "pullRequestSummaryMarkdown": {
         "title": "Резюме PR (Коментар створений [Piku](https://kodus.io) 🤖)",
@@ -31,9 +31,9 @@
         "title": "Посібник Piku: Використання та конфігурація",
         "interactingTitle": "Взаємодія з Piku",
         "requestReview": "Запросити перевірку",
-        "requestReviewDesc": "Запросіть Piku вручну перевірити ваш PR, додавши коментар з командою `@kody start-review` у корені вашого PR.",
+        "requestReviewDesc": "Запросіть Piku вручну перевірити ваш PR, додавши коментар з командою `@piku start-review` у корені вашого PR.",
         "validateBusinessLogic": "Перевірити бізнес-логіку",
-        "validateBusinessLogicDesc": "Запросіть Piku перевірити ваш код на відповідність бізнес-правилам, додавши коментар з командою `@kody -v business-logic`.",
+        "validateBusinessLogicDesc": "Запросіть Piku перевірити ваш код на відповідність бізнес-правилам, додавши коментар з командою `@piku -v business-logic`.",
         "provideFeedback": "Надати відгук",
         "provideFeedbackDesc": "Допоможіть Piku вчитися та покращуватися, реагуючи на його коментарі за допомогою 👍 для корисних пропозицій або 👎 якщо потрібні покращення.",
         "configurationTitle": "Поточна конфігурація Piku",

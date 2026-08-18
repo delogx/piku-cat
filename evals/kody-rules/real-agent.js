@@ -1,4 +1,4 @@
-// Kody-rules adherence eval — REAL ENGINE (not a prototype).
+// Piku-rules adherence eval — REAL ENGINE (not a prototype).
 //
 // Runs the production `KodyRulesAgentProvider.execute()` end-to-end: the same
 // system/category/user prompts, the same agent loop (runAgentLoop), the same

@@ -2,7 +2,7 @@
  * @file json-parser-prose.test.ts
  * @description Regression tests for EnhancedJSONParser against prose-wrapped JSON.
  *
- * Root cause of the @kody conversation failure: when an LLM prefixed the JSON
+ * Root cause of the @piku conversation failure: when an LLM prefixed the JSON
  * with a natural-language sentence containing commas (e.g. "Based on the diff,
  * here is my answer:"), the parser ran jsonrepair on the WHOLE string first,
  * which turned the comma-separated prose into a bogus array of strings and

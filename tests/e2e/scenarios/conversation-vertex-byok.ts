@@ -3,25 +3,25 @@ import { readVertexByokEnv, setVertexByok } from '../lib/vertex-byok.js';
 import type { RunContext, Scenario } from '../lib/types.js';
 
 // Standing-branch fixture (same repo as code-review-vertex-byok). The PR
-// content is irrelevant here — we only need an open PR to talk to Kody on.
+// content is irrelevant here — we only need an open PR to talk to Piku on.
 const FIXTURE = { head: 'bug/missing-null-check', base: 'main' };
 
-// `@kody <question>` (NOT `@kody review`) is what the webhook handlers match
+// `@piku <question>` (NOT `@piku review`) is what the webhook handlers match
 // with KODY_MENTION_NON_REVIEW_PATTERN to route the comment to the
 // adapter). A review command would take the v5 agent path instead.
 const QUESTION =
-    '@kody in one short sentence, what does this pull request change?';
+    '@piku in one short sentence, what does this pull request change?';
 
 /**
- * Proves Kody's CONVERSATION path honors a Claude-on-Vertex BYOK key. The
+ * Proves Piku's CONVERSATION path honors a Claude-on-Vertex BYOK key. The
  * conversation agent runs on the legacy v2 langchain engine
  * (BaseAgentProvider builds `new BYOKPromptRunnerService(byokConfig)`), so a
- * broken Vertex routing there means Kody silently never answers an `@kody`
+ * broken Vertex routing there means Piku silently never answers an `@piku`
  * mention — distinct from the code-review path (which is v5/Vercel SDK).
  */
 export const conversationVertexByok: Scenario = {
     id: 'conversation-vertex-byok',
-    title: 'Kody answers an @kody mention using a Claude-on-Vertex BYOK key (v2 path)',
+    title: 'Piku answers an @piku mention using a Claude-on-Vertex BYOK key (v2 path)',
     priority: 'P2',
     appliesTo: {
         target: ['self-hosted'],
@@ -44,14 +44,14 @@ export const conversationVertexByok: Scenario = {
             );
         }
 
-        // Kody ignores any comment whose author login contains "kody"/"kodus"
+        // Piku ignores any comment whose author login contains "kody"/"kodus"
         // (isKodyComment, LOGIN_KEYWORDS=['kody','kodus']) — and the e2e bots
-        // are all `kodus-e2e-bot-N`. So the `@kody` mention MUST be posted by a
-        // separate, non-Kody GitHub account.
+        // are all `kodus-e2e-bot-N`. So the `@piku` mention MUST be posted by a
+        // separate, non-Piku GitHub account.
         const userToken = process.env.CONVERSATION_USER_TOKEN;
         if (!userToken) {
             ctx.skip(
-                "CONVERSATION_USER_TOKEN not set — needs a GitHub token for an account whose login does NOT contain 'kody'/'kodus' (the integration bot's own comments are ignored by Kody) with Pull requests R/W on the fixture repo",
+                "CONVERSATION_USER_TOKEN not set — needs a GitHub token for an account whose login does NOT contain 'kody'/'kodus' (the integration bot's own comments are ignored by Piku) with Pull requests R/W on the fixture repo",
             );
         }
 
@@ -81,8 +81,8 @@ export const conversationVertexByok: Scenario = {
         });
 
         try {
-            // Post the @kody mention AFTER the PR exists, as an inline review
-            // comment (Kody only answers review comments, not issue comments).
+            // Post the @piku mention AFTER the PR exists, as an inline review
+            // comment (Piku only answers review comments, not issue comments).
             // sinceIso brackets the poll so we only see replies after it.
             const sinceIso = new Date().toISOString();
             const trigger = await ctx.provider.postReviewCommentAs(
@@ -98,13 +98,13 @@ export const conversationVertexByok: Scenario = {
 
             ctx.assert(
                 reply && reply.body.trim().length > 0,
-                `Kody never answered the @kody mention on PR #${pr.number} within 600s (model=${vertex!.model}, region=${vertex!.region}). The conversation agent runs on the v2 langchain engine — suspect Vertex routing on that path, the model not enabled in Model Garden, or the conversation feature disabled for the tenant.`,
+                `Piku never answered the @piku mention on PR #${pr.number} within 600s (model=${vertex!.model}, region=${vertex!.region}). The conversation agent runs on the v2 langchain engine — suspect Vertex routing on that path, the model not enabled in Model Garden, or the conversation feature disabled for the tenant.`,
             );
 
             // A non-empty reply is NOT enough: when thought generation fails
             // (e.g. the ReActStrategy parser rejecting the model's response),
             // the agent still POSTS a generic fallback comment. A length-only
-            // check would go green while Kody is actually broken — which is how
+            // check would go green while Piku is actually broken — which is how
             // the "Missing or invalid reasoning field" regression hid for weeks.
             // Reject the fallback text so this scenario detects parse failures.
             const FALLBACK_MARKERS = [
@@ -117,7 +117,7 @@ export const conversationVertexByok: Scenario = {
             );
             ctx.assert(
                 !isFallback,
-                `Kody replied on PR #${pr.number} with the GENERIC ERROR FALLBACK instead of a real answer: "${reply!.body.slice(0, 200)}". This is the @kody conversation thought-generation/parse failure (model=${vertex!.model}, region=${vertex!.region}), not a successful response.`,
+                `Piku replied on PR #${pr.number} with the GENERIC ERROR FALLBACK instead of a real answer: "${reply!.body.slice(0, 200)}". This is the @piku conversation thought-generation/parse failure (model=${vertex!.model}, region=${vertex!.region}), not a successful response.`,
             );
 
             return {

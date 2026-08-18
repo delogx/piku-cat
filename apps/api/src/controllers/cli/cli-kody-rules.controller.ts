@@ -45,7 +45,7 @@ import {
     KodyRulesArrayResponseDto,
 } from '../../dtos/kody-rules-response.dto';
 
-@ApiTags('CLI Kody Rules')
+@ApiTags('CLI Piku Rules')
 @ApiStandardResponses()
 @Public()
 @Controller('cli/kody-rules')
@@ -60,9 +60,9 @@ export class CliKodyRulesController {
 
     @Get()
     @ApiOperation({
-        summary: 'List Kody Rules',
+        summary: 'List Piku Rules',
         description:
-            'Retrieve a list of Kody Rules for the authenticated team.',
+            'Retrieve a list of Piku Rules for the authenticated team.',
     })
     @ApiHeader({
         name: 'x-team-key',
@@ -78,7 +78,7 @@ export class CliKodyRulesController {
         name: 'ruleId',
         required: false,
         type: String,
-        description: 'Filter by Kody Rule UUID',
+        description: 'Filter by Piku Rule UUID',
     })
     @ApiQuery({
         name: 'repositoryId',
@@ -108,8 +108,8 @@ export class CliKodyRulesController {
 
     @Post()
     @ApiOperation({
-        summary: 'Create a Kody Rule',
-        description: 'Create a new Kody Rule with the provided details.',
+        summary: 'Create a Piku Rule',
+        description: 'Create a new Piku Rule with the provided details.',
     })
     @ApiHeader({
         name: 'x-team-key',
@@ -132,7 +132,7 @@ export class CliKodyRulesController {
 
         if (body.uuid != undefined) {
             throw new ForbiddenException(
-                'UUID should not be provided when creating a new Kody Rule',
+                'UUID should not be provided when creating a new Piku Rule',
             );
         }
         const requiredFieldsBody = this.convertToDTO(body);
@@ -148,8 +148,8 @@ export class CliKodyRulesController {
 
     @Patch(':ruleId')
     @ApiOperation({
-        summary: 'Update a Kody Rule',
-        description: 'Update an existing Kody Rule with the provided details.',
+        summary: 'Update a Piku Rule',
+        description: 'Update an existing Piku Rule with the provided details.',
     })
     @ApiHeader({
         name: 'x-team-key',
@@ -165,7 +165,7 @@ export class CliKodyRulesController {
         name: 'ruleId',
         required: true,
         type: String,
-        description: 'Kody Rule UUID to update',
+        description: 'Piku Rule UUID to update',
     })
     @ApiOkResponse({ type: KodyRuleResponseDto })
     async updateKodyRule(
@@ -234,7 +234,7 @@ export class CliKodyRulesController {
 
         if (!hasCapability) {
             throw new ForbiddenException(
-                'Team API key does not have permission to manage Kody Rules',
+                'Team API key does not have permission to manage Piku Rules',
             );
         }
     }

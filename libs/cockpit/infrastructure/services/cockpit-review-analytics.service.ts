@@ -186,7 +186,7 @@ export class CockpitReviewAnalyticsService implements ICockpitReviewAnalyticsSer
         const params: unknown[] = [];
         const scope = this.closedPrScope(q, params);
 
-        // A suggestion is rule-driven when it enforces a Kody Rule (or is
+        // A suggestion is rule-driven when it enforces a Piku Rule (or is
         // labelled as such). Its severity is user-defined on the rule, not a
         // Kodus risk call — so the chart exposes both the full population and
         // a Kodus-native one (toggled client-side) to keep the calibration
@@ -797,7 +797,7 @@ export class CockpitReviewAnalyticsService implements ICockpitReviewAnalyticsSer
      * single pass. Same closed-PR universe and IMPLEMENTED definition as every
      * other chart; feedback is LEFT-joined (one row per suggestion, so no
      * fan-out). `IS_KODY_RULE` matches the severity chart's predicate — a
-     * suggestion is rule-driven when it enforces a Kody Rule (or is labelled
+     * suggestion is rule-driven when it enforces a Piku Rule (or is labelled
      * as such) — so the report's group split is honest about origin rather
      * than approximating from `label` alone.
      */

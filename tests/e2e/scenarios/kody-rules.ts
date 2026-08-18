@@ -57,7 +57,7 @@ export const FIXTURE_BRANCHES: Record<
 
 export const kodyRulesCreateAndApply: Scenario = {
     id: "kody-rules-create-and-apply",
-    title: "A Kody Rule is created and applied to a fresh PR",
+    title: "A Piku Rule is created and applied to a fresh PR",
     priority: "P0",
     appliesTo: {
         target: ["cloud", "self-hosted"],
@@ -198,7 +198,7 @@ export const kodyRulesCreateAndApply: Scenario = {
             // the count of suggestions the pipeline linked to OUR rule.
             //
             // Why a poll for suggestions instead of one-shot: pollForReview
-            // returns as soon as Kody posts the completion comment on the
+            // returns as soon as Piku posts the completion comment on the
             // provider, but the pipeline persists
             // `files.suggestions[].brokenKodyRulesIds` asynchronously after
             // the comment is delivered. On bitbucket (individual API calls
@@ -292,7 +292,7 @@ export const kodyRulesCreateAndApply: Scenario = {
             // A visible marker in the completion comment is captured as a
             // DIAGNOSTIC only — deliberately NOT part of the pass condition.
             // It used to be OR'd in ("suggestionsCount>0 || markerFlagged"),
-            // but that masked the class of bug where Kody posts the comment
+            // but that masked the class of bug where Piku posts the comment
             // (marker flagged) while nothing lands in Mongo — the Immer
             // frozen-object regression (#1522/#1523) that silently dropped
             // EVERY persisted suggestion for ~2 days. Requiring persistence

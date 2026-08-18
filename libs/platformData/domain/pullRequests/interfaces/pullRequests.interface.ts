@@ -25,7 +25,7 @@ export interface SuggestionCountsBySeverity {
     // deliveryStatus === 'not_sent' — held back by the review config/priority
     // rules (severity threshold, quantity limit, safeguard, clustering…).
     filtered: number;
-    // deliveryStatus ∈ {'failed', 'failed_lines_mismatch'} — Kody tried to post
+    // deliveryStatus ∈ {'failed', 'failed_lines_mismatch'} — Piku tried to post
     // but couldn't (API error / lines no longer match the diff). A delivery
     // failure, NOT a config decision — kept separate so it isn't hidden.
     failed: number;

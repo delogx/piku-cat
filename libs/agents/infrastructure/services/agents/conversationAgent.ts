@@ -60,7 +60,7 @@ interface ConversationThread {
 }
 
 /**
- * Conversation agent ("chat with Kody") rebuilt on the Vercel AI SDK.
+ * Conversation agent ("chat with Piku") rebuilt on the Vercel AI SDK.
  *
  * Replaces the former flow-engine orchestration (createOrchestration +
  * REACT planner + createMCPAdapter + createTool + callAgent) with a thin
@@ -583,7 +583,7 @@ export class ConversationAgentProvider {
         if (original?.suggestionText) {
             lines.push(
                 '',
-                '### Original Kody suggestion (under discussion)',
+                '### Original Piku suggestion (under discussion)',
                 ...(original.suggestionFilePath
                     ? [`File: ${original.suggestionFilePath}`]
                     : []),

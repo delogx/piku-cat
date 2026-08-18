@@ -83,7 +83,7 @@ export class CountRulesByRepositoryUseCase implements IUseCase {
             );
         } catch (error) {
             this.logger.error({
-                message: 'Error counting Kody Rules by repository',
+                message: 'Error counting Piku Rules by repository',
                 context: CountRulesByRepositoryUseCase.name,
                 error,
                 metadata: { organizationId },

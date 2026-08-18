@@ -67,7 +67,7 @@ export class UpdateGlobalRulesSourceRepositoriesUseCase {
             );
         if (tier === 'free') {
             throw new ForbiddenException(
-                'Importing global Kody Rules is not available on the Free plan. Upgrade to enable it.',
+                'Importing global Piku Rules is not available on the Free plan. Upgrade to enable it.',
             );
         }
 

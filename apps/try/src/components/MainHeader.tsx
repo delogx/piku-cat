@@ -39,8 +39,8 @@ const NAV_ITEMS: NavItem[] = [
         label: "Library",
         icon: LibraryBig,
         gate: {
-            title: "Kody Rules Library",
-            body: "Your Kody Rules, version-controlled per repo. Reuse what works, propagate fixes across the team, and let Kody enforce them on every PR.",
+            title: "Piku Rules Library",
+            body: "Your Piku Rules, version-controlled per repo. Reuse what works, propagate fixes across the team, and let Piku enforce them on every PR.",
         },
     },
     {
@@ -48,7 +48,7 @@ const NAV_ITEMS: NavItem[] = [
         icon: Info,
         gate: {
             title: "Recurring issues, tracked",
-            body: "Bugs Kody flagged across PRs grouped into actionable issues. See patterns that keep popping up and which teams own them.",
+            body: "Bugs Piku flagged across PRs grouped into actionable issues. See patterns that keep popping up and which teams own them.",
         },
     },
     {
@@ -56,14 +56,14 @@ const NAV_ITEMS: NavItem[] = [
         icon: GitPullRequest,
         gate: {
             title: "Every PR, reviewed",
-            body: "Timeline of every PR Kody has reviewed for your team — comments, severity, time saved. Searchable, filterable, exportable.",
+            body: "Timeline of every PR Piku has reviewed for your team — comments, severity, time saved. Searchable, filterable, exportable.",
         },
     },
     {
         label: "CLI Reviews",
         icon: Terminal,
         gate: {
-            title: "Kody in your terminal",
+            title: "Piku in your terminal",
             body: "Run the same review locally with `npx kodus review` — pre-commit feedback, zero setup. Same engine, same suggestions.",
         },
     },

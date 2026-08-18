@@ -71,7 +71,7 @@ const FIXTURE_BRANCHES: Record<
 
 export const codeReviewBasic: Scenario = {
     id: 'code-review-basic',
-    title: 'Kody reviews a PR opened on the configured fixture repo',
+    title: 'Piku reviews a PR opened on the configured fixture repo',
     priority: 'P0',
     appliesTo: {
         target: ['cloud', 'self-hosted'],
@@ -130,7 +130,7 @@ export const codeReviewBasic: Scenario = {
 
         try {
             // Two-phase wait. Phase A waits for the pipeline to wake up —
-            // separates the "worker dequeued the PR and Kody posted a
+            // separates the "worker dequeued the PR and Piku posted a
             // heartbeat" signal from the "LLM found the deliberate bugs"
             // signal. Budget is deliberately generous (600s): under matrix
             // load the GitHub bot's rate-limit gate defers the review job
@@ -182,7 +182,7 @@ export const codeReviewBasic: Scenario = {
 
             // Trust per-provider filter (each pollForReview excludes the
             // `<!-- kody-codereview -->` status comments). What survives the
-            // filter is a real Kody finding in whatever bucket the provider
+            // filter is a real Piku finding in whatever bucket the provider
             // uses (GitLab puts everything in issueComments because the API
             // has only notes; Bitbucket/Azure use reviewComments; GitHub
             // splits across all three).

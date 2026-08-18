@@ -61,8 +61,8 @@ Everything runs via Docker (`docker-compose.dev.yml`):
 
 ## Key Concepts
 
-- "Kody" is the AI agent that performs automated code reviews
-- "Kody Rules" are custom review rules (per org, per repo, or from library)
+- "Piku" is the AI agent that performs automated code reviews
+- "Piku Rules" are custom review rules (per org, per repo, or from library)
 - Organization > Team > Members hierarchy
 - Git integrations: GitHub, GitLab, Bitbucket, Azure Repos, Forgejo
 - Project management integrations: Jira, Linear, Azure Boards

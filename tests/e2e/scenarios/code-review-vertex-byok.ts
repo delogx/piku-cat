@@ -63,7 +63,7 @@ async function setVertexByok(
 
 export const codeReviewVertexByok: Scenario = {
     id: "code-review-vertex-byok",
-    title: "Kody reviews a PR using a Claude-on-Vertex BYOK key (self-hosted)",
+    title: "Piku reviews a PR using a Claude-on-Vertex BYOK key (self-hosted)",
     priority: "P1",
     appliesTo: {
         // Self-hosted is the durable target: it runs the GA agent-first engine

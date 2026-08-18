@@ -41,12 +41,12 @@ const REVIEW_CADENCE_COPY: Record<
     [ReviewCadenceType.AUTO_PAUSE]: {
         label: "⏸️ Auto-Pause Mode",
         description:
-            "Piku reviews the first push automatically, then pauses if you make 3+ pushes in 15 minutes. Use @kody start-review to continue.",
+            "Piku reviews the first push automatically, then pauses if you make 3+ pushes in 15 minutes. Use @piku start-review to continue.",
     },
     [ReviewCadenceType.MANUAL]: {
         label: "✋ Manual Review",
         description:
-            "Piku only reviews when you request with @kody start-review command.",
+            "Piku only reviews when you request with @piku start-review command.",
     },
 };
 
@@ -318,7 +318,7 @@ export const dropdownItems = {
         example: (
             <div className="text-sm">
                 <p className="mb-2 font-semibold">
-                    🛠️ Kody Code Review — 2 suggested fixes.
+                    🛠️ Piku Code Review — 2 suggested fixes.
                 </p>
                 <p className="text-text-secondary mb-2">
                     Paste the prompt below to your agent and all review fixed at

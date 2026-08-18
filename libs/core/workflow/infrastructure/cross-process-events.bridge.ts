@@ -177,7 +177,7 @@ export class CrossProcessEventsBridge implements OnModuleInit, OnModuleDestroy {
      * Nest instantiates this provider once PER IMPORTING MODULE CONTEXT —
      * observed live: two instances in the API process, meaning every local
      * event was forwarded twice (2 envelopes/merge) and every envelope was
-     * re-emitted twice (4 listener firings/merge → duplicated Kody Rules).
+     * re-emitted twice (4 listener firings/merge → duplicated Piku Rules).
      * Only the first constructed instance is active; the rest are inert.
      */
     private static primary: CrossProcessEventsBridge | null = null;

@@ -343,7 +343,7 @@ const shouldSkip = !MONGODB_URI;
                 await handler.execute(webhookParams);
 
                 // Git API must NOT be called by SavePullRequestUseCase
-                // Note: the handler itself may call getFilesByPullRequestId for Kody Rules sync on merge,
+                // Note: the handler itself may call getFilesByPullRequestId for Piku Rules sync on merge,
                 // but SavePullRequestUseCase should not call it for the "closed" action
                 expect(
                     mockPullRequestsService.aggregateAndSaveDataStructure,

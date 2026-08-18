@@ -92,7 +92,7 @@ const PROPERTY_CONFIGS: Record<string, PropertyConfig> = {
         actionDescription: 'Severity Level Filter',
     },
     'suggestionControl.applyFiltersToKodyRules': {
-        actionDescription: 'Apply Filters to Kody Rules',
+        actionDescription: 'Apply Filters to Piku Rules',
     },
     //#endregion
 
@@ -105,15 +105,15 @@ const PROPERTY_CONFIGS: Record<string, PropertyConfig> = {
     },
     //#endregion
 
-    //#region Kody Rules
+    //#region Piku Rules
     'kodyRulesGeneratorEnabled': {
-        actionDescription: 'Kody Rules Generator',
+        actionDescription: 'Piku Rules Generator',
     },
     'kodyLearningExcludedReviewers': {
-        actionDescription: 'Kody Rules Learning — Excluded Reviewers',
+        actionDescription: 'Piku Rules Learning — Excluded Reviewers',
     },
     'kodyKnowledgeApproval.enabled': {
-        actionDescription: 'Kody Knowledge Approval',
+        actionDescription: 'Piku Knowledge Approval',
     },
     //#endregion
 

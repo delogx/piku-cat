@@ -32,9 +32,9 @@ interface AzureComment {
     content: string;
     publishedDate: string;
     author?: { displayName: string };
-    // "text" = a real human/Kody comment; "system" = Azure-generated activity
+    // "text" = a real human/Piku comment; "system" = Azure-generated activity
     // ("X restored the source branch", "updated the source branch", vote
-    // changes, status updates). Kody only ever posts "text".
+    // changes, status updates). Piku only ever posts "text".
     commentType?: string;
 }
 
@@ -373,7 +373,7 @@ export class AzureDevOpsProvider extends BaseProvider {
                     comments: [
                         {
                             parentCommentId: 0,
-                            content: "@kody review",
+                            content: "@piku review",
                             commentType: 1,
                         },
                     ],
@@ -413,14 +413,14 @@ export class AzureDevOpsProvider extends BaseProvider {
                         // branch", vote/status changes) is NOT review activity.
                         // Counting it broke per-seat's "expected NO review"
                         // assertion when the scenario restored a throwaway
-                        // fixture branch. Kody only posts commentType "text".
+                        // fixture branch. Piku only posts commentType "text".
                         if ((c.commentType ?? "").toLowerCase() === "system")
                             continue;
                         const text = c.content ?? "";
-                        if (text.toLowerCase().startsWith("@kody")) continue;
+                        if (text.toLowerCase().startsWith("@piku")) continue;
                         // Drop "Started!" placeholder but keep "Complete!" —
                         // the latter is a valid mechanics signal even when
-                        // Kody found no inline findings.
+                        // Piku found no inline findings.
                         if (
                             text.includes("<!-- kody-codereview") &&
                             !text.includes("kody-codereview-completed")
@@ -428,11 +428,11 @@ export class AzureDevOpsProvider extends BaseProvider {
                             continue;
                         }
                         // Azure/Bitbucket leftover: when the gate skips the
-                        // pipeline mid-flow, Kody overwrites its "Started!"
+                        // pipeline mid-flow, Piku overwrites its "Started!"
                         // placeholder so only the docs.kodus.io feedback
                         // footer link remains. Drop it — same shape as the
-                        // bitbucket filter; real Kody completions contain
-                        // "Kody Review Complete" / "Kody Guide".
+                        // bitbucket filter; real Piku completions contain
+                        // "Piku Review Complete" / "Piku Guide".
                         const trimmed = text.trim();
                         // Regex (not String.includes) so CodeQL doesn't read
                         // this as URL-host sanitization — `trimmed` is a
@@ -441,8 +441,8 @@ export class AzureDevOpsProvider extends BaseProvider {
                         if (
                             trimmed.length < 200 &&
                             /docs\.kodus\.io/.test(trimmed) &&
-                            !trimmed.includes("Kody Review Complete") &&
-                            !trimmed.includes("Kody Guide")
+                            !trimmed.includes("Piku Review Complete") &&
+                            !trimmed.includes("Piku Guide")
                         ) {
                             continue;
                         }

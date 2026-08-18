@@ -213,7 +213,7 @@ export class ExecuteCliReviewUseCase implements IUseCase {
                 organizationAndTeamData,
                 codeReviewConfig: effectiveConfig,
                 changedFiles,
-                // CLI equivalent of `@kody review focus on X` — same sanitize +
+                // CLI equivalent of `@piku review focus on X` — same sanitize +
                 // cap as the PR-comment path. Steers the finder when set.
                 reviewDirective: normalizeReviewDirective(input.config?.focus),
                 // Heavy mode — extra critic pass in the finder for more recall.
@@ -486,7 +486,7 @@ export class ExecuteCliReviewUseCase implements IUseCase {
 
             if (standardRules.length > 0 || memoryRules.length > 0) {
                 this.logger.log({
-                    message: 'Kody rules loaded for CLI review',
+                    message: 'Piku rules loaded for CLI review',
                     context: ExecuteCliReviewUseCase.name,
                     metadata: {
                         organizationId: organizationAndTeamData.organizationId,

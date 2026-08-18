@@ -60,7 +60,7 @@ const MAX_ORG_RULES_ATTENTION = 8;
  */
 const REPO_BUILD_CONCURRENCY = 4;
 
-/** Title + severity for an active Kody Rule, keyed by rule id. */
+/** Title + severity for an active Piku Rule, keyed by rule id. */
 type RuleMeta = { title: string; severity: string | null };
 // lastNCompleteWeeks / lastNMonths live in date-range.util so they can be
 // unit-tested without importing this (dependency-heavy) service.
@@ -328,7 +328,7 @@ export class CockpitReportsService implements ICockpitReportsService {
         };
     }
 
-    /** Active Kody Rules for the org → `ruleId → {title, severity}`. */
+    /** Active Piku Rules for the org → `ruleId → {title, severity}`. */
     private async getRuleTitles(
         organizationId: string,
     ): Promise<Map<string, RuleMeta>> {

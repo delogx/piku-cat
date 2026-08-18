@@ -1,5 +1,5 @@
 /**
- * One-shot backfill for the widened Kody Rules `origin` enum and the
+ * One-shot backfill for the widened Piku Rules `origin` enum and the
  * generalized `requestType` values, over the embedded `rules[]` of every
  * `kodyRules` document.
  *

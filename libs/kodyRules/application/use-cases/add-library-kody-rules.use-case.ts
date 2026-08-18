@@ -74,7 +74,7 @@ export class AddLibraryKodyRulesUseCase {
                     );
 
                 if (!result) {
-                    throw new Error('Failed to add library Kody rule');
+                    throw new Error('Failed to add library Piku rule');
                 }
                 if (
                     (result as CentralizedPrMetadata)?.mode === 'centralized-pr'
@@ -115,7 +115,7 @@ export class AddLibraryKodyRulesUseCase {
 
                     if (!result) {
                         throw new Error(
-                            'Failed to add library Kody rule for directory',
+                            'Failed to add library Piku rule for directory',
                         );
                     }
                     if (
@@ -136,7 +136,7 @@ export class AddLibraryKodyRulesUseCase {
             return results;
         } catch (error) {
             this.logger.error({
-                message: 'Could not add library Kody rules',
+                message: 'Could not add library Piku rules',
                 context: AddLibraryKodyRulesUseCase.name,
                 serviceName: 'AddLibraryKodyRulesUseCase',
                 error: error,

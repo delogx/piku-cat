@@ -5,7 +5,7 @@
  * `removeStaleConfigs` derives the set of repositories the centralized config
  * is supposed to manage from the CURRENT discovery only. Any connected repo
  * without a `{repo}/kodus-config.yml` therefore looks stale, so Sync deselects
- * it, wipes `configs`, marks its Kody Rules DELETED and drops its PR messages.
+ * it, wipes `configs`, marks its Piku Rules DELETED and drops its PR messages.
  * In centralized-config semantics a missing per-repo file means "inherit the
  * global config", not "the user deleted this repository's configuration".
  *
@@ -152,7 +152,7 @@ type Harness = {
     savedCentralizedConfig: () => any;
     /** UUIDs of the custom PR messages the sweep deleted outright. */
     customMessagesDeleted: () => string[];
-    /** UUIDs of the Kody rules the sweep marked deleted. */
+    /** UUIDs of the Piku rules the sweep marked deleted. */
     kodyRulesDeleted: () => string[];
 };
 
@@ -160,7 +160,7 @@ type Harness = {
  * @param managedRepositoryIds what a previous sync recorded as managed;
  *        `undefined` means "never recorded" (the safe/unknown case).
  * @param useRealDeleteUseCase wire the real use case so its side effects
- *        (Kody Rules, PR messages, integration configs) are observable.
+ *        (Piku Rules, PR messages, integration configs) are observable.
  */
 async function buildHarness(opts: {
     managedRepositoryIds?: string[];
@@ -175,7 +175,7 @@ async function buildHarness(opts: {
     activePullRequest?: any;
     /** Custom PR messages already stored for the organization. */
     existingMessages?: any[];
-    /** Kody rules already stored for the organization. */
+    /** Piku rules already stored for the organization. */
     existingRules?: any[];
     /** Folder path -> directory (group) id, as the code review config resolves it. */
     directoryIdByPath?: Record<string, string>;
@@ -469,7 +469,7 @@ describe('#1579 Sync must not read "absent" as "removed"', () => {
         expect(h.deleteCalls()).toEqual([]);
     });
 
-    it('F: sparse sync preserves Kody Rules and PR messages of untouched repos', async () => {
+    it('F: sparse sync preserves Piku Rules and PR messages of untouched repos', async () => {
         const h = await buildHarness({ useRealDeleteUseCase: true });
 
         await h.service.removeStaleConfigs({
@@ -828,7 +828,7 @@ describe('#1579 Sync must not read "absent" as "removed"', () => {
     /**
      * A repository can lose its `{repo}/kodus-config.yml` and keep a directory
      * scope. It is stale at the repository level but still centrally managed,
-     * so the removal side effects (Kody Rules wipe, PR messages) must not run
+     * so the removal side effects (Piku Rules wipe, PR messages) must not run
      * — they are repository-wide and would take the surviving scope's data
      * with them. Locking this because the guard that implements it reads as a
      * stray early-`continue`.
@@ -1050,7 +1050,7 @@ describe('#1579 custom PR messages need the same ownership rule', () => {
     });
 
     /**
-     * `CentralizedConfigSyncUseCase.mergeConfigScopes` folds Kody-rule files
+     * `CentralizedConfigSyncUseCase.mergeConfigScopes` folds Piku-rule files
      * into the config scopes, so a repository whose only centralized presence
      * is `{repo}/.kody-rules/review/*.yml` shows up in discovery — while
      * saying nothing whatsoever about that repository's directories.
@@ -1060,7 +1060,7 @@ describe('#1579 custom PR messages need the same ownership rule', () => {
      * "the config repo does not mention this directory" and "the config repo
      * never owned this directory" different answers.
      */
-    it('V: a repository present only via Kody rules keeps its UI directory scopes', async () => {
+    it('V: a repository present only via Piku rules keeps its UI directory scopes', async () => {
         const h = await buildHarness({
             repositories: repoWithDirectoryScope(),
             managedRepositoryIds: [],

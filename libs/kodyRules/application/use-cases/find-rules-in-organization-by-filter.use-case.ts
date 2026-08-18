@@ -155,7 +155,7 @@ export class FindRulesInOrganizationByRuleFilterKodyRulesUseCase implements IUse
         } catch (error) {
             this.logger.error({
                 message:
-                    'Error finding Kody Rules in organization by rule filter',
+                    'Error finding Piku Rules in organization by rule filter',
                 context:
                     FindRulesInOrganizationByRuleFilterKodyRulesUseCase.name,
                 error: error,

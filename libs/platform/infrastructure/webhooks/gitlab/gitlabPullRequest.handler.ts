@@ -381,7 +381,7 @@ export class GitLabMergeRequestHandler implements IWebhookEventHandler {
                         }
                     } catch (e) {
                         this.logger.error({
-                            message: 'Failed to sync Kody Rules after MR merge',
+                            message: 'Failed to sync Piku Rules after MR merge',
                             context: GitLabMergeRequestHandler.name,
                             error: e,
                         });
@@ -554,7 +554,7 @@ export class GitLabMergeRequestHandler implements IWebhookEventHandler {
 
                 if (isStartCommand && !hasMarker) {
                     this.logger.log({
-                        message: `@kody start command detected in GitLab comment for PR#${mrNumber}`,
+                        message: `@piku start command detected in GitLab comment for PR#${mrNumber}`,
                         serviceName: GitLabMergeRequestHandler.name,
                         metadata: { mrNumber },
                         context: GitLabMergeRequestHandler.name,

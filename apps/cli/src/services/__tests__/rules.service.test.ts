@@ -34,7 +34,7 @@ describe('rulesService', () => {
         mockResolveTeamKeyAccess.mockRejectedValue(
             new CommandError(
                 'AUTH_REQUIRED',
-                'Kody Rules commands require team-key auth.',
+                'Piku Rules commands require team-key auth.',
             ),
         );
 

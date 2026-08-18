@@ -81,7 +81,7 @@ export const AutomatedReviewActive = () => {
                                         When disabled, you can manually start
                                         the review by using the command{" "}
                                         <InlineCode>
-                                            @kody start-review
+                                            @piku start-review
                                         </InlineCode>{" "}
                                         in the Pull Request comments.
                                     </p>
@@ -168,7 +168,7 @@ export const AutomatedReviewActive = () => {
                                                         Only run when you
                                                         comment{" "}
                                                         <InlineCode>
-                                                            @kody start-review
+                                                            @piku start-review
                                                         </InlineCode>
                                                     </>
                                                 )}

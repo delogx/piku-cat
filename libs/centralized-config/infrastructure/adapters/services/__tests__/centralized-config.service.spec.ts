@@ -1172,7 +1172,7 @@ describe('CentralizedConfigService', () => {
     });
 
     describe('discoverKodyRulesFiles', () => {
-        it('should discover Kody rule files from centralized repository', async () => {
+        it('should discover Piku rule files from centralized repository', async () => {
             const mockRepoTree = [
                 {
                     path: 'kodus-config.yml',
@@ -1291,7 +1291,7 @@ describe('CentralizedConfigService', () => {
     });
 
     describe('synchronizeKodyRules', () => {
-        it('should synchronize Kody rules successfully', async () => {
+        it('should synchronize Piku rules successfully', async () => {
             const ruleFiles: any[] = [
                 {
                     centralizedDirectoryPath: '.kody-rules/memories',
@@ -1351,7 +1351,7 @@ describe('CentralizedConfigService', () => {
 
             expect(result.success).toBe(true);
             expect(result.message).toContain(
-                'Kody rules synchronized successfully',
+                'Piku rules synchronized successfully',
             );
             expect(result.syncedRuleCount).toBe(1);
             expect(

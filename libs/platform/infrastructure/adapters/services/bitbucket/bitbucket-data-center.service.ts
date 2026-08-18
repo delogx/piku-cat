@@ -1495,7 +1495,7 @@ export class BitbucketDataCenterService implements Omit<
             const repoSlug = repoConfig.name;
 
             const resolvedSourceBranch =
-                sourceBranch || `kody-auto-${Date.now()}`;
+                sourceBranch || `piku-auto-${Date.now()}`;
             const resolvedTargetBranch = targetBranch || 'master';
 
             // An empty repository has no base branch yet, so branch creation

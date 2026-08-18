@@ -1,7 +1,7 @@
 /**
  * Guards the context → agent-input wiring that no typecheck would catch: the
  * fields are OPTIONAL, so a refactor that silently stops forwarding one (most
- * importantly `reviewDirective` from `@kody review <directive>`) would leave the
+ * importantly `reviewDirective` from `@piku review <directive>`) would leave the
  * feature dead with every other test still green. Testing the pure mapping is
  * the cheap, durable seam for that.
  */

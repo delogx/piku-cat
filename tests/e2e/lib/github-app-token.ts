@@ -22,7 +22,7 @@
  *     The runner therefore prefers the App token ONLY for cloud cells.
  *   - PRs/comments created with the token are authored by `<app-slug>[bot]`,
  *     not a bot user account. Kodus's isKodyComment matches "kody"/"kodus"
- *     logins — an app slug containing those words would make Kody ignore
+ *     logins — an app slug containing those words would make Piku ignore
  *     the harness's own comments. Name the App accordingly (e.g. `e2e-qa-ci`).
  *
  * Tokens live ~1h; we re-mint when less than REFRESH_MARGIN_MS of validity

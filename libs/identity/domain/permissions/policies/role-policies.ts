@@ -37,7 +37,7 @@ const repoAdmin: PolicyRule[] = [
     { action: Action.Update, resource: ResourceType.CodeReviewSettings, scope: 'repo' },
     { action: Action.Create, resource: ResourceType.CodeReviewSettings, scope: 'repo' },
 
-    // Kody rules — read org-wide (library is open to everyone), edit assigned
+    // Piku rules — read org-wide (library is open to everyone), edit assigned
     // repos (editing a repo's kody rules is part of its code-review config).
     { action: Action.Read, resource: ResourceType.KodyRules, scope: 'org' },
     { action: Action.Update, resource: ResourceType.KodyRules, scope: 'repo' },

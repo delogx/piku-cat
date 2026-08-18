@@ -56,7 +56,7 @@ test("the guard does not swallow genuine notices", () => {
     );
 });
 
-test("anything else from Kody is the start placeholder", () => {
+test("anything else from Piku is the start placeholder", () => {
     assert.equal(
         classifyKodyComment(`${MARKER}\nCode Review Started! 🚀`),
         "started",

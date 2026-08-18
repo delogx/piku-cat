@@ -2,7 +2,7 @@
 //
 // Unlike run.ts (tier-0, N models on the shared QA cloud tenant), this targets
 // a per-run DROPLET running a branch's compiled engine, opens the full 50-PR
-// dataset on a fresh per-run clone-set, waits for Kody to review each, collects
+// dataset on a fresh per-run clone-set, waits for Piku to review each, collects
 // findings, and writes results.json. The precision/recall judging is a separate
 // post-step (scorecard.ts / judge.ts) driven by bench-run.sh.
 //
@@ -211,7 +211,7 @@ async function collectFindings(repo: string, prNumber: number): Promise<string[]
     );
     return (body ?? [])
         .map((c) => (c.body ?? "").trim())
-        .filter((b) => b && !b.toLowerCase().startsWith("@kody"))
+        .filter((b) => b && !b.toLowerCase().startsWith("@piku"))
         .map((b) => b.replace(/^(?:\s*!\[[^\]]*\]\([^)]*\)\s*)+/i, "").trim());
 }
 
@@ -243,7 +243,7 @@ async function collectFindingsStable(repo: string, prNumber: number): Promise<st
     return prev;
 }
 
-// Open a PR on its per-run clone, wait for Kody, collect findings, close.
+// Open a PR on its per-run clone, wait for Piku, collect findings, close.
 // `modelLabel` is only for the result/scorecard grouping (the actual model is
 // the droplet's .env config in self-hosted CE).
 async function reviewOnePR(modelLabel: string, pr: BenchPR): Promise<{ ok: boolean; result: unknown }> {
@@ -258,10 +258,10 @@ async function reviewOnePR(modelLabel: string, pr: BenchPR): Promise<{ ok: boole
         let retried = false;
         if (outcome !== "completed") {
             retried = true;
-            log.info(`${repoShort}: review ${outcome} — retrying once via @kody review (PR #${opened.number})`);
+            log.info(`${repoShort}: review ${outcome} — retrying once via @piku review (PR #${opened.number})`);
             await sleep(5_000);
             const retryAt = Date.now() - 5_000;
-            await provider.postComment(opened.number, "@kody review").catch(() => {});
+            await provider.postComment(opened.number, "@piku review").catch(() => {});
             outcome = await waitForReviewOutcome(repo, opened.number, retryAt);
         }
         const reviewed = outcome === "completed";

@@ -278,7 +278,7 @@ export class KodyRulesPrLevelAnalysisService implements IKodyRulesAnalysisServic
             );
         } catch (error) {
             this.logger.error({
-                message: `Error during PR-level Kody Rules analysis for PR#${prNumber}`,
+                message: `Error during PR-level Piku Rules analysis for PR#${prNumber}`,
                 context: KodyRulesPrLevelAnalysisService.name,
                 metadata: {
                     organizationAndTeamData,
@@ -458,7 +458,7 @@ export class KodyRulesPrLevelAnalysisService implements IKodyRulesAnalysisServic
     }
     //#endregion
 
-    //#region Replace Kody Rule IDs with Links
+    //#region Replace Piku Rule IDs with Links
     private async replaceKodyRuleIdsWithLinks(
         suggestions: AIAnalysisResultPrLevel,
         organizationAndTeamData: OrganizationAndTeamData,
@@ -498,7 +498,7 @@ export class KodyRulesPrLevelAnalysisService implements IKodyRulesAnalysisServic
                 } catch (error) {
                     this.logger.error({
                         message:
-                            'Error processing suggestion for Kody Rule links',
+                            'Error processing suggestion for Piku Rule links',
                         context: KodyRulesPrLevelAnalysisService.name,
                         error,
                         metadata: {
@@ -577,7 +577,7 @@ export class KodyRulesPrLevelAnalysisService implements IKodyRulesAnalysisServic
                 );
             } catch (error) {
                 this.logger.error({
-                    message: 'Error fetching Kody Rule details',
+                    message: 'Error fetching Piku Rule details',
                     context: KodyRulesPrLevelAnalysisService.name,
                     error: error,
                     metadata: {
@@ -803,7 +803,7 @@ export class KodyRulesPrLevelAnalysisService implements IKodyRulesAnalysisServic
         if (allViolatedRules.length === 0 && failedChunks > 0) {
             const errorMessage = firstChunkError?.message || 'Unknown error';
             throw new Error(
-                `PR-level Kody Rules analysis failed in ${failedChunks}/${totalChunks} chunks: ${errorMessage}`,
+                `PR-level Piku Rules analysis failed in ${failedChunks}/${totalChunks} chunks: ${errorMessage}`,
             );
         }
 

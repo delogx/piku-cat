@@ -1,6 +1,6 @@
 # Trace context A/B eval
 
-This eval measures whether recorded Kodus Trace decisions improve Kody's review
+This eval measures whether recorded Kodus Trace decisions improve Piku's review
 judgment without becoming a way to talk the reviewer out of real findings.
 
 It runs the active `generalist` prompt and agent loop through the deterministic
@@ -8,7 +8,7 @@ tool replay in `evals/investigation`. Each scenario has the same diff and tool
 results twice:
 
 - `baseline`: no recorded decisions;
-- `trace`: the decision pack Kody would receive in a real review.
+- `trace`: the decision pack Piku would receive in a real review.
 
 The initial dataset covers:
 

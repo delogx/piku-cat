@@ -406,7 +406,7 @@ export class BitbucketProvider extends BaseProvider {
             {
                 method: "POST",
                 headers: this.headers(),
-                body: { content: { raw: "@kody review" } },
+                body: { content: { raw: "@piku review" } },
             },
         );
         ensureOk(resp, "bitbucket:triggerReview");
@@ -416,7 +416,7 @@ export class BitbucketProvider extends BaseProvider {
         };
     }
 
-    // Classify a PR comment against the "is this a real Kody review finding?"
+    // Classify a PR comment against the "is this a real Piku review finding?"
     // rules, returning WHY it was dropped so a timeout can dump the reasons
     // (product-posted-nothing vs detector-rejected-a-real-review). Keep the
     // predicate here single-sourced so the diagnostic can't drift from the
@@ -428,16 +428,16 @@ export class BitbucketProvider extends BaseProvider {
         if (c.created_on <= opts.sinceIso)
             return { keep: false, reason: "before sinceIso" };
         if (opts.triggerId && String(c.id) === opts.triggerId)
-            return { keep: false, reason: "the @kody trigger comment itself" };
+            return { keep: false, reason: "the @piku trigger comment itself" };
         const raw = c.content?.raw ?? "";
-        if (raw.toLowerCase().startsWith("@kody"))
-            return { keep: false, reason: "@kody command echo" };
+        if (raw.toLowerCase().startsWith("@piku"))
+            return { keep: false, reason: "@piku command echo" };
         // Drop "Started!" placeholder but keep "Complete!" — the latter is a
-        // valid mechanics signal even when Kody found no inline findings.
-        // Bitbucket-specific: Kody does NOT inject the `<!-- kody-codereview -->`
+        // valid mechanics signal even when Piku found no inline findings.
+        // Bitbucket-specific: Piku does NOT inject the `<!-- kody-codereview -->`
         // HTML marker into Bitbucket comments (it does on github/gitlab), so
         // the marker check alone matches nothing. Fall back to detecting the
-        // visible heading text Kody renders into the placeholder.
+        // visible heading text Piku renders into the placeholder.
         if (
             raw.includes("<!-- kody-codereview") &&
             !raw.includes("kody-codereview-completed")
@@ -448,7 +448,7 @@ export class BitbucketProvider extends BaseProvider {
             return { keep: false, reason: "'Code Review Started!' placeholder" };
         }
         // Bitbucket-only leftover: when the gate skips the pipeline mid-flow,
-        // Kody overwrites its "Code Review Started!" placeholder so only the
+        // Piku overwrites its "Code Review Started!" placeholder so only the
         // docs.kodus.io feedback footer remains (~80 chars of just the 👎
         // link, no review content) — easy to confuse with a real "No issues
         // found" outcome. Drop it.
@@ -459,8 +459,8 @@ export class BitbucketProvider extends BaseProvider {
         if (
             trimmed.length < 200 &&
             /docs\.kodus\.io/.test(trimmed) &&
-            !trimmed.includes("Kody Review Complete") &&
-            !trimmed.includes("Kody Guide")
+            !trimmed.includes("Piku Review Complete") &&
+            !trimmed.includes("Piku Guide")
         ) {
             return {
                 keep: false,

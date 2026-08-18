@@ -54,7 +54,7 @@ type KodyRuleInput = Required<
         | 'resolvedAt'
         | 'resolvedBy'
         // MCP-created rules never come from the IDE-sync flow, so
-        // the `@kody-sync` pin doesn't apply.
+        // the `@piku-sync` pin doesn't apply.
         | 'pinnedSync'
     >
 > & {
@@ -148,7 +148,7 @@ export class KodyRulesTools {
         return {
             name: 'KODUS_GET_KODY_RULES',
             description:
-                'Get all Kody Rules at organization level. Use this to see organization-wide coding standards, global rules that apply across all repositories, or when you need a complete overview of rules. Returns rules with ACTIVE and PENDING status.',
+                'Get all Piku Rules at organization level. Use this to see organization-wide coding standards, global rules that apply across all repositories, or when you need a complete overview of rules. Returns rules with ACTIVE and PENDING status.',
             inputSchema,
             outputSchema: z.object({
                 success: z.boolean(),
@@ -230,7 +230,7 @@ export class KodyRulesTools {
         return {
             name: 'KODUS_GET_KODY_RULES_REPOSITORY',
             description:
-                'Get Kody Rules specific to a particular repository. Use this to see repository-specific coding standards, rules that only apply to one codebase, or when analyzing rules for a specific project. More focused than get_kody_rules. Returns rules with ACTIVE and PENDING status.',
+                'Get Piku Rules specific to a particular repository. Use this to see repository-specific coding standards, rules that only apply to one codebase, or when analyzing rules for a specific project. More focused than get_kody_rules. Returns rules with ACTIVE and PENDING status.',
             inputSchema,
             outputSchema: z.object({
                 success: z.boolean(),
@@ -406,7 +406,7 @@ export class KodyRulesTools {
         return {
             name: 'KODUS_CREATE_KODY_RULE',
             description:
-                'Create a new Kody Rule with custom scope and severity. pull_request scope: analyzes entire PR context for PR-level rules. file scope: analyzes individual files one by one for file-level rules. Rule starts in pending status and must be approved in the UI before it takes effect. After execution, ALWAYS inform the user of: (1) the rule was created and is pending approval, and (2) the provided link to open the pending Kody Rules page to review and approve it. If centralized config is enabled the rule will be published to a pull request pending to be approved instead, and a prUrl is returned.',
+                'Create a new Piku Rule with custom scope and severity. pull_request scope: analyzes entire PR context for PR-level rules. file scope: analyzes individual files one by one for file-level rules. Rule starts in pending status and must be approved in the UI before it takes effect. After execution, ALWAYS inform the user of: (1) the rule was created and is pending approval, and (2) the provided link to open the pending Piku Rules page to review and approve it. If centralized config is enabled the rule will be published to a pull request pending to be approved instead, and a prUrl is returned.',
             inputSchema,
             outputSchema: z.object({
                 success: z.boolean(),
@@ -423,7 +423,7 @@ export class KodyRulesTools {
                     .string()
                     .optional()
                     .describe(
-                        'Link to the pending Kody Rules page where the rule can be reviewed and approved',
+                        'Link to the pending Piku Rules page where the rule can be reviewed and approved',
                     ),
             }),
             execute: wrapToolHandler(
@@ -529,7 +529,7 @@ export class KodyRulesTools {
                     const awaitingApproval =
                         result?.status === KodyRulesStatus.PENDING;
                     const message = awaitingApproval
-                        ? 'Rule created and awaiting approval. Open the Kody Rules page to review and approve it.'
+                        ? 'Rule created and awaiting approval. Open the Piku Rules page to review and approve it.'
                         : 'Rule created. You can open it directly from the provided link.';
 
                     return {
@@ -651,7 +651,7 @@ export class KodyRulesTools {
         return {
             name: 'KODUS_UPDATE_KODY_RULE',
             description:
-                'Update an existing Kody Rule. Only the fields provided in kodyRule will be updated. Use this to modify rule details, change severity, scope, or status of existing rules. After execution, ALWAYS inform the user of the provided link to open the rule in the Kody Rules page. If centralized config is enabled the update will be published to a pull request pending to be approved instead, and a prUrl is returned.',
+                'Update an existing Piku Rule. Only the fields provided in kodyRule will be updated. Use this to modify rule details, change severity, scope, or status of existing rules. After execution, ALWAYS inform the user of the provided link to open the rule in the Piku Rules page. If centralized config is enabled the update will be published to a pull request pending to be approved instead, and a prUrl is returned.',
             inputSchema,
             outputSchema: z.object({
                 success: z.boolean(),
@@ -668,7 +668,7 @@ export class KodyRulesTools {
                     .string()
                     .optional()
                     .describe(
-                        'Link to open the updated Kody Rule in the app (or the pull request URL when centralized config is enabled)',
+                        'Link to open the updated Piku Rule in the app (or the pull request URL when centralized config is enabled)',
                     ),
             }),
             execute: wrapToolHandler(
@@ -834,7 +834,7 @@ export class KodyRulesTools {
         return {
             name: 'KODUS_DELETE_KODY_RULE',
             description:
-                'Delete a Kody Rule permanently from the system. This action cannot be undone. Use this to remove rules that are no longer needed or relevant. If centralized config is enabled the deletion will be published to a pull request pending to be approved.',
+                'Delete a Piku Rule permanently from the system. This action cannot be undone. Use this to remove rules that are no longer needed or relevant. If centralized config is enabled the deletion will be published to a pull request pending to be approved.',
             inputSchema,
             outputSchema: z.object({
                 success: z.boolean(),
@@ -866,8 +866,8 @@ export class KodyRulesTools {
                     return {
                         success: result,
                         ...(result
-                            ? { message: 'Kody Rule deleted successfully' }
-                            : { message: 'Failed to delete Kody Rule' }),
+                            ? { message: 'Piku Rule deleted successfully' }
+                            : { message: 'Failed to delete Piku Rule' }),
                     };
                 },
             ),

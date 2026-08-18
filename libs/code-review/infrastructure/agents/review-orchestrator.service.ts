@@ -142,7 +142,7 @@ export class ReviewOrchestratorService {
             });
         }
 
-        // Add Kody Rules agent if there are active standard rules
+        // Add Piku Rules agent if there are active standard rules
         if (this.kodyRulesAgent && kodyRules && kodyRules.length > 0) {
             agentTasks.push({
                 name: 'kody-rules',

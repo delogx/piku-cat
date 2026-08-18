@@ -74,21 +74,21 @@ export interface ReviewSignal {
     reviews: number;
     sample?: string;
     /**
-     * Anchors of the inline comments Kody posted, when the provider can report
+     * Anchors of the inline comments Piku posted, when the provider can report
      * them. Counting comments proves a review happened; these prove it landed
      * on the right lines — the check that the GitLab "comments only on added
      * lines" bug slipped past. Providers that don't populate it leave the
      * placement assertion self-skipping.
      */
     inlineComments?: InlineCommentRef[];
-    // Set when Kody posted a license-related notification (e.g. "Your
+    // Set when Piku posted a license-related notification (e.g. "Your
     // trial has ended! Activate your plan…" or a BYOK prompt) instead of
     // a real review. Scenarios that expect the entitlement gate to
-    // BLOCK a review still want to verify Kody told the user *why* —
+    // BLOCK a review still want to verify Piku told the user *why* —
     // bare silence (no comment at all) is a different failure mode
     // (webhook never arrived, pipeline crashed silently) than the
     // intended UX. Providers populate this when they detect a
-    // license/trial/BYOK-prompt comment from Kody on the PR.
+    // license/trial/BYOK-prompt comment from Piku on the PR.
     licenseBlockedNotice?: {
         message: string;
         kind: 'trial-ended' | 'byok-required' | 'no-license' | 'other';
@@ -131,7 +131,7 @@ export interface Provider {
         pr: { number: number },
         opts: { sinceIso: string; triggerId?: string; timeoutSec?: number },
     ): Promise<ReviewSignal>;
-    // Phase-A poll for "Kody acknowledged the PR" — i.e. ANY comment
+    // Phase-A poll for "Piku acknowledged the PR" — i.e. ANY comment
     // carrying the `<!-- kody-codereview` marker has appeared on the
     // PR (including the "Code Review Started!" placeholder that
     // `pollForReview` deliberately filters out). Lets the scenario
@@ -146,15 +146,15 @@ export interface Provider {
     ): Promise<{ startedAt: string; sample: string }>;
     postComment(prNumber: number, body: string): Promise<{ id: string }>;
     // Optional: posts a comment as a DIFFERENT identity (token override). The
-    // conversation scenario needs this — Kody ignores comments whose author
-    // login contains "kody"/"kodus" (the e2e bots), so the `@kody` mention must
-    // come from a non-Kody account.
+    // conversation scenario needs this — Piku ignores comments whose author
+    // login contains "kody"/"kodus" (the e2e bots), so the `@piku` mention must
+    // come from a non-Piku account.
     postCommentAs?(
         prNumber: number,
         body: string,
         token: string,
     ): Promise<{ id: string }>;
-    // Optional: posts an INLINE review comment as a different identity. Kody's
+    // Optional: posts an INLINE review comment as a different identity. Piku's
     // ConversationAgent only resolves the mention from a review comment (issue
     // comments are never found), so the conversation scenario needs this.
     postReviewCommentAs?(
@@ -162,7 +162,7 @@ export interface Provider {
         body: string,
         token: string,
     ): Promise<{ id: string }>;
-    // Optional: polls for Kody's conversational reply to an `@kody <question>`
+    // Optional: polls for Piku's conversational reply to an `@piku <question>`
     // new non-trigger, non-code-review comment, or null at timeout. Only GitHub
     // is wired; the conversation scenario gates on its presence.
     pollForKodyReply?(
@@ -188,7 +188,7 @@ export interface Provider {
     // Kodus's gitTool value for /license/assign (lowercase platformType).
     // Matches `assignLicense(provider.toLowerCase())` in license.service.ts.
     licenseGitTool(): string;
-    // Detects Kody's "blocked: PR author has no license seat" signal on the
+    // Detects Piku's "blocked: PR author has no license seat" signal on the
     // PR since `sinceIso`. validate-prerequisites.stage.ts emits a 👎 on
     // USER_NOT_LICENSED — a reaction on github/gitlab, a comment carrying the
     // docs.kodus.io emoji-meaning link on bitbucket/azure. Resolves true once

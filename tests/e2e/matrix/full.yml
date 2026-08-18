@@ -17,12 +17,12 @@ scenarios:
     # ----- mirrors fast.yml (keep in sync) -----
     - onboarding-webhook-registration
     - code-review-basic
-    # @kody review / @kody start-review command path. Disables
+    # @piku review / @piku start-review command path. Disables
     # automatedReviewActive at the org level first, then opens a PR
     # and posts the comment, so the review under test can only come
     # from the command. Covers all 4 providers.
     - command-review
-    # @kody review <directive> — the focus-steering path. Same command
+    # @piku review <directive> — the focus-steering path. Same command
     # flow as command-review but with trailing free-text after the
     # command; guards that the directive parsing/forwarding (added across
     # all 5 webhook handlers) doesn't break command detection on any
@@ -105,7 +105,7 @@ scenarios:
     #   * code-review-vertex-byok: the v5 (Vercel SDK) review path. Needs
     #     VERTEX_SA_JSON (+ optional VERTEX_REGION/VERTEX_MODEL).
     #   * conversation-vertex-byok: the v2 (langchain) path via the legacy
-    #     conversation agent — @kody mention. Also needs CONVERSATION_USER_TOKEN
+    #     conversation agent — @piku mention. Also needs CONVERSATION_USER_TOKEN
     #     (a non-"kody/kodus" GitHub account with PR R/W on the fixture repo).
     - code-review-vertex-byok
     - conversation-vertex-byok

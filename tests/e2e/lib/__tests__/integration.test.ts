@@ -162,16 +162,16 @@ test("integration: code-review-basic runs end-to-end against mocked Kodus + GitH
             pathRegex: /^\/repos\/[^/]+\/[^/]+\/issues\/\d+\/comments$/,
             handler: (_req, res) => {
                 const created = new Date().toISOString();
-                json(res, 201, { id: 1001, created_at: created, body: "@kody review" });
+                json(res, 201, { id: 1001, created_at: created, body: "@piku review" });
             },
         },
         {
             method: "GET",
             pathRegex: /^\/repos\/[^/]+\/[^/]+\/pulls\/\d+\/comments/,
             handler: (_req, res) => {
-                // Inline review comment from Kody — counts as `reviewComments`,
+                // Inline review comment from Piku — counts as `reviewComments`,
                 // which the new scenario assert requires (issueComments are
-                // ignored to avoid false-positives on Kody's status notice).
+                // ignored to avoid false-positives on Piku's status notice).
                 const responseTime = new Date(
                     new Date(reviewSinceWindow.triggeredAt).getTime() + 1000,
                 ).toISOString();
@@ -188,7 +188,7 @@ test("integration: code-review-basic runs end-to-end against mocked Kodus + GitH
             method: "GET",
             pathRegex: /^\/repos\/[^/]+\/[^/]+\/issues\/\d+\/comments/,
             handler: (_req, res) => {
-                // Phase-A heartbeat — Kody posts the "Code Review
+                // Phase-A heartbeat — Piku posts the "Code Review
                 // Started!" placeholder to issueComments on every PR
                 // it picks up. Carries the kody-codereview marker but
                 // is correctly classified as "started" by
@@ -359,7 +359,7 @@ test("integration: code-review-basic runs end-to-end against mocked Kodus + GitH
     }
 });
 
-test("integration: scenario fails clearly when Kody does NOT respond", async () => {
+test("integration: scenario fails clearly when Piku does NOT respond", async () => {
     const kodusServer = await startMockServer([
         {
             // Self-hosted target: runner.ts signs up a fresh tenant per cell
@@ -417,7 +417,7 @@ test("integration: scenario fails clearly when Kody does NOT respond", async () 
         },
     ]);
 
-    // GitHub mock that NEVER returns Kody comments — simulates a broken
+    // GitHub mock that NEVER returns Piku comments — simulates a broken
     // self-hosted where webhooks don't reach worker or worker is down.
     // Routes ordered specific → generic; [^/]+ keeps the repo-metadata
     // route from swallowing deeper paths.
@@ -429,7 +429,7 @@ test("integration: scenario fails clearly when Kody does NOT respond", async () 
                 json(res, 201, {
                     id: 1001,
                     created_at: new Date().toISOString(),
-                    body: "@kody review",
+                    body: "@piku review",
                 }),
         },
         {
@@ -491,7 +491,7 @@ test("integration: scenario fails clearly when Kody does NOT respond", async () 
             // this test fast, we instead just confirm the no-review path
             // would eventually fail, by running with a custom scenario that
             // wraps code-review-basic but overrides the poll timeout. For
-            // simplicity, this assertion only checks that with NO Kody
+            // simplicity, this assertion only checks that with NO Piku
             // response in mock, we get *some* failure — we don't wait 10 min.
             // We use a much shorter scenario timeout by monkey-patching
             // process.env.GH_POLL_TIMEOUT_OVERRIDE if it existed. Since it
@@ -516,7 +516,7 @@ test("integration: scenario fails clearly when Kody does NOT respond", async () 
             assert.deepEqual(
                 body,
                 [],
-                "mock should return empty array, simulating no Kody response",
+                "mock should return empty array, simulating no Piku response",
             );
         } finally {
             global.fetch = originalFetch;

@@ -16,7 +16,7 @@ require.extensions['.ts'] = function (m, f) {
 };
 require('tsconfig-paths/register');
 const dotenv = require('dotenv');
-const ROOT = '/Users/juniorsartori/Projects/Kody/kodus-ai';
+const ROOT = '/Users/juniorsartori/Projects/Piku/kodus-ai';
 dotenv.config({ path: path.join(ROOT, '.env') });
 dotenv.config({ path: path.join(ROOT, '.env.local'), override: true });
 dotenv.config({ path: path.join(process.env.HOME, '.kodus-dev/config'), override: true });
@@ -24,7 +24,7 @@ if (!process.env.API_CRYPTO_KEY) process.env.API_CRYPTO_KEY = '0'.repeat(64);
 
 const IN = path.join(ROOT, 'evals/kody-rules/rails-convention-cases-all.json');
 const OUT = path.join(ROOT, 'evals/kody-rules/rails-convention-cases-summarized-v2.json');
-const AUDIT = '/private/tmp/claude-501/-Users-juniorsartori-Projects-Kody-kodus-ai/f29e42c9-7526-423f-a336-6aca036ad54b/scratchpad/summaries-audit-v2.txt';
+const AUDIT = '/private/tmp/claude-501/-Users-juniorsartori-Projects-Piku-kodus-ai/f29e42c9-7526-423f-a336-6aca036ad54b/scratchpad/summaries-audit-v2.txt';
 const THRESHOLD = 500;
 
 // v2 (2026-07-20): adds WHEN NOT TO FLAG — rules carry explicit carve-outs

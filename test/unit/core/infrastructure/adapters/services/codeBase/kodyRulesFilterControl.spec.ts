@@ -16,7 +16,7 @@ import { SeverityLevel } from '@libs/common/enums/severityLevel.enum';
 import { CodeManagementService } from '@libs/platform/infrastructure/adapters/services/codeManagement.service';
 import { CacheService } from '@libs/core/cache/cache.service';
 
-describe('SuggestionService - Kody Rules Filter Control', () => {
+describe('SuggestionService - Piku Rules Filter Control', () => {
     let service: SuggestionService;
 
     const mockOrgData: OrganizationAndTeamData = {
@@ -86,8 +86,8 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
         service = module.get<SuggestionService>(SuggestionService);
     });
 
-    describe('🎯 Controle de Filtros para Kody Rules', () => {
-        it('deve aplicar filtros nas Kody Rules quando applyFiltersToKodyRules = true', async () => {
+    describe('🎯 Controle de Filtros para Piku Rules', () => {
+        it('deve aplicar filtros nas Piku Rules quando applyFiltersToKodyRules = true', async () => {
             const suggestionControl: SuggestionControlConfig = {
                 maxSuggestions: 2,
                 limitationType: LimitationType.PR,
@@ -117,7 +117,7 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
                 result.discardedSuggestionsBySeverityOrQuantity,
             ).toHaveLength(3);
 
-            // Kody Rules de severidade baixa devem ter sido filtradas
+            // Piku Rules de severidade baixa devem ter sido filtradas
             const kodyRulesDiscarded =
                 result.discardedSuggestionsBySeverityOrQuantity.filter(
                     (s) => s.label === 'kody_rules',
@@ -126,7 +126,7 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
             expect(kodyRulesDiscarded[0].severity).toBe(SeverityLevel.LOW);
         });
 
-        it('deve NÃO aplicar filtros nas Kody Rules quando applyFiltersToKodyRules = false', async () => {
+        it('deve NÃO aplicar filtros nas Piku Rules quando applyFiltersToKodyRules = false', async () => {
             const suggestionControl: SuggestionControlConfig = {
                 maxSuggestions: 2,
                 limitationType: LimitationType.PR,
@@ -149,7 +149,7 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
                 suggestions,
             );
 
-            // Kody Rules passam todas, outros são filtrados
+            // Piku Rules passam todas, outros são filtrados
             const kodyRulesPrioritized = result.prioritizedSuggestions.filter(
                 (s) => s.label === 'kody_rules',
             );
@@ -157,15 +157,15 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
                 (s) => s.label === 'security',
             );
 
-            expect(kodyRulesPrioritized).toHaveLength(2); // Todas as Kody Rules passaram
+            expect(kodyRulesPrioritized).toHaveLength(2); // Todas as Piku Rules passaram
             expect(securityPrioritized).toHaveLength(1); // Apenas security HIGH passou
 
-            // Verifica que security LOW foi descartada, mas nenhuma Kody Rule
+            // Verifica que security LOW foi descartada, mas nenhuma Piku Rule
             const kodyRulesDiscarded =
                 result.discardedSuggestionsBySeverityOrQuantity.filter(
                     (s) => s.label === 'kody_rules',
                 );
-            expect(kodyRulesDiscarded).toHaveLength(0); // Nenhuma Kody Rule descartada
+            expect(kodyRulesDiscarded).toHaveLength(0); // Nenhuma Piku Rule descartada
         });
 
         it('deve usar padrão (false) quando applyFiltersToKodyRules não está definido', async () => {
@@ -190,7 +190,7 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
                 suggestions,
             );
 
-            // Kody Rules sempre passam quando filtros não são aplicados (padrão)
+            // Piku Rules sempre passam quando filtros não são aplicados (padrão)
             const kodyRulesPrioritized = result.prioritizedSuggestions.filter(
                 (s) => s.label === 'kody_rules',
             );
@@ -203,13 +203,13 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
             expect(securityPrioritized).toHaveLength(1);
         });
 
-        it('deve processar sugestões normalmente quando não há Kody Rules', async () => {
+        it('deve processar sugestões normalmente quando não há Piku Rules', async () => {
             const suggestionControl: SuggestionControlConfig = {
                 maxSuggestions: 2,
                 limitationType: LimitationType.PR,
                 groupingMode: GroupingModeSuggestions.MINIMAL,
                 severityLevelFilter: SeverityLevel.HIGH,
-                applyFiltersToKodyRules: false, // Não importa, não há Kody Rules
+                applyFiltersToKodyRules: false, // Não importa, não há Piku Rules
             };
 
             const suggestions = [
@@ -225,7 +225,7 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
                 suggestions,
             );
 
-            // Deve usar lógica original sem Kody Rules
+            // Deve usar lógica original sem Piku Rules
             expect(result.prioritizedSuggestions).toHaveLength(2);
             expect(
                 result.discardedSuggestionsBySeverityOrQuantity,
@@ -233,16 +233,16 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
         });
 
         // 🐛 TESTES PARA CAPTURAR POSSÍVEIS BUGS
-        it('🐛 BUG TEST: deve processar APENAS Kody Rules quando applyFiltersToKodyRules = false', async () => {
+        it('🐛 BUG TEST: deve processar APENAS Piku Rules quando applyFiltersToKodyRules = false', async () => {
             const suggestionControl: SuggestionControlConfig = {
                 maxSuggestions: 2,
                 limitationType: LimitationType.PR,
                 groupingMode: GroupingModeSuggestions.MINIMAL,
                 severityLevelFilter: SeverityLevel.HIGH,
-                applyFiltersToKodyRules: false, // ✅ Kody Rules isentas
+                applyFiltersToKodyRules: false, // ✅ Piku Rules isentas
             };
 
-            // ⚠️ CENÁRIO CRÍTICO: Só Kody Rules, nenhuma sugestão normal
+            // ⚠️ CENÁRIO CRÍTICO: Só Piku Rules, nenhuma sugestão normal
             const suggestions = [
                 createMockSuggestion(SeverityLevel.LOW, 'kody_rules'), // ✅ Deve passar (isenta)
                 createMockSuggestion(SeverityLevel.MEDIUM, 'kody_rules'), // ✅ Deve passar (isenta)
@@ -257,19 +257,19 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
             );
 
             // 🐛 ESTE TESTE PODE FALHAR SE HOUVER BUG
-            expect(result.prioritizedSuggestions).toHaveLength(3); // Todas as Kody Rules devem passar
+            expect(result.prioritizedSuggestions).toHaveLength(3); // Todas as Piku Rules devem passar
             expect(
                 result.discardedSuggestionsBySeverityOrQuantity,
             ).toHaveLength(0); // Nenhuma descartada
 
-            // Verificar que todas são Kody Rules
+            // Verificar que todas são Piku Rules
             result.prioritizedSuggestions.forEach((s) => {
                 expect(s.label).toBe('kody_rules');
                 expect(s.priorityStatus).toBe(PriorityStatus.PRIORITIZED);
             });
         });
 
-        it('🐛 BUG TEST: deve detectar Kody Rules com label normalizado', async () => {
+        it('🐛 BUG TEST: deve detectar Piku Rules com label normalizado', async () => {
             const suggestionControl: SuggestionControlConfig = {
                 maxSuggestions: 5,
                 limitationType: LimitationType.PR,
@@ -285,7 +285,7 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
                     id: '1',
                 }, // Exato
                 {
-                    ...createMockSuggestion(SeverityLevel.LOW, 'Kody Rules'),
+                    ...createMockSuggestion(SeverityLevel.LOW, 'Piku Rules'),
                     id: '2',
                 }, // Capitalizado (AI)
                 {
@@ -309,19 +309,19 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
             const kodyRulesDetected = suggestionsWithVariedLabels.some(
                 (s) =>
                     s.label === 'kody_rules' ||
-                    s.label === 'Kody Rules' ||
+                    s.label === 'Piku Rules' ||
                     s.label === 'KODY_RULES',
             );
 
             if (kodyRulesDetected) {
-                // Deve usar lógica de Kody Rules
+                // Deve usar lógica de Piku Rules
                 const kodyRulesInResult = result.prioritizedSuggestions.filter(
                     (s) =>
                         s.label === 'kody_rules' ||
-                        s.label === 'Kody Rules' ||
+                        s.label === 'Piku Rules' ||
                         s.label === 'KODY_RULES',
                 );
-                expect(kodyRulesInResult.length).toBeGreaterThan(0); // Alguma Kody Rule deve aparecer
+                expect(kodyRulesInResult.length).toBeGreaterThan(0); // Alguma Piku Rule deve aparecer
             }
         });
 
@@ -373,19 +373,19 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
             }).not.toThrow();
         });
 
-        it('🔥 CRITICAL BUG: falha em detectar Kody Rules com labels não normalizados', async () => {
+        it('🔥 CRITICAL BUG: falha em detectar Piku Rules com labels não normalizados', async () => {
             const suggestionControl: SuggestionControlConfig = {
                 maxSuggestions: 2,
                 limitationType: LimitationType.PR,
                 groupingMode: GroupingModeSuggestions.MINIMAL,
                 severityLevelFilter: SeverityLevel.HIGH,
-                applyFiltersToKodyRules: false, // ✅ Kody Rules deveriam ser isentas
+                applyFiltersToKodyRules: false, // ✅ Piku Rules deveriam ser isentas
             };
 
-            // 🔥 CENÁRIO: Kody Rules com labels capitalizados (vem da IA assim)
+            // 🔥 CENÁRIO: Piku Rules com labels capitalizados (vem da IA assim)
             const suggestionsWithNonNormalizedLabels = [
                 {
-                    ...createMockSuggestion(SeverityLevel.LOW, 'Kody Rules'),
+                    ...createMockSuggestion(SeverityLevel.LOW, 'Piku Rules'),
                     id: '1',
                 }, // ✅ Deve passar (isenta)
                 {
@@ -407,16 +407,16 @@ describe('SuggestionService - Kody Rules Filter Control', () => {
                 result.discardedSuggestionsBySeverityOrQuantity,
             ).toHaveLength(0);
 
-            // ✅ Verificar que Kody Rules foi detectada e passou
+            // ✅ Verificar que Piku Rules foi detectada e passou
             const kodyRulesInResult = result.prioritizedSuggestions.find(
-                (s) => s.label === 'Kody Rules',
+                (s) => s.label === 'Piku Rules',
             );
             expect(kodyRulesInResult).toBeDefined();
             expect(kodyRulesInResult.severity).toBe('low'); // LOW passou porque foi isenta
         });
 
         it('deve normalizar labels corretamente', () => {
-            expect(service.normalizeLabel('Kody Rules')).toBe('kody_rules');
+            expect(service.normalizeLabel('Piku Rules')).toBe('kody_rules');
             expect(service.normalizeLabel('CODE_STYLE')).toBe('code_style');
             expect(service.normalizeLabel('  test  ')).toBe('_test_');
             expect(service.normalizeLabel('')).toBe('');

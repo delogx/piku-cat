@@ -26,7 +26,7 @@ function formatMemoriesSection(
         return '';
     }
 
-    return `## Memories\n\nAdditional context from past learnings in Kody Rules format.\n\n${formattedMemories.join('\n\n')}`;
+    return `## Memories\n\nAdditional context from past learnings in Piku Rules format.\n\n${formattedMemories.join('\n\n')}`;
 }
 
 //#region classifier
@@ -269,7 +269,7 @@ export type KodyRulesUpdateSuggestionsSchema = z.infer<
 
 export const prompt_kodyrules_updatestdsuggestions_system = () => {
     return `
-You are a senior engineer tasked with reviewing a list of code-review suggestions, ensuring that none of them violate the specific code rules (referred to as **Kody Rules**) and practices followed by your company.
+You are a senior engineer tasked with reviewing a list of code-review suggestions, ensuring that none of them violate the specific code rules (referred to as **Piku Rules**) and practices followed by your company.
 
 The current date is ${new Date().toLocaleDateString('en-GB')}.
 
@@ -277,26 +277,26 @@ Your final output **must** be a single JSON object (see the exact schema below).
 
 Data you have access to
 1. **Standard Suggestions** – JSON array with general good-practice suggestions.
-2. **Kody Rules** – JSON array with the company’s specific code rules. These rules have priority over general good practices if there is any conflict.
+2. **Piku Rules** – JSON array with the company’s specific code rules. These rules have priority over general good practices if there is any conflict.
 3. **fileDiff** – Full diff of the PR; every suggestion relates to this code.
 
 ---
 
 ## Step-by-step process (the model must follow these in order)
 
-1. **Iterate over each suggestion** and compare its \`improvedCode\`, \`suggestionContent\`, and \`label\` against every Kody Rule.
+1. **Iterate over each suggestion** and compare its \`improvedCode\`, \`suggestionContent\`, and \`label\` against every Piku Rule.
 
 2. **Decision branch**
-   2a. **If the suggestion *violates* one or more Kody Rules**
+   2a. **If the suggestion *violates* one or more Piku Rules**
         • Refactor \`improvedCode\` so it complies.
         • List all violated rule UUIDs in \`violatedKodyRulesIds\`.
-    2b. **Else if the suggestion is directly fixing a Kody Rule violation present in the existing code**
+    2b. **Else if the suggestion is directly fixing a Piku Rule violation present in the existing code**
         • The existing code must explicitly violate the rule's requirements
         • Adjust wording/label/code as needed
         • List those rule UUIDs in \`brokenKodyRulesIds\`
     2c. **Else** - leave the suggestion unchanged and output empty arrays for both fields.
 
-3. **Never invent rule IDs.** Copy the exact UUIDs provided in **Kody Rules**.
+3. **Never invent rule IDs.** Copy the exact UUIDs provided in **Piku Rules**.
 4. **Keep key order consistent** to ease downstream parsing.
 
 Whenever you modify a suggestion you must also look at it's 'llmPrompt' field.
@@ -306,7 +306,7 @@ This is a prompt for another LLM, the user must be able to simply copy this text
 This must be a prompt from the perspective of the user, it will communicate directly with the LLM as though it were sent as a chat message from the user, it should be a prompt a user could input into an LLM.
 
 IMPORTANT, be sure to describe the rules that contributed to this issue as part of the context.
-Do not refer to them as "Kody Rules", they are simply rules. Do not reference ids. Explain these rules as if they were normal rules the user has for their codebase.
+Do not refer to them as "Piku Rules", they are simply rules. Do not reference ids. Explain these rules as if they were normal rules the user has for their codebase.
 
 IMPORTANT, on this field you must only focus on describing the issue and providing context in a manner that an LLM will understand as a prompt.
 The existing code, improved code, relevant line start and end, file path, etc. will all be provided elsewhere.
@@ -373,7 +373,7 @@ Standard Suggestions:
 
 ${JSON.stringify(standardSuggestions)}
 
-Kody Rules:
+Piku Rules:
 
 ${JSON.stringify(kodyRules)}
 ${externalReferencesSection}
@@ -407,33 +407,33 @@ export type KodyRulesSuggestionGenerationSchema = z.infer<
 >;
 
 export const prompt_kodyrules_suggestiongeneration_system = () => {
-    return `You are a senior engineer with expertise in code review and a deep understanding of coding standards and best practices. You received a list of standard suggestions that follow the specific code rules (referred to as Kody Rules) and practices followed by your company. Your task is to carefully analyze the file diff, the suggestions list, and try to identify any code that violates the Kody Rules, that isn't mentioned in the suggestion list, and provide suggestions in the specified format.
+    return `You are a senior engineer with expertise in code review and a deep understanding of coding standards and best practices. You received a list of standard suggestions that follow the specific code rules (referred to as Piku Rules) and practices followed by your company. Your task is to carefully analyze the file diff, the suggestions list, and try to identify any code that violates the Piku Rules, that isn't mentioned in the suggestion list, and provide suggestions in the specified format.
 
 The current date is ${new Date().toLocaleDateString('en-GB')}.
 
 Your final output should be a JSON object containing an array of new suggestions.
 
-1. **Standard Suggestions**: A JSON object with general good practices and suggestions following the Kody Rules.
-2. **Kody Rules**: A JSON object with specific code rules followed by the company. These rules must be respected even if they contradict good practices.
+1. **Standard Suggestions**: A JSON object with general good practices and suggestions following the Piku Rules.
+2. **Piku Rules**: A JSON object with specific code rules followed by the company. These rules must be respected even if they contradict good practices.
 3. **fileDiff**: The full file diff of the PR. Every suggestion is related to this code.
 
 Let's think through this step-by-step:
 
-1. Your mission is to generate clear, constructive, and actionable suggestions for each identified Kody Rule violation.
+1. Your mission is to generate clear, constructive, and actionable suggestions for each identified Piku Rule violation.
 
-2. Focus solely on Kody Rules: Address only the issues listed in the provided Kody Rules. Do not comment on any issues not covered by these rules.
+2. Focus solely on Piku Rules: Address only the issues listed in the provided Piku Rules. Do not comment on any issues not covered by these rules.
 
-3. Generate a separate suggestion for every distinct code segment that violates a Kody Rule. A single rule may therefore produce multiple suggestions when it is broken in multiple places. Do not skip any rule.
+3. Generate a separate suggestion for every distinct code segment that violates a Piku Rule. A single rule may therefore produce multiple suggestions when it is broken in multiple places. Do not skip any rule.
 
 4. Group violations only when they refer to the exact same code lines. Otherwise, keep them in separate suggestion objects.
 
-5. Avoid giving suggestions that go against the specified Kody Rules.
+5. Avoid giving suggestions that go against the specified Piku Rules.
 
-6. Clarity and Precision: Ensure that each suggestion is actionable and directly tied to the relevant Kody Rule.
+6. Clarity and Precision: Ensure that each suggestion is actionable and directly tied to the relevant Piku Rule.
 
 7. Avoid Duplicates: Before generating a new suggestion, cross-reference the standard suggestions list. Do not generate suggestions that are already covered by the standard suggestions list. Specifically, check the "existingCode", "improvedCode", and "oneSentenceSummary" properties to identify any similarities.
 
-8. Focus on Unique Violations: Only focus on unique violations of the Kody Rules that are not already addressed in the standard suggestions.
+8. Focus on Unique Violations: Only focus on unique violations of the Piku Rules that are not already addressed in the standard suggestions.
 
 Your output must strictly be a valid JSON in the format specified below.`;
 };
@@ -579,7 +579,7 @@ labeled "kodyRules". Any violation of kody rules need to be reported.
 
 3. **Collaborative Decision**: Discuss findings and reach a consensus on necessary changes. Rewrite any problematic properties.
 
-4. **Final Review**: Ensure all properties are coherent and logically consistent with the Kody Rule violations. Confirm clarity and actionability.
+4. **Final Review**: Ensure all properties are coherent and logically consistent with the Piku Rule violations. Confirm clarity and actionability.
 
 5. **Fix Suggestions**: If any issues were identified, revise the suggestion object to correct the problems and improve clarity and accuracy.
 
@@ -603,7 +603,7 @@ This is a prompt for another LLM, the user must be able to simply copy this text
 This must be a prompt from the perspective of the user, it will communicate directly with the LLM as though it were sent as a chat message from the user, it should be a prompt a user could input into an LLM.
 
 IMPORTANT, be sure to describe the rules that contributed to this issue as part of the context.
-Do not refer to them as "Kody Rules", they are simply rules. Do not reference ids. Explain these rules as if they were normal rules the user has for their codebase.
+Do not refer to them as "Piku Rules", they are simply rules. Do not reference ids. Explain these rules as if they were normal rules the user has for their codebase.
 
 IMPORTANT, on this field you must only focus on describing the issue and providing context in a manner that an LLM will understand as a prompt.
 The existing code, improved code, relevant line start and end, file path, etc. will all be provided elsewhere.
@@ -654,7 +654,7 @@ export const prompt_kodyrules_guardian_system = () => {
     return `
 You are **KodyGuardian**, a strict gate-keeper for code-review suggestions.
 
-Your ONLY job is to decide, for every incoming suggestion, whether it must be removed because it violates at least one Kody Rule.
+Your ONLY job is to decide, for every incoming suggestion, whether it must be removed because it violates at least one Piku Rule.
 
 Instructions
 1. For every object in the array "codeSuggestions" (each contains a unique "id"):
@@ -684,7 +684,7 @@ Code Suggestions:
 
 ${JSON.stringify(standardSuggestions)}
 
-Kody Rules:
+Piku Rules:
 
 ${JSON.stringify(kodyRules)}
 `;
@@ -699,9 +699,9 @@ export type KodyRulesExtractIdSchema = z.infer<typeof kodyRulesExtractIdSchema>;
 
 export const prompt_kodyrules_extract_id_system = () => {
     return `
-You are a Kody Rule ID extraction specialist. Your task is to find and extract Kody Rule identifiers from text content.
+You are a Piku Rule ID extraction specialist. Your task is to find and extract Piku Rule identifiers from text content.
 
-Kody Rule IDs can appear in different formats:
+Piku Rule IDs can appear in different formats:
 
 1. **UUID v4 format** (current standard): 8-4-4-4-12 hexadecimal characters
    - Example: 9de28bd7-a06d-429a-97ab-02e5fef91096
@@ -713,12 +713,12 @@ Kody Rule IDs can appear in different formats:
 
 Instructions:
 1. First, scan for standard UUID v4 patterns
-2. If no UUIDs found, look for other potential ID patterns that could be Kody Rule identifiers
+2. If no UUIDs found, look for other potential ID patterns that could be Piku Rule identifiers
 3. Look for patterns that appear after phrases like:
-   - "Kody Rule"
-   - "breaks the Kody Rule"
-   - "violates Kody Rule"
-   - "according to Kody Rule"
+   - "Piku Rule"
+   - "breaks the Piku Rule"
+   - "violates Piku Rule"
+   - "according to Piku Rule"
 4. Extract anything that looks like a unique identifier in these contexts
 5. Return all found IDs as a JSON array
 6. If no IDs are found, return an empty array

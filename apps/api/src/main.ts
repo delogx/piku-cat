@@ -242,7 +242,7 @@ async function bootstrap() {
                 'Integration Config',
                 'Internal Metrics',
                 'Issues',
-                'Kody Rules',
+                'Piku Rules',
                 'MCP',
                 'Organization',
                 'Organization Parameters',

@@ -56,7 +56,7 @@ type OriginBadgeProps = {
     };
     /**
      * The repo's `ideRulesSyncEnabled` toggle. The maintenance badge
-     * (`@kody-sync` vs `Orphan`) is only meaningful — and only rendered —
+     * (`@piku-sync` vs `Orphan`) is only meaningful — and only rendered —
      * for Auto-sync rules when this is explicitly `false`. With the toggle
      * on (or in global view, where it's left `undefined`) every IDE rule
      * syncs, so the distinction would be noise and nothing extra is shown.
@@ -79,8 +79,8 @@ type OriginBadgeProps = {
 //   2. MAINTENANCE — only for Auto-sync rules, and only once the repo's
 //      auto-sync toggle is OFF (`syncEnabledForRepo === false`), because
 //      that's the only time the distinction matters:
-//        • file still tagged `@kody-sync` (`pinnedSync`) → kept in sync →
-//          discreet neutral `@kody-sync` chip (healthy, low emphasis).
+//        • file still tagged `@piku-sync` (`pinnedSync`) → kept in sync →
+//          discreet neutral `@piku-sync` chip (healthy, low emphasis).
 //        • no marker → nobody maintains it → amber `Orphan` chip (the
 //          actionable state; mirrors the orphan chip at the top of the
 //          list). With the toggle ON every IDE rule syncs, so neither chip
@@ -124,11 +124,11 @@ export const OriginBadge = ({ rule, syncEnabledForRepo }: OriginBadgeProps) => {
                     active
                     size="xs"
                     title={
-                        "Kept in sync via @kody-sync even with auto-sync off" +
+                        "Kept in sync via @piku-sync even with auto-sync off" +
                         sourceSuffix
                     }
                     className="bg-card-lv2 text-text-secondary ring-card-lv3 min-h-auto px-2.5 py-1 ring-1 [--button-foreground:var(--color-text-secondary)]">
-                    @kody-sync
+                    @piku-sync
                 </Badge>
             )}
 
@@ -137,7 +137,7 @@ export const OriginBadge = ({ rule, syncEnabledForRepo }: OriginBadgeProps) => {
                     active
                     size="xs"
                     title={
-                        "Auto-sync is off and this file has no @kody-sync marker — no longer maintained" +
+                        "Auto-sync is off and this file has no @piku-sync marker — no longer maintained" +
                         sourceSuffix
                     }
                     className="bg-warning/10 text-warning ring-warning/40 min-h-auto px-2.5 py-1 ring-1 [--button-foreground:var(--color-warning)]">

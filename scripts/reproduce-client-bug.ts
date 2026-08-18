@@ -4,7 +4,7 @@
  *
  * Seeds the local DBs with:
  *   - Two directories on an existing repo (postgres code_review_config)
- *   - Three Kody rules with the same shapes the client reported:
+ *   - Three Piku rules with the same shapes the client reported:
  *       - b207a89c  (Logging Best Practices)  — auto-sync, dirId = cf5284b4
  *       - 32dfa554  (Java/Spring arch)        — auto-sync, dirId = 314f34ff
  *       - ff8ecc7e  (Transaction mgmt)        — hand-created repo-level

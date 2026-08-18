@@ -61,7 +61,7 @@ export class FindLibraryKodyRulesWithFeedbackUseCase {
 
             this.logger.log({
                 message:
-                    'Successfully retrieved library Kody Rules with feedback',
+                    'Successfully retrieved library Piku Rules with feedback',
                 context: FindLibraryKodyRulesWithFeedbackUseCase.name,
                 metadata: {
                     userId,
@@ -78,7 +78,7 @@ export class FindLibraryKodyRulesWithFeedbackUseCase {
             };
         } catch (error) {
             this.logger.error({
-                message: 'Error finding library Kody Rules with feedback',
+                message: 'Error finding library Piku Rules with feedback',
                 context: FindLibraryKodyRulesWithFeedbackUseCase.name,
                 error: error,
             });

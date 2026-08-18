@@ -1,4 +1,4 @@
-// Kody-rules adherence — SHARDED SINGLE-SHOT EXPERIMENT (issue #1449).
+// Piku-rules adherence — SHARDED SINGLE-SHOT EXPERIMENT (issue #1449).
 //
 // Hypothesis under test: breadth-coverage recall is an ARCHITECTURE problem,
 // not a prompt problem. Instead of one agentic multi-turn loop that DECIDES

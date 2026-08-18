@@ -1,11 +1,11 @@
 #!/usr/bin/env npx ts-node
 /**
- * Backfill `pinnedSync` on existing Kody Rules.
+ * Backfill `pinnedSync` on existing Piku Rules.
  *
  * Why this exists:
  *   Rules created before the `pinnedSync` flag shipped have no value
  *   for it. The orphan-rules chip in the UI uses `pinnedSync=true` as
- *   the opt-out signal ("backend keeps syncing this via @kody-sync"),
+ *   the opt-out signal ("backend keeps syncing this via @piku-sync"),
  *   so pre-existing rules show up as "orphan" until the next time
  *   their source file is re-synced. For repos with auto-sync OFF that
  *   re-sync may never happen organically. This script triggers it
@@ -17,7 +17,7 @@
  *   the "Resync rules from IDE" button uses. With the depin pass
  *   shipped alongside `pinnedSync`, that sync:
  *     • sets `pinnedSync=true` on rules whose source file currently
- *       carries `@kody-sync`;
+ *       carries `@piku-sync`;
  *     • flips it to `false` on rules whose file lost the marker;
  *     • soft-deletes (status=DELETED) rules whose file is gone from
  *       the default branch.

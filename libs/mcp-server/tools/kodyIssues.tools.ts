@@ -65,7 +65,7 @@ export class KodyIssuesTools {
             originalKodyCommentId: z
                 .number()
                 .describe(
-                    'commentId of original Kody comment though which the discussion got started ',
+                    'commentId of original Piku comment though which the discussion got started ',
                 ),
             pullRequestNumber: z
                 .number()
@@ -75,7 +75,7 @@ export class KodyIssuesTools {
 
         return {
             name: name,
-            description: 'Create a new Kody Issue manually via MCP',
+            description: 'Create a new Piku Issue manually via MCP',
             inputSchema,
             outputSchema: z.object({
                 success: z.boolean(),
@@ -102,7 +102,7 @@ export class KodyIssuesTools {
 
                     const reporterInput = args.reporter ?? {
                         gitId: 1,
-                        username: 'Kody-MCP',
+                        username: 'Piku-MCP',
                     };
 
                     const pullRequest =
@@ -234,7 +234,7 @@ export class KodyIssuesTools {
 
         return {
             name: 'KODUS_LIST_KODY_ISSUES',
-            description: 'List Kody Issues with optional filters',
+            description: 'List Piku Issues with optional filters',
             inputSchema,
             outputSchema: z.object({
                 success: z.boolean(),
@@ -260,7 +260,7 @@ export class KodyIssuesTools {
         type InputType = z.infer<typeof inputSchema>;
         return {
             name: 'KODUS_GET_KODY_ISSUE_DETAILS',
-            description: 'Get a Kody Issue by id',
+            description: 'Get a Piku Issue by id',
             inputSchema,
             outputSchema: z.object({
                 success: z.boolean(),

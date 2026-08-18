@@ -33,7 +33,7 @@ export async function enrichRulesWithContextReferences<
     // Batch-load every referenced context in ONE query (`uuid IN (...)`)
     // instead of a findById per rule. This util runs once for the scope
     // listing and once per inherited bucket (global / repo / directory) on
-    // every Kody Rules page load, so the per-rule round-trips added up to a
+    // every Piku Rules page load, so the per-rule round-trips added up to a
     // page-wide N+1. De-dupe ids first — global rules are commonly shared.
     const ids = Array.from(
         new Set(

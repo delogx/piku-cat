@@ -169,7 +169,7 @@ import { OutboxMessageModel } from '@libs/core/workflow/infrastructure/repositor
         CliSessionCaptureRepository,
         SessionEventRepository,
         // Services + repos that must be consumed via DI tokens
-        // (Kody rule: don't inject services/repos by concrete class).
+        // (Piku rule: don't inject services/repos by concrete class).
         {
             provide: TRIAL_RATE_LIMITER_SERVICE_TOKEN,
             useClass: TrialRateLimiterService,

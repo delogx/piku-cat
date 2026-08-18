@@ -75,7 +75,7 @@ export class SyncSelectedRepositoriesKodyRulesUseCase {
             }
         } catch (error) {
             this.logger.error({
-                message: 'Failed to sync selected repositories Kody Rules',
+                message: 'Failed to sync selected repositories Piku Rules',
                 context: SyncSelectedRepositoriesKodyRulesUseCase.name,
                 error,
                 metadata: {

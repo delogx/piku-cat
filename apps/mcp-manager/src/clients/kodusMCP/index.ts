@@ -113,7 +113,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_GET_KODY_RULES',
                 name: 'KODUS_GET_KODY_RULES ',
                 description:
-                    'Get all active Kody Rules at organization level. Use this to see organization-wide coding standards, global rules that apply across all repositories, or when you need a complete overview of all active rules. Returns only ACTIVE status rules.',
+                    'Get all active Piku Rules at organization level. Use this to see organization-wide coding standards, global rules that apply across all repositories, or when you need a complete overview of all active rules. Returns only ACTIVE status rules.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: false,
             },
@@ -121,7 +121,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_GET_KODY_RULES_REPOSITORY',
                 name: 'KODUS_GET_KODY_RULES_REPOSITORY',
                 description:
-                    'Get active Kody Rules specific to a particular repository. Use this to see repository-specific coding standards, rules that only apply to one codebase, or when analyzing rules for a specific project. More focused than get_kody_rules.',
+                    'Get active Piku Rules specific to a particular repository. Use this to see repository-specific coding standards, rules that only apply to one codebase, or when analyzing rules for a specific project. More focused than get_kody_rules.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: false,
             },
@@ -129,7 +129,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_CREATE_KODY_RULE',
                 name: 'KODUS_CREATE_KODY_RULE',
                 description:
-                    'Create a new Kody Rule with custom scope and severity. pull_request scope: analyzes entire PR context for PR-level rules. file scope: analyzes individual files one by one for file-level rules. Rule starts in pending status.',
+                    'Create a new Piku Rule with custom scope and severity. pull_request scope: analyzes entire PR context for PR-level rules. file scope: analyzes individual files one by one for file-level rules. Rule starts in pending status.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: false,
             },
@@ -137,7 +137,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_UPDATE_KODY_RULE',
                 name: 'KODUS_UPDATE_KODY_RULE',
                 description:
-                    'Update an existing Kody Rule. Only the fields provided in kodyRule will be updated. Use this to modify rule details, change severity, scope, or status of existing rules.',
+                    'Update an existing Piku Rule. Only the fields provided in kodyRule will be updated. Use this to modify rule details, change severity, scope, or status of existing rules.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: false,
             },
@@ -145,7 +145,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_DELETE_KODY_RULE',
                 name: 'KODUS_DELETE_KODY_RULE',
                 description:
-                    'Delete a Kody Rule permanently from the system. This action cannot be undone. Use this to remove rules that are no longer needed or relevant.',
+                    'Delete a Piku Rule permanently from the system. This action cannot be undone. Use this to remove rules that are no longer needed or relevant.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: true,
             },
@@ -153,7 +153,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_CREATE_KODY_ISSUE',
                 name: 'KODUS_CREATE_KODY_ISSUE',
                 description:
-                    'Create a new Kody Issue linked to a pull request suggestion. Use this to escalate Kody review comments into trackable issues with metadata like file path, severity, and reporter.',
+                    'Create a new Piku Issue linked to a pull request suggestion. Use this to escalate Piku review comments into trackable issues with metadata like file path, severity, and reporter.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: false,
             },
@@ -161,7 +161,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_LIST_KODY_ISSUES',
                 name: 'KODUS_LIST_KODY_ISSUES',
                 description:
-                    'List Kody Issues with optional filters (repository, severity, label). Use this to audit outstanding Kody findings, triage by severity, or review the issue backlog.',
+                    'List Piku Issues with optional filters (repository, severity, label). Use this to audit outstanding Piku findings, triage by severity, or review the issue backlog.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: false,
             },
@@ -169,7 +169,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_GET_KODY_ISSUE_DETAILS',
                 name: 'KODUS_GET_KODY_ISSUE_DETAILS',
                 description:
-                    'Get full details for a specific Kody Issue by id. Use this to inspect metadata, status, and linked suggestions before taking action.',
+                    'Get full details for a specific Piku Issue by id. Use this to inspect metadata, status, and linked suggestions before taking action.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: false,
             },
@@ -177,7 +177,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_UPDATE_KODY_ISSUE_STATUS',
                 name: 'KODUS_UPDATE_KODY_ISSUE_STATUS',
                 description:
-                    'Update the status of a Kody Issue (e.g. open, resolved, dismissed). Use this to move issues through the workflow directly from MCP.',
+                    'Update the status of a Piku Issue (e.g. open, resolved, dismissed). Use this to move issues through the workflow directly from MCP.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: false,
             },
@@ -185,7 +185,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_UPDATE_KODY_ISSUE_CATEGORY',
                 name: 'KODUS_UPDATE_KODY_ISSUE_CATEGORY',
                 description:
-                    'Update the category/label for a Kody Issue. Use this to reclassify findings during triage and keep taxonomy accurate.',
+                    'Update the category/label for a Piku Issue. Use this to reclassify findings during triage and keep taxonomy accurate.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: false,
             },
@@ -193,7 +193,7 @@ export class KodusMCPClient {
                 slug: 'KODUS_DELETE_KODY_ISSUE',
                 name: 'KODUS_DELETE_KODY_ISSUE',
                 description:
-                    'Dismiss a Kody Issue by updating its status to dismissed. Use this when an issue is no longer relevant or was created by mistake.',
+                    'Dismiss a Piku Issue by updating its status to dismissed. Use this when an issue is no longer relevant or was created by mistake.',
                 provider: MCPProviderType.KODUSMCP,
                 warning: true,
             },

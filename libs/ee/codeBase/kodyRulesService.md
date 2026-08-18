@@ -1,8 +1,8 @@
-# Kody Rules System - Complete Flow Documentation
+# Piku Rules System - Complete Flow Documentation
 
 ## Overview
 
-The Kody Rules system is a sophisticated code analysis engine that combines standard code review suggestions with organization-specific coding rules. This document explains how the entire system works, from initial analysis to final suggestion delivery, including the recent updates for enhanced suggestion processing.
+The Piku Rules system is a sophisticated code analysis engine that combines standard code review suggestions with organization-specific coding rules. This document explains how the entire system works, from initial analysis to final suggestion delivery, including the recent updates for enhanced suggestion processing.
 
 ## System Architecture
 
@@ -13,11 +13,11 @@ The Kody Rules system is a sophisticated code analysis engine that combines stan
 ```mermaid
 graph TD
     A[Pull Request] --> B[File Change Detection]
-    B --> C[Kody Rules Classification]
+    B --> C[Piku Rules Classification]
     B --> D[Standard Suggestions Update]
     C --> E[Rule-Specific Analysis]
     D --> F[Suggestion Enhancement]
-    E --> G[Kody Rules Suggestions Generation]
+    E --> G[Piku Rules Suggestions Generation]
     F --> H[Suggestion Merge & Processing]
     G --> H
     H --> I[Severity Assignment]
@@ -29,17 +29,17 @@ graph TD
 
 The system uses multiple specialized LLM chains working in parallel:
 
-- **Classifier Chain**: Identifies which Kody Rules apply to the code changes
-- **Update Chain**: Enhances standard suggestions with Kody Rules context
-- **Generation Chain**: Creates new Kody Rules-specific suggestions
+- **Classifier Chain**: Identifies which Piku Rules apply to the code changes
+- **Update Chain**: Enhances standard suggestions with Piku Rules context
+- **Generation Chain**: Creates new Piku Rules-specific suggestions
 - **Guardian Chain**: Validates and filters final suggestions
 
-### 2. Kody Rules Processing Flow
+### 2. Piku Rules Processing Flow
 
 #### Step 1: Initial Setup
 
 ```typescript
-// Prepare analysis context with applicable Kody Rules
+// Prepare analysis context with applicable Piku Rules
 const kodyRulesFiltered = getKodyRulesForFile(
     fileContext.file.filename,
     context?.codeReviewConfig?.kodyRules || [],
@@ -69,15 +69,15 @@ const [classifiedRulesResult, updateStandardSuggestionsResult] =
 
 #### Step 3: Rule Classification
 
-Determines which Kody Rules are relevant to the current changes:
+Determines which Piku Rules are relevant to the current changes:
 
-- **Input**: All applicable Kody Rules + code changes
+- **Input**: All applicable Piku Rules + code changes
 - **Output**: Filtered list of relevant rules with reasoning
 - **Purpose**: Optimize processing by focusing on relevant rules only
 
 #### Step 4: Standard Suggestions Update ⚡ NEW FEATURE
 
-Enhances existing standard suggestions with Kody Rules awareness:
+Enhances existing standard suggestions with Piku Rules awareness:
 
 ##### A. Processing Logic
 
@@ -86,7 +86,7 @@ interface KodyRulesUpdateResponse {
     codeSuggestions: Array<{
         // ... standard fields
         violatedKodyRulesIds?: string[]; // Silent fixes
-        brokenKodyRulesIds?: string[]; // Promote to Kody Rules
+        brokenKodyRulesIds?: string[]; // Promote to Piku Rules
     }>;
 }
 ```
@@ -105,7 +105,7 @@ if (hasViolated) {
 }
 ```
 
-**Path 2: Broken Rules (Promote to Kody Rules)**
+**Path 2: Broken Rules (Promote to Piku Rules)**
 
 ```typescript
 if (hasBroken) {
@@ -126,7 +126,7 @@ else {
 }
 ```
 
-#### Step 5: Kody Rules Suggestions Generation
+#### Step 5: Piku Rules Suggestions Generation
 
 Creates new suggestions specifically for detected rule violations:
 
@@ -141,7 +141,7 @@ Combines all suggestion types into a unified output:
 ```typescript
 let finalOutput = {
     codeSuggestions: [
-        ...generatedKodyRulesSuggestions?.codeSuggestions, // New Kody Rules
+        ...generatedKodyRulesSuggestions?.codeSuggestions, // New Piku Rules
         ...updatedSuggestions?.codeSuggestions, // Enhanced suggestions
     ],
 };
@@ -153,14 +153,14 @@ let finalOutput = {
 
 #### Problem Solved
 
-Previously, standard suggestions could inadvertently violate Kody Rules or miss opportunities to become rule-specific suggestions.
+Previously, standard suggestions could inadvertently violate Piku Rules or miss opportunities to become rule-specific suggestions.
 
 #### Solution
 
 The UPDATE chain now processes standard suggestions with three outcomes:
 
 1. **Silent Fixes**: Minor violations are corrected transparently
-2. **Promotion**: Important violations become Kody Rules suggestions
+2. **Promotion**: Important violations become Piku Rules suggestions
 3. **Enhancement**: General improvements without classification changes
 
 ### 2. Rule-Aware Link Generation
@@ -323,7 +323,7 @@ const result = await kodyRulesAnalysisService.analyzeCodeWithAI(
 
 // Result contains:
 // - Enhanced standard suggestions
-// - New Kody Rules suggestions
+// - New Piku Rules suggestions
 // - Combined summary
 // - Proper severity assignment
 // - Auto-generated rule links
@@ -343,7 +343,7 @@ kodyRules:
 
 ## Conclusion
 
-The Kody Rules system provides a comprehensive, intelligent code analysis solution that combines automated rule enforcement with flexible suggestion enhancement. The recent updates enable more nuanced handling of different violation types while maintaining backward compatibility and system performance.
+The Piku Rules system provides a comprehensive, intelligent code analysis solution that combines automated rule enforcement with flexible suggestion enhancement. The recent updates enable more nuanced handling of different violation types while maintaining backward compatibility and system performance.
 
 The system's strength lies in its ability to:
 

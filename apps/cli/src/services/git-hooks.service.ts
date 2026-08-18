@@ -283,7 +283,9 @@ export function stripBlocks(
                     idx !== startIdx &&
                     !(
                         idx > startIdx &&
-                        /(?:kodus (?:trace|sessions|decisions)|Kodus-Trace|Kody-Checkpoint|KODUS_TRACE_)/i.test(
+                        // Kody-Checkpoint is the pre-rebrand spelling; hooks
+                        // written by an older CLI still carry it.
+                        /(?:kodus (?:trace|sessions|decisions)|Kodus-Trace|Piku-Checkpoint|Kody-Checkpoint|KODUS_TRACE_)/i.test(
                             line,
                         )
                     ),

@@ -704,7 +704,7 @@ export async function finishOnboarding(
     }
     log.info("Finishing onboarding");
     // finish-onboarding does substantial work synchronously: generates
-    // per-repo Kody rules via LLM and syncs rules from repo files. The
+    // per-repo Piku rules via LLM and syncs rules from repo files. The
     // upstream HTTP path can sit past nginx's 60s read-timeout on
     // qa.web.kodus.io (cloud) or any reverse-proxy a self-hosted
     // operator runs in front of the API. The work itself still
@@ -858,7 +858,7 @@ export async function resetCodeReviewConfig(
 // isn't in `getAllUsersWithLicense()`, `ValidatePrerequisitesStage` aborts
 // the review with `USER_NOT_LICENSED` — the org default
 // `auto_license_assignment.enabled=false` means there's no auto-grant — and
-// Kody only leaves a 👎 reaction. The review scenarios poll for *comments*,
+// Piku only leaves a 👎 reaction. The review scenarios poll for *comments*,
 // so they misread that skip as "pipeline ran, 0 findings". Onboarding never
 // assigns a seat, so we do it explicitly here. (Before the license var-name
 // fix the key wasn't read → invalid license → Community Edition → no seat

@@ -8,7 +8,7 @@
 
 ## Resumo executivo
 
-O gap em relação aos líderes (Greptile, CodeRabbit) **não é falta de peças**: já temos grafo AST, embeddings, um sistema de regras rico que **alimenta o agente** (Kody Rules + import de IDE multi-formato + memory rules) e aprendizado a partir de feedback. Os gaps são **arquiteturais e pontuais**, não de capacidade:
+O gap em relação aos líderes (Greptile, CodeRabbit) **não é falta de peças**: já temos grafo AST, embeddings, um sistema de regras rico que **alimenta o agente** (Piku Rules + import de IDE multi-formato + memory rules) e aprendizado a partir de feedback. Os gaps são **arquiteturais e pontuais**, não de capacidade:
 
 1. **Contexto:** o grafo AST existe (até persistido em banco), mas é **achatado no prompt** e **não é consultável como tool durante o loop** — os líderes traversam o grafo em multi-hop no runtime.
 2. **Memória:** as regras *alimentam* o agente, mas o **loop de feedback não fecha sozinho** — 👍/👎 e implementado/ignorado são capturados e **não viram regra/supressão automática** (o Cursor faz isso continuamente).
@@ -56,10 +56,10 @@ O gap em relação aos líderes (Greptile, CodeRabbit) **não é falta de peças
   - **Greptile:** **memória adaptativa** — contabiliza made / addressed / reactions, suprime categorias ignoradas 3×+ (*security nunca é suprimida*), e um sub-agent **recupera** da memory bank *durante* a review. **[D]**
   - **Cursor:** feedback vira **regras candidatas promovidas automaticamente** quando o sinal acumula (e auto-desativadas se performam mal), entrando no contexto do agente. **[D]**
 - **Kodus (hoje) — temos bastante, e parte ALIMENTA o agente (não é só filtro):**
-  - **Kody Rules (STANDARD)** injetadas no kody-rules agent; **Memory Rules** injetadas no prompt de **todos** os agentes (Bug/Security/Perf/Generalist). Isso *muda o que o agente procura*.
+  - **Piku Rules (STANDARD)** injetadas no kody-rules agent; **Memory Rules** injetadas no prompt de **todos** os agentes (Bug/Security/Perf/Generalist). Isso *muda o que o agente procura*.
   - **IDE rules auto-sync:** ingerimos `.cursorrules`, `.cursor/rules/*.mdc`, `CLAUDE.md`, `.agents.md`, copilot-instructions, windsurf, aider e outros → viram regras injetadas. **Cobertura de formatos provavelmente maior que a dos concorrentes.**
   - **Geração de regras a partir de comentários de PRs históricos** (via LLM) — porém *one-time* / onboarding, não contínua.
-  - **Kody Fine-Tuning:** filtro **pós-geração** por cluster de embeddings (👍/👎 + `IMPLEMENTED`) — esse sim roda **só no engine EE/legacy**, é **opt-in** e exige ≥ 50 sugestões históricas.
+  - **Piku Fine-Tuning:** filtro **pós-geração** por cluster de embeddings (👍/👎 + `IMPLEMENTED`) — esse sim roda **só no engine EE/legacy**, é **opt-in** e exige ≥ 50 sugestões históricas.
   - Sinais 👍/👎 e `implementationStatus` são **persistidos**.
 - **Diferença real (corrigida — o gap é mais estreito do que parece):**
   1. **Não** é "eles alimentam o agente e nós só filtramos" — nós alimentamos o agente com regras (manuais + IDE-sync + geradas de histórico + memory). Em import de IDE somos provavelmente mais abrangentes.
@@ -80,7 +80,7 @@ O gap em relação aos líderes (Greptile, CodeRabbit) **não é falta de peças
 
 Todas reusam infraestrutura que já existe:
 
-1. **Ligar a memória no caminho do agente** e transformar padrões recorrentes em **Kody Rules** que o agente lê (estilo Cursor), pesando "implementado / ignorado" acima de reações 👍/👎.
+1. **Ligar a memória no caminho do agente** e transformar padrões recorrentes em **Piku Rules** que o agente lê (estilo Cursor), pesando "implementado / ignorado" acima de reações 👍/👎.
 2. **Reativar a navegação no grafo como tool do loop** (`getCallers` / `findReferences` sobre o índice AST já persistido em banco).
 3. **Verify com prova ativa** — o agente gera um check no sandbox para confirmar o finding antes de postar (estilo CodeRabbit).
 

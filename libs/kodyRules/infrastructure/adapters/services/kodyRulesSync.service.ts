@@ -314,7 +314,7 @@ export class KodyRulesSyncService {
             if (!toDelete?.uuid) return;
 
             // Soft-delete so the record can be restored if the source file
-            // reappears (or the @kody-ignore marker is removed).
+            // reappears (or the @piku-ignore marker is removed).
             await this.kodyRulesService.createOrUpdate(
                 organizationAndTeamData,
                 { ...toDelete, status: KodyRulesStatus.DELETED } as any,
@@ -333,7 +333,7 @@ export class KodyRulesSyncService {
     /**
      * Flips a rule's `pinnedSync` back to false. Mirrors
      * `deleteRuleBySourcePath` but only touches the pin flag — used when
-     * the source file still exists but no longer carries `@kody-sync`
+     * the source file still exists but no longer carries `@piku-sync`
      * (with `ideRulesSyncEnabled=false`, the force-sync path skips that
      * file, so without this depin pass the rule would keep a stale
      * `pinnedSync=true` and disappear from the orphan-chip count even
@@ -415,9 +415,9 @@ export class KodyRulesSyncService {
                 base: base ? { ref: base } : undefined,
             };
 
-            // If the sync is disabled, we need to force sync the files that have @kody-sync
+            // If the sync is disabled, we need to force sync the files that have @piku-sync
             const forceSyncFiles: string[] = [];
-            // Cache decoded file content from the @kody-sync scan so the
+            // Cache decoded file content from the @piku-sync scan so the
             // main loop below doesn't re-fetch the same files.
             const contentCache = new Map<string, string>();
             if (!syncEnabled) {
@@ -439,7 +439,7 @@ export class KodyRulesSyncService {
                         isRuleFile(f.previous_filename),
                 );
 
-                // Now we need to check which files have @kody-sync in the content
+                // Now we need to check which files have @piku-sync in the content
                 for (const f of ruleChanges) {
                     if (f.status === 'removed') continue;
 
@@ -461,7 +461,7 @@ export class KodyRulesSyncService {
                             forceSyncFiles.push(f.filename);
                             this.logger.log({
                                 message:
-                                    'File marked for force sync with @kody-sync',
+                                    'File marked for force sync with @piku-sync',
                                 context: KodyRulesSyncService.name,
                                 metadata: {
                                     filename: f.filename,
@@ -475,7 +475,7 @@ export class KodyRulesSyncService {
 
                 // Depin / soft-delete pass: rule files that changed but
                 // didn't make it into `forceSyncFiles` either lost their
-                // `@kody-sync` marker or were deleted outright. Without
+                // `@piku-sync` marker or were deleted outright. Without
                 // this, a previously-pinned rule whose marker was just
                 // removed would keep `pinnedSync=true` forever (the
                 // normal sync path would never touch it again with the
@@ -509,7 +509,7 @@ export class KodyRulesSyncService {
                 if (forceSyncFiles.length === 0) {
                     this.logger.log({
                         message:
-                            'IDE rules sync disabled and no files marked with @kody-sync',
+                            'IDE rules sync disabled and no files marked with @piku-sync',
                         context: KodyRulesSyncService.name,
                         metadata: {
                             repositoryId: repository.id,
@@ -576,7 +576,7 @@ export class KodyRulesSyncService {
                         ? f.previous_filename
                         : f.filename;
 
-                // Reuse cached content from the @kody-sync scan when
+                // Reuse cached content from the @piku-sync scan when
                 // available to avoid a duplicate API call for the same
                 // file (the scan already fetched it moments ago).
                 let decoded: string | null =
@@ -674,11 +674,11 @@ export class KodyRulesSyncService {
                             : rawContent;
                 }
 
-                //Verify if the file should be ignored due to the @kody-ignore marker
+                //Verify if the file should be ignored due to the @piku-ignore marker
                 if (this.shouldIgnoreFile(decoded)) {
                     this.logger.log({
                         message:
-                            'File ignored due to @kody-ignore marker - removing existing rules',
+                            'File ignored due to @piku-ignore marker - removing existing rules',
                         context: KodyRulesSyncService.name,
                         metadata: {
                             file: f.filename,
@@ -776,7 +776,7 @@ export class KodyRulesSyncService {
                     pinnedSync: this.shouldForceSync(decoded),
                 } as CreateKodyRuleDto;
 
-                // @kody-sync is an EXPLICIT repo-is-source-of-truth marker:
+                // @piku-sync is an EXPLICIT repo-is-source-of-truth marker:
                 // re-syncing changed content over a previously REJECTED rule
                 // must reactivate it. Preserving 'rejected' meant one UI
                 // rejection permanently blocked that file from ever syncing
@@ -851,7 +851,7 @@ export class KodyRulesSyncService {
             }
         } catch (error) {
             this.logger.error({
-                message: 'Failed to sync Kody Rules from changed files',
+                message: 'Failed to sync Piku Rules from changed files',
                 context: KodyRulesSyncService.name,
                 error,
                 metadata: params,
@@ -932,7 +932,7 @@ export class KodyRulesSyncService {
                     },
                 });
 
-            // Se o sync não estiver habilitado, verificar quais arquivos têm @kody-sync
+            // Se o sync não estiver habilitado, verificar quais arquivos têm @piku-sync
             let filesToSync = allFiles;
             if (!syncEnabled) {
                 const forceSyncFiles: string[] = [];
@@ -952,7 +952,7 @@ export class KodyRulesSyncService {
                         forceSyncFiles.push(file.path);
                         this.logger.log({
                             message:
-                                'File marked for force sync with @kody-sync',
+                                'File marked for force sync with @piku-sync',
                             context: KodyRulesSyncService.name,
                             metadata: {
                                 filename: file.path,
@@ -973,7 +973,7 @@ export class KodyRulesSyncService {
                 //
                 // We have `allFiles` (every rule file at HEAD of the default
                 // branch) and `forceSyncFiles` (the subset that still carries
-                // `@kody-sync`). For each pinned rule:
+                // `@piku-sync`). For each pinned rule:
                 //   - sourcePath not in `allFiles` → file gone → soft-delete.
                 //   - sourcePath in `allFiles` but not in `forceSyncFiles` →
                 //     marker dropped → depin (no-op if already not pinned).
@@ -1012,7 +1012,7 @@ export class KodyRulesSyncService {
                 if (forceSyncFiles.length === 0) {
                     this.logger.log({
                         message:
-                            'IDE rules sync disabled and no files marked with @kody-sync',
+                            'IDE rules sync disabled and no files marked with @piku-sync',
                         context: KodyRulesSyncService.name,
                         metadata: {
                             repositoryId: repository.id,
@@ -1075,11 +1075,11 @@ export class KodyRulesSyncService {
                         ? Buffer.from(rawContent, 'base64').toString('utf-8')
                         : rawContent;
 
-                // Verify if the file should be ignored due to the @kody-ignore marker
+                // Verify if the file should be ignored due to the @piku-ignore marker
                 if (this.shouldIgnoreFile(decoded)) {
                     this.logger.log({
                         message:
-                            'File ignored due to @kody-ignore marker - removing existing rules',
+                            'File ignored due to @piku-ignore marker - removing existing rules',
                         context: KodyRulesSyncService.name,
                         metadata: {
                             file: file.path,
@@ -1165,7 +1165,7 @@ export class KodyRulesSyncService {
                     pinnedSync: this.shouldForceSync(decoded),
                 } as CreateKodyRuleDto;
 
-                // @kody-sync is an EXPLICIT repo-is-source-of-truth marker:
+                // @piku-sync is an EXPLICIT repo-is-source-of-truth marker:
                 // re-syncing changed content over a previously REJECTED rule
                 // must reactivate it. Preserving 'rejected' meant one UI
                 // rejection permanently blocked that file from ever syncing
@@ -1239,7 +1239,7 @@ export class KodyRulesSyncService {
             });
         } catch (error) {
             this.logger.error({
-                message: 'Failed to sync Kody Rules from main',
+                message: 'Failed to sync Piku Rules from main',
                 context: KodyRulesSyncService.name,
                 error,
                 metadata: params,
@@ -1302,7 +1302,7 @@ export class KodyRulesSyncService {
         }
 
         if (!syncEnabled && !this.shouldForceSync(content)) {
-            // File exists but no longer carries `@kody-sync` — depin so the
+            // File exists but no longer carries `@piku-sync` — depin so the
             // chip counts it as orphan again (the normal sync flow won't
             // re-touch this file with the toggle off).
             await this.depinRuleBySourcePath({
@@ -1312,7 +1312,7 @@ export class KodyRulesSyncService {
             });
             this.logger.log({
                 message:
-                    'Requested file is not marked with @kody-sync while IDE rules sync is disabled',
+                    'Requested file is not marked with @piku-sync while IDE rules sync is disabled',
                 context: KodyRulesSyncService.name,
                 metadata: {
                     repositoryId: repository.id,
@@ -1325,7 +1325,7 @@ export class KodyRulesSyncService {
 
         if (!syncEnabled) {
             this.logger.log({
-                message: 'File marked for force sync with @kody-sync',
+                message: 'File marked for force sync with @piku-sync',
                 context: KodyRulesSyncService.name,
                 metadata: {
                     filename: filePath,
@@ -1338,7 +1338,7 @@ export class KodyRulesSyncService {
         if (this.shouldIgnoreFile(content)) {
             this.logger.log({
                 message:
-                    'File ignored due to @kody-ignore marker - removing existing rules',
+                    'File ignored due to @piku-ignore marker - removing existing rules',
                 context: KodyRulesSyncService.name,
                 metadata: {
                     file: filePath,
@@ -1606,7 +1606,7 @@ export class KodyRulesSyncService {
                             if (this.shouldIgnoreFile(content)) {
                                 response.skippedFiles.push({
                                     file: file.path,
-                                    reason: 'ignored via @kody-ignore',
+                                    reason: 'ignored via @piku-ignore',
                                 });
                                 continue;
                             }
@@ -1949,7 +1949,7 @@ export class KodyRulesSyncService {
     /**
      * File-reference tokens like `@AGENTS.md` or `@docs/standards.md`:
      * an `@` at a word boundary followed by a path-ish token that ends in
-     * a file extension. Markers without an extension (`@kody-sync`) and
+     * a file extension. Markers without an extension (`@piku-sync`) and
      * extglobs (`@(a,b)`) don't match.
      */
     private static readonly AT_FILE_REF_RE =
@@ -2235,7 +2235,7 @@ export class KodyRulesSyncService {
                 },
                 observabilityService: this.observabilityService,
                 system: [
-                                'Convert repository rule files (Cursor, Claude, GitHub rules, coding standards, etc.) into a JSON array of Kody Rules. IMPORTANT: Enforce exactly one rule per file. If multiple candidate rules exist, merge them COMPREHENSIVELY into one unified rule that preserves all essential details.',
+                                'Convert repository rule files (Cursor, Claude, GitHub rules, coding standards, etc.) into a JSON array of Piku Rules. IMPORTANT: Enforce exactly one rule per file. If multiple candidate rules exist, merge them COMPREHENSIVELY into one unified rule that preserves all essential details.',
                                 'Output ONLY a valid JSON object with a "rules" array. Format: {"rules": [...]}. If no rules, output {"rules": []}. No comments or explanations.',
                                 'Each item in the "rules" array MUST match exactly:',
                                 '{"title": string, "rule": string, "path": string, "pathSource": "declared"|"content-inferred"|"location-inferred"|"default-repo-wide", "sourcePath": string, "severity": "low"|"medium"|"high"|"critical", "scope"?: "file"|"pull-request", "status"?: "active"|"pending"|"rejected"|"deleted", "examples": [{ "snippet": string, "isCorrect": boolean }], "sourceSnippet"?: string}',
@@ -2479,7 +2479,7 @@ export class KodyRulesSyncService {
                         .addPrompt({
                             role: PromptRole.SYSTEM,
                             prompt: [
-                                'You will receive multiple repository rule files. Return ONLY a JSON object { "rules": [...] } (no code fences) with up to 3 MOST IMPORTANT Kody Rules across all files (prioritize critical/high impact, security/compliance, or broad applicability). If none, return { "rules": [] }.',
+                                'You will receive multiple repository rule files. Return ONLY a JSON object { "rules": [...] } (no code fences) with up to 3 MOST IMPORTANT Piku Rules across all files (prioritize critical/high impact, security/compliance, or broad applicability). If none, return { "rules": [] }.',
                                 'Each rule must include: title, rule, path, sourcePath, severity ("low"|"medium"|"high"|"critical"), optional scope ("file"|"pull-request"), examples: [{ "snippet": string, "isCorrect": boolean }], and optional sourceSnippet.',
                                 'For each file, if multiple candidate rules exist, merge them into one comprehensive rule for that file, then select only the top rules overall.',
                                 'sourcePath MUST be the file path from input. Use the same for path unless the file declares specific globs.',
@@ -2649,7 +2649,7 @@ export class KodyRulesSyncService {
                             role: PromptRole.SYSTEM,
                             prompt: [
                                 'You will receive dependency manifests (package.json, requirements.txt, pyproject.toml, go.mod, Cargo.toml, pom.xml, build.gradle(.kts), csproj, Gemfile, mix.exs, etc.). Use them ONLY to infer stack, frameworks, and tooling.',
-                                'Produce up to 3 HIGH-IMPACT Kody Rules tailored to this stack. Prioritize security/auth, secrets handling, logging/observability, testing/linting/type-check, dependency hygiene. Avoid generic style nits.',
+                                'Produce up to 3 HIGH-IMPACT Piku Rules tailored to this stack. Prioritize security/auth, secrets handling, logging/observability, testing/linting/type-check, dependency hygiene. Avoid generic style nits.',
                                 'Do NOT propose rules that depend on CI/CD, bots, or specific version pinning/patch enforcement. Rules must be actionable via code/config only.',
                                 'Return ONLY a JSON object { "rules": [...] } with no code fences. If none, return { "rules": [] }.',
                                 'Each rule must include: title, rule, path (use the manifest path or glob inferred from it), severity ("low"|"medium"|"high"|"critical"), optional scope ("file"|"pull-request"), and examples: [{ "snippet": string, "isCorrect": boolean }].',
@@ -2949,7 +2949,7 @@ export class KodyRulesSyncService {
     }
 
     /**
-     * Verifica se um arquivo deve ser sincronizado forçadamente baseado na marcação @kody-sync
+     * Verifica se um arquivo deve ser sincronizado forçadamente baseado na marcação @piku-sync
      * A marcação pode estar no início ou final do arquivo
      */
     private shouldForceSync(content: string): boolean {
@@ -2979,9 +2979,13 @@ export class KodyRulesSyncService {
             lastLines = lines.slice(-10);
         }
 
-        // Padrão para detectar @kody-sync (case insensitive, com word boundary)
+        // Padrão para detectar @piku-sync (case insensitive, com word boundary)
         // Deve ter uma quebra de palavra antes do @ E depois de "sync" para evitar falsos positivos
-        const syncPattern = /(?:^|[^a-zA-Z0-9._-])@kody-sync(?![a-zA-Z0-9_-])/i;
+        // piku-cat fork: the pre-rebrand spelling still matches — the marker
+        // lives in the user's own rule files, and dropping it would silently
+        // unpin every file that already carries the old name.
+        const syncPattern =
+            /(?:^|[^a-zA-Z0-9._-])@(?:piku|kody)-sync(?![a-zA-Z0-9_-])/i;
 
         // Verifica no início do arquivo
         const hasSyncAtStart = firstLines.some((line) =>
@@ -3059,7 +3063,7 @@ export class KodyRulesSyncService {
     }
 
     /**
-     * Verifica se um arquivo deve ser ignorado baseado na marcação @kody-ignore
+     * Verifica se um arquivo deve ser ignorado baseado na marcação @piku-ignore
      * A marcação pode estar no início ou final do arquivo
      */
     private shouldIgnoreFile(content: string): boolean {
@@ -3077,8 +3081,10 @@ export class KodyRulesSyncService {
         const firstLines = lines.slice(0, 10);
         const lastLines = lines.slice(-10);
 
-        // Padrão para detectar @kody-ignore (case insensitive, com possíveis comentários)
-        const ignorePattern = /@kody-ignore\b/i;
+        // Padrão para detectar @piku-ignore (case insensitive, com possíveis comentários)
+        // piku-cat fork: the pre-rebrand spelling still matches, same reason as
+        // the sync marker above.
+        const ignorePattern = /@(?:piku|kody)-ignore\b/i;
 
         // Verifica no início do arquivo
         const hasIgnoreAtStart = firstLines.some((line) =>
@@ -3162,7 +3168,7 @@ export class KodyRulesSyncService {
      * touch ACTIVE rules; `resume` should only touch PAUSED rules).
      *
      * `excludePinned` (default `true`) skips rules whose source file carries
-     * an `@kody-sync` marker (`pinnedSync === true`). The bulk pause/delete
+     * an `@piku-sync` marker (`pinnedSync === true`). The bulk pause/delete
      * actions intentionally leave those alone — the next PR-driven sync
      * would re-import them as ACTIVE anyway, and the chip already excludes
      * them, so the two surfaces must agree. Set to `false` to force a
@@ -3324,7 +3330,7 @@ export class KodyRulesSyncService {
      * toggle-off modal copy ("you have N rules currently auto-synced").
      *
      * `pinned` counts ACTIVE+PAUSED rules whose source file carries
-     * `@kody-sync` — those won't be touched by pause/delete bulk actions
+     * `@piku-sync` — those won't be touched by pause/delete bulk actions
      * (the next sync would re-import them anyway). The UI uses this to
      * tell the user "we'll preserve M pinned rules" so the result of
      * the action isn't surprising. DELETED-pinned isn't counted because
@@ -3597,7 +3603,7 @@ export class KodyRulesSyncService {
                         ? Buffer.from(rawContent, 'base64').toString('utf-8')
                         : rawContent;
 
-                // @kody-ignore still applies: remove any existing global rule
+                // @piku-ignore still applies: remove any existing global rule
                 // for this file.
                 if (this.shouldIgnoreFile(decoded)) {
                     if (existing?.uuid) {

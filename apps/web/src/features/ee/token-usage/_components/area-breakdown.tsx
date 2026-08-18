@@ -60,7 +60,7 @@ const AREA_META: Record<
     conversation: {
         label: "Conversation",
         color: CHART_COLORS.danger,
-        description: "Answering your @kody replies in review threads.",
+        description: "Answering your @piku replies in review threads.",
     },
     system: {
         label: "System analysis",

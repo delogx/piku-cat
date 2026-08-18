@@ -117,7 +117,7 @@ export class UpdateCommentsAndGenerateSummaryStage extends BasePipelineStage<Cod
             };
         };
 
-        // Optional team-authored guidance appended below Kody's default error
+        // Optional team-authored guidance appended below Piku's default error
         // comment (issue #1452). Honored whenever the review failed and the
         // message has content — the presence of content is the switch (there is
         // no separate on/off toggle for the error message). Empty/unset content

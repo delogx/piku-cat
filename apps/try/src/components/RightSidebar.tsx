@@ -185,7 +185,7 @@ function ReviewModelCard() {
                     />
                     <div className="min-w-0">
                         <p className="text-sm text-[var(--text)] font-medium truncate">
-                            Kody, on {REVIEW_MODEL.label}
+                            Piku, on {REVIEW_MODEL.label}
                         </p>
                         <p className="text-[11px] font-mono text-[var(--text-dim)] truncate">
                             {REVIEW_MODEL.id}
@@ -194,7 +194,7 @@ function ReviewModelCard() {
                 </div>
 
                 <p className="text-[12px] text-[var(--text-muted)] leading-relaxed mb-3">
-                    Want sharper reviews? Run Kody on:
+                    Want sharper reviews? Run Piku on:
                 </p>
                 <ul className="space-y-1 mb-4">
                     {upgradeTo.map((m) => (

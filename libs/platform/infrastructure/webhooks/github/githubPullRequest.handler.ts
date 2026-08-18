@@ -311,7 +311,7 @@ export class GitHubPullRequestHandler implements IWebhookEventHandler {
                 // A best-effort heuristic now runs in the synchronize path by checking
                 // whether payload.before is still present in the PR commit list.
 
-                // If merged into default branch, trigger Kody Rules sync for main
+                // If merged into default branch, trigger Piku Rules sync for main
                 const merged = payload?.pull_request?.merged === true;
                 const baseRef = payload?.pull_request?.base?.ref;
 
@@ -373,7 +373,7 @@ export class GitHubPullRequestHandler implements IWebhookEventHandler {
                         }
                     } catch (e) {
                         this.logger.error({
-                            message: 'Failed to sync Kody Rules after PR merge',
+                            message: 'Failed to sync Piku Rules after PR merge',
                             context: GitHubPullRequestHandler.name,
                             error: e,
                             metadata: {
@@ -465,7 +465,7 @@ export class GitHubPullRequestHandler implements IWebhookEventHandler {
             // If it is a start-review command and does not have the review marker
             if (isStartCommand && !hasMarker) {
                 this.logger.log({
-                    message: `@kody start command detected in GitHub comment for PR#${pullRequest?.number}`,
+                    message: `@piku start command detected in GitHub comment for PR#${pullRequest?.number}`,
                     serviceName: GitHubPullRequestHandler.name,
                     metadata: {
                         prNumber,

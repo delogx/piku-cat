@@ -52,7 +52,7 @@ export type TokenUsageArea =
     | 'cross_file' // cross-file context collection + analysis
     | 'suggestions' // suggestion refinement (severity/safeguard/validation)
     | 'summary' // PR summary generation
-    | 'conversation' // @kody conversation
+    | 'conversation' // @piku conversation
     | 'system' // internal system analysis (SYSTEM_RUN_NAMES)
     | 'other';
 

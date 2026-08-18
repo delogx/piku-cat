@@ -17,7 +17,7 @@ export interface PendingKodyRulesResult {
 }
 
 /**
- * The single source for the Pending area: every pending Kody Rule and Memory
+ * The single source for the Pending area: every pending Piku Rule and Memory
  * for the org (optionally scoped to a repository), plus counts for the badge.
  * Items carry `type`/`origin`/`requestType`/`targetRuleUuid` so the UI can show
  * provenance and tell create-requests from update-requests.

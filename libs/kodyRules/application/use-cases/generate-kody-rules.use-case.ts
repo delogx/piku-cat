@@ -96,7 +96,7 @@ export const PR_FETCH_CONCURRENCY = 2;
 export const MAX_PULL_REQUESTS_SCANNED = 100;
 
 // Oversampled against the ~100 comments the pipeline keeps: bot authors,
-// Kody's own past comments and denylisted reviewers are dropped downstream.
+// Piku's own past comments and denylisted reviewers are dropped downstream.
 export const TARGET_SAMPLED_COMMENTS = 300;
 
 // Mirrors the filter in commentAnalysis.service (`body.length > 100`), so the
@@ -219,7 +219,7 @@ export class GenerateKodyRulesUseCase {
 
             if (!modelPolicy.generate) {
                 this.logger.warn({
-                    message: `Skipping Kody Rules generation — ${modelPolicy.skipReason}`,
+                    message: `Skipping Piku Rules generation — ${modelPolicy.skipReason}`,
                     context: GenerateKodyRulesUseCase.name,
                     metadata: { body, organizationAndTeamData },
                 });
@@ -427,7 +427,7 @@ export class GenerateKodyRulesUseCase {
 
                 if (excludedForRepo && excludedForRepo.size > 0) {
                     this.logger.log({
-                        message: `Excluding ${excludedForRepo.size} reviewer(s) from Kody Rules learning`,
+                        message: `Excluding ${excludedForRepo.size} reviewer(s) from Piku Rules learning`,
                         context: GenerateKodyRulesUseCase.name,
                         metadata: {
                             organizationAndTeamData,
@@ -517,7 +517,7 @@ export class GenerateKodyRulesUseCase {
 
                         if (!createdRule) {
                             throw new Error(
-                                'Failed to persist generated Kody rule',
+                                'Failed to persist generated Piku rule',
                             );
                         }
 
@@ -538,7 +538,7 @@ export class GenerateKodyRulesUseCase {
                     } catch (persistError) {
                         this.logger.error({
                             message:
-                                'Failed to persist a generated Kody rule; keeping the others',
+                                'Failed to persist a generated Piku rule; keeping the others',
                             context: GenerateKodyRulesUseCase.name,
                             error:
                                 persistError instanceof Error
@@ -606,7 +606,7 @@ export class GenerateKodyRulesUseCase {
             }
 
             this.logger.log({
-                message: 'Kody rules generated successfully',
+                message: 'Piku rules generated successfully',
                 context: GenerateKodyRulesUseCase.name,
                 metadata: { body, organizationAndTeamData },
             });
@@ -614,7 +614,7 @@ export class GenerateKodyRulesUseCase {
             // Send email notification if rules were created
             if (createdRules.length > 0) {
                 this.logger.log({
-                    message: 'Sending email notification for new Kody rules',
+                    message: 'Sending email notification for new Piku rules',
                     context: GenerateKodyRulesUseCase.name,
                     metadata: {
                         organizationId,
@@ -624,7 +624,7 @@ export class GenerateKodyRulesUseCase {
 
                 // Execute notification asynchronously to not block the main flow
                 // The notification takes the rule TITLES — short, human
-                // readable, and the same text the Kody Rules screen shows.
+                // readable, and the same text the Piku Rules screen shows.
                 // The full rule body is a paragraph of prompt text and would
                 // make the email unreadable.
                 this.sendRulesNotificationUseCase
@@ -635,7 +635,7 @@ export class GenerateKodyRulesUseCase {
                     .catch((error) => {
                         this.logger.error({
                             message:
-                                'Error sending email notification for Kody rules',
+                                'Error sending email notification for Piku rules',
                             context: GenerateKodyRulesUseCase.name,
                             error,
                             metadata: {

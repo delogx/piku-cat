@@ -489,7 +489,7 @@ async function resolveTenantForCell(
 // observed in practice (e.g. kody-rules × gitlab "No review activity on
 // PR … within timeout" while the same repo passed 3 other scenarios in
 // the same run). Deterministic mismatches — "expected deny, got allow",
-// "Kody posted one", wrong subscriptionStatus — deliberately do NOT
+// "Piku posted one", wrong subscriptionStatus — deliberately do NOT
 // match: re-running cannot change a wrong value, it only burns an LLM
 // review and 10 minutes.
 // NOTE on the first entry: a BARE /timeout/i used to head this list. It
@@ -826,7 +826,7 @@ export async function runMatrix(opts: RunOptions): Promise<RunOutcome> {
             // One automatic retry for TRANSIENT failure shapes (lost
             // webhook, provider hiccup, network) — see isTransientFailure.
             // Deterministic assertion mismatches ("expected deny, got
-            // allow", "Kody posted one") never retry: re-running can't
+            // allow", "Piku posted one") never retry: re-running can't
             // change a wrong value, only waste an LLM review.
             let failFastHit = false;
             let retriedAfter: string | undefined;

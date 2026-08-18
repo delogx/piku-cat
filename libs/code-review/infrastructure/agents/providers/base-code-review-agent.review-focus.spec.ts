@@ -1,5 +1,5 @@
 /**
- * Verifies the `@kody review <directive>` steering text is rendered into the
+ * Verifies the `@piku review <directive>` steering text is rendered into the
  * finder prompt as a high-priority <ReviewFocus> block — on both the full and
  * compact user-prompt paths — and that it is a PRIORITY hint, not a filter
  * (issues elsewhere are still in scope). Absent directive => no block.

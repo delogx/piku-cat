@@ -24,7 +24,7 @@ export class FindLibraryKodyRulesBucketsUseCase {
             return buckets;
         } catch (error) {
             this.logger.error({
-                message: 'Error finding library Kody Rules buckets',
+                message: 'Error finding library Piku Rules buckets',
                 context: FindLibraryKodyRulesBucketsUseCase.name,
                 error: error,
             });

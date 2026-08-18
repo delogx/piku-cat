@@ -1,14 +1,14 @@
-# Kody Code Review - Quick Cheatsheet
+# Piku Code Review - Quick Cheatsheet
 
-**Kody** is your AI code reviewer that automatically analyzes pull requests and provides actionable suggestions.
+**Piku** is your AI code reviewer that automatically analyzes pull requests and provides actionable suggestions.
 
-## 🚀 When Kody Reviews Automatically
+## 🚀 When Piku Reviews Automatically
 
 - ✅ PR opened
 - ✅ New commits pushed (depending on cadence settings)
-- ✅ Manual trigger: comment `@kody start-review`
+- ✅ Manual trigger: comment `@piku start-review`
 
-## 👀 When Kody Skips
+## 👀 When Piku Skips
 
 - No new commits since last review
 - Only merge commits (no effective changes)
@@ -18,16 +18,16 @@
 
 ## 📊 Status Reactions (GitHub/GitLab)
 
-Kody shows live status with emoji reactions:
+Piku shows live status with emoji reactions:
 
 - 🚀 **Processing** - Review in progress
 - 🎉 **Completed** - Review finished, check comments
 - 👀 **Skipped** - No review needed (see reasons above)
-- 😕 **Error** - Something went wrong, try `@kody start-review` again
+- 😕 **Error** - Something went wrong, try `@piku start-review` again
 
 ## 🎯 Quick Actions
 
-**Need a review?** Comment: `@kody start-review`
+**Need a review?** Comment: `@piku start-review`
 
 **Review not showing?** Check:
 1. PR has code changes (not just docs/images)
@@ -38,8 +38,8 @@ Kody shows live status with emoji reactions:
 ## 💡 Tips for Better Reviews
 
 - **Keep PRs focused** - Smaller diffs = better review quality
-- **Link specs/tickets** - Helps Kody understand context
-- **Re-run after fixes** - Use `@kody start-review` after addressing feedback
+- **Link specs/tickets** - Helps Piku understand context
+- **Re-run after fixes** - Use `@piku start-review` after addressing feedback
 
 ## 📚 Learn More
 

@@ -151,7 +151,7 @@ describe('CommentManagerService.generateSummaryPR', () => {
             (s.match(new RegExp(startMarker, 'g')) ?? []).length;
 
         it('strips the previous block on re-run when CONCATENATE is set', async () => {
-            // Simulate a re-run: the PR body already has a Kody summary
+            // Simulate a re-run: the PR body already has a Piku summary
             // block (from the previous run), joined to the user's
             // original text by the `\n\n---\n\n` separator we emit.
             const userText = 'User-authored description text';
@@ -246,7 +246,7 @@ describe('CommentManagerService.generateSummaryPR', () => {
         it('handles a body with the marker but no separator (legacy data shape)', async () => {
             const userText = 'Old style body';
             // No `\n\n---\n\n` between user text and the block — older
-            // version of Kody appended directly. The fix should still
+            // version of Piku appended directly. The fix should still
             // strip the standalone block via the second regex.
             codeManagementService.getPullRequestByNumber.mockResolvedValue({
                 body: `${userText}${startMarker}\nlegacy\n${endMarker}`,
@@ -418,7 +418,7 @@ describe('CommentManagerService.generateSummaryPR', () => {
     });
 
     // Error message (issue #1452): the team's optional note is appended below
-    // Kody's default error comment; the technical reason is always preserved.
+    // Piku's default error comment; the technical reason is always preserved.
     describe('error message custom note', () => {
         const genErrorSummary = (customNote?: string) =>
             (service as any).generatePullRequestFinishSummaryMarkdown(

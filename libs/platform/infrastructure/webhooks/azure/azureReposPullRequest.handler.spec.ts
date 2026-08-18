@@ -216,7 +216,7 @@ describe('AzureReposPullRequestHandler', () => {
                     resource: {
                         comment: {
                             id: 10,
-                            content: '@kody start-review',
+                            content: '@piku start-review',
                         },
                         pullRequest: {
                             pullRequestId: 123,

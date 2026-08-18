@@ -138,7 +138,7 @@ export function ReviewProgressBar({
                         className="text-[13px] text-[var(--text)] truncate fade-up"
                         style={{ animationDuration: "0.35s" }}
                     >
-                        <span className="text-[var(--text-muted)]">Kody:</span>{" "}
+                        <span className="text-[var(--text-muted)]">Piku:</span>{" "}
                         <span className="font-medium">{message}</span>
                     </p>
                     {pr && (

@@ -132,7 +132,7 @@
     },
     {
         "caseId": "commit-replace-inplace",
-        "description": "New commit on an open PR, behaviourForNewCommits=REPLACE, body has an author note + a prior Kody block → the block is regenerated IN PLACE, author note kept, stale block content gone, still one block.",
+        "description": "New commit on an open PR, behaviourForNewCommits=REPLACE, body has an author note + a prior Piku block → the block is regenerated IN PLACE, author note kept, stale block content gone, still one block.",
         "mode": "commit",
         "behaviour": "replace",
         "existingBody": "Author note: part of the Q3 billing epic.\n\n<!-- kody-pr-summary:start -->\nOLD_COMMIT_SUMMARY_FROM_LAST_PUSH\n<!-- kody-pr-summary:end -->",
@@ -158,7 +158,7 @@
     },
     {
         "caseId": "commit-concatenate-accumulate",
-        "description": "New commit on an open PR, behaviourForNewCommits=CONCATENATE, body has an author note + a prior Kody block → the new summary is appended INSIDE the block, keeping the prior summary, author note kept, still one block.",
+        "description": "New commit on an open PR, behaviourForNewCommits=CONCATENATE, body has an author note + a prior Piku block → the new summary is appended INSIDE the block, keeping the prior summary, author note kept, still one block.",
         "mode": "commit",
         "behaviour": "concatenate",
         "existingBody": "Author note: incremental delivery, review per commit.\n\n<!-- kody-pr-summary:start -->\nOLD_COMMIT_SUMMARY_FROM_LAST_PUSH\n<!-- kody-pr-summary:end -->",
@@ -184,7 +184,7 @@
     },
     {
         "caseId": "commit-replace-no-prior-block",
-        "description": "New commit on an open PR, behaviourForNewCommits=REPLACE, body has an author note but NO prior Kody block → a fresh block is appended, author note kept, one block.",
+        "description": "New commit on an open PR, behaviourForNewCommits=REPLACE, body has an author note but NO prior Piku block → a fresh block is appended, author note kept, one block.",
         "mode": "commit",
         "behaviour": "replace",
         "existingBody": "Author note: first push had no summary yet.",

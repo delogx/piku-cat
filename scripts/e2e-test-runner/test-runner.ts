@@ -470,12 +470,12 @@ This PR contains intentional code issues for the code review system to detect.`,
                     pr.prNumber,
                 );
 
-                // Look for Kody comments
+                // Look for Piku comments
                 const hasKodyComment =
                     comments.some(
                         (c) =>
                             c.body?.includes('kody') ||
-                            c.body?.includes('Kody') ||
+                            c.body?.includes('Piku') ||
                             c.user?.login?.includes('kody'),
                     ) ||
                     reviewComments.some(

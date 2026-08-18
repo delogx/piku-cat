@@ -47,7 +47,7 @@ Checks that the benchmark-critical containers exist and are `running`/`healthy`.
 ### wait-for-run.js — Know when the run is done
 
 The run is considered finished when every mapped `prNumber` in `runs/<name>.json` reaches:
-- `code_review_execution.stage_name = 'Kody Review Finished'`
+- `code_review_execution.stage_name = 'Piku Review Finished'`
 - `code_review_execution.status = 'success'`
 
 ```bash

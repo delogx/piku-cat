@@ -55,7 +55,7 @@ export class SuggestionMvEntity {
     suggestionCreatedAt: Date | null;
 
     /**
-     * Kody Rule UUIDs this suggestion enforces — promoted from `raw` so
+     * Piku Rule UUIDs this suggestion enforces — promoted from `raw` so
      * rule-level analytics can aggregate via GIN index.
      */
     @Column({

@@ -55,11 +55,11 @@ export function buildKodyRuleCentralizedMutationRequest(
             ];
         },
         title: ({ repositoryFolder }) =>
-            `${params.operation === 'delete' ? 'Remove' : 'Update'} ${isMemory ? 'Kody Memory' : 'Kody Rule'} from ${repositoryFolder}`,
+            `${params.operation === 'delete' ? 'Remove' : 'Update'} ${isMemory ? 'Piku Memory' : 'Piku Rule'} from ${repositoryFolder}`,
         description:
             params.operation === 'delete'
-                ? 'This pull request proposes removing a centralized Kody file.'
-                : 'This pull request proposes a centralized Kody configuration change.',
+                ? 'This pull request proposes removing a centralized Piku file.'
+                : 'This pull request proposes a centralized Piku configuration change.',
         commitMessage: `${operationLabel} ${isMemory ? 'memory' : 'rule'} via centralized config`,
         sourceBranch: () =>
             `kodus-centralized-${params.ruleType}-${params.operation}-${Date.now()}`,

@@ -163,7 +163,7 @@ export class CliBusinessValidationResponseDto {
 
     @ApiProperty({
         example:
-            '@kody -v business-logic https://linear.app/kodus/issue/KD-1234/validar-regra',
+            '@piku -v business-logic https://linear.app/kodus/issue/KD-1234/validar-regra',
     })
     command: string;
 

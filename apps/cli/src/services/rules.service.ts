@@ -25,7 +25,7 @@ const VALID_SEVERITIES: KodyRuleSeverity[] = [
 const VALID_SCOPES: KodyRuleScope[] = ['pull request', 'file'];
 
 const RULES_AUTH_MESSAGE =
-    'Kody Rules commands require team-key auth. Run: kodus auth team-key --key <your-key>.\nGet your key from: https://app.kodus.io/organization/cli-keys';
+    'Piku Rules commands require team-key auth. Run: kodus auth team-key --key <your-key>.\nGet your key from: https://app.kodus.io/organization/cli-keys';
 
 class RulesService {
     async createRule(

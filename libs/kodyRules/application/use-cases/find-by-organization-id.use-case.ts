@@ -42,12 +42,12 @@ export class FindByOrganizationIdKodyRulesUseCase {
 
             if (!existing) {
                 throw new NotFoundException(
-                    'No Kody rules found for the given organization ID',
+                    'No Piku rules found for the given organization ID',
                 );
             }
 
             // Soft-deleted rules stay in the document for audit/history but
-            // must not surface on the Kody Rules screen. APPLIED is also
+            // must not surface on the Piku Rules screen. APPLIED is also
             // hidden to match find-rules-in-organization-by-filter, which is
             // the other listing endpoint the UI uses.
             const visibleRules = (existing.rules || []).filter(
@@ -68,7 +68,7 @@ export class FindByOrganizationIdKodyRulesUseCase {
             };
         } catch (error) {
             this.logger.error({
-                message: 'Error finding Kody Rules by organization ID',
+                message: 'Error finding Piku Rules by organization ID',
                 context: FindByOrganizationIdKodyRulesUseCase.name,
                 error: error,
                 metadata: {

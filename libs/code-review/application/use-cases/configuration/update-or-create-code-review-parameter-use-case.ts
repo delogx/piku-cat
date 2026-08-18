@@ -496,7 +496,7 @@ export class UpdateOrCreateCodeReviewParameterUseCase {
                 this.eventEmitter.emit(IDE_RULES_SYNC_DISABLED_EVENT, event);
             }
 
-            // Enabling the Kody Rules generator for a repo seeds its rules from
+            // Enabling the Piku Rules generator for a repo seeds its rules from
             // the last 3 months of PR reviews right away, instead of waiting for
             // the weekly cron (which also backfills, but only on its next run).
             // The seed is idempotent — it skips when past-review rules already
@@ -511,7 +511,7 @@ export class UpdateOrCreateCodeReviewParameterUseCase {
                     .catch((error) => {
                         this.logger.error({
                             message:
-                                'Failed to start initial Kody Rules generation',
+                                'Failed to start initial Piku Rules generation',
                             context:
                                 UpdateOrCreateCodeReviewParameterUseCase.name,
                             error:

@@ -14,11 +14,11 @@ O manager quer: qualidade minima garantida, regras customizadas por time, visibi
 
 ## 2. Visao de Produto
 
-**"O Kody aprende seu time."**
+**"O Piku aprende seu time."**
 
 O Kodus Skills Framework e um sistema onde:
 
-1. **Skills sao artefatos versionados** — arquivos declarativos (SKILL.md) que definem o que o Kody analisa, quais ferramentas usa, e quais regras segue
+1. **Skills sao artefatos versionados** — arquivos declarativos (SKILL.md) que definem o que o Piku analisa, quais ferramentas usa, e quais regras segue
 2. **Skills declaram capabilities abstratas** — "preciso ler contexto de task" em vez de "chama getJiraIssue" — o runtime resolve pro provider certo
 3. **O sistema aprende** — apos execucoes bem-sucedidas, promove a tool que funciona melhor pra cada time/provider
 4. **O manager configura e observa** — habilita skills por time, define regras custom, ve metricas de qualidade

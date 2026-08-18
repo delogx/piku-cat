@@ -339,7 +339,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
 
     /**
      * Resolve whether HEAVY mode actually runs: the per-review opt-in (CLI
-     * `--heavy` / `@kody review --heavy`) AND the `heavy-review` feature gate,
+     * `--heavy` / `@piku review --heavy`) AND the `heavy-review` feature gate,
      * which is an ALPHA feature — cloud gates it by the org's release track +
      * PostHog allowlist, self-hosted keeps it off until it's promoted to beta.
      * A denied request degrades silently to a normal review.
@@ -498,7 +498,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             },
         });
 
-        // Observability for the `@kody review <directive>` steering feature:
+        // Observability for the `@piku review <directive>` steering feature:
         // emit a marker when a directive reached the finder, so it's visible in
         // logs (and assertable in E2E) that the review was actually focused.
         if (context.reviewDirective) {
@@ -706,7 +706,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             // Classify agent failures so the pipeline's final conclusion
             // reflects them. Core agents (bug / security / performance /
             // generalist) are the primary output — losing one of them is a
-            // critical error and should red-flag the check. Kody-rules is
+            // critical error and should red-flag the check. Piku-rules is
             // auxiliary: the review still has value from the core agents,
             // so its failure is partial (maps to NEUTRAL on GitHub).
             const CRITICAL_AGENTS = new Set([
@@ -942,7 +942,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                 (s) => s.label !== 'kody_rules',
             );
 
-            // Normalize Kody Rules legacy severity (critical/issue/warning) into the
+            // Normalize Piku Rules legacy severity (critical/issue/warning) into the
             // v2 severity scale (critical/high/medium/low). The agent returns the rule
             // UUID in brokenKodyRulesIds — use it for exact matching.
             const kodyRulesById = new Map(
@@ -977,7 +977,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                 ...kodyRulesWithSeverity,
             ];
 
-            // Deduplicate Kody Rules deterministically by ruleUuid.
+            // Deduplicate Piku Rules deterministically by ruleUuid.
             // No LLM call needed — the ruleUuid unambiguously identifies
             // which rule each finding belongs to, so same-rule findings
             // can be merged without asking a model to decide.
@@ -1053,10 +1053,10 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                 };
             }
 
-            // Cross-stream dedup (PR #1527 follow-up): a file-scope Kody Rule and
+            // Cross-stream dedup (PR #1527 follow-up): a file-scope Piku Rule and
             // an AI suggestion can flag the same issue on the same file. They are
             // deduped in separate streams above, so both survive. Absorb the
-            // suggestion into the Kody Rule when they describe the same bug (the
+            // suggestion into the Piku Rule when they describe the same bug (the
             // rule wins — it's user-configured and carries the violation link).
             try {
                 dedupedNonRules =
@@ -1077,7 +1077,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
 
             let deduped = [...dedupedNonRules, ...kodyRulesForDedup];
 
-            // NOTE: Kody Rule link enrichment happens AFTER the content
+            // NOTE: Piku Rule link enrichment happens AFTER the content
             // formatter (see block further below). Doing it before would
             // let the formatter LLM strip or reword the link when it
             // collapses WHAT/WHY/HOW into natural prose.
@@ -1131,7 +1131,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             // as HIGH would pass the early filter, get reclassified to LOW,
             // and appear on the PR below the user's configured threshold.
             //
-            // Kody Rules are exempt by default (team-defined rules always
+            // Piku Rules are exempt by default (team-defined rules always
             // surface regardless of severity). Teams can opt in to filter
             // them too via suggestionControl.applyFiltersToKodyRules=true.
             const severityFilter =
@@ -1225,7 +1225,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
 
             // Enrich kody_rules suggestions with markdown links to the rule
             // page. Runs AFTER the content formatter so the formatter LLM
-            // cannot drop the "Kody rule violation: ..." appendix while
+            // cannot drop the "Piku rule violation: ..." appendix while
             // rewriting prose (observed with gemini-3-flash-preview on
             // short PR-level findings).
             const baseUrl = process.env.API_USER_INVITE_BASE_URL || '';
@@ -1475,7 +1475,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
     }
 
     /**
-     * Deduplicate Kody Rules findings by ruleUuid.
+     * Deduplicate Piku Rules findings by ruleUuid.
      *
      * For each rule:
      *   - If it's PR-level (no relevantFile): keep a single finding — a
@@ -1643,7 +1643,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
      * tiebreak/LLM error still vetoes, so a low-overlap merge is never honored
      * blindly.
      *
-     * `crossStream` mode (Kody-Rule vs suggestion): there is NO prior LLM
+     * `crossStream` mode (Piku-Rule vs suggestion): there is NO prior LLM
      * grouping to corroborate a match, so the cheap lexical-honor shortcut is
      * skipped — only a strong semantic signal (embedding-high or a tiebreak yes)
      * may absorb a suggestion into a rule, keeping false absorptions near zero.
@@ -1710,7 +1710,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
 
     /**
      * Build the pairwise "same bug?" tiebreak used by both the within-stream
-     * dedup guard and the cross-stream (Kody-Rule vs suggestion) dedup. Resolves
+     * dedup guard and the cross-stream (Piku-Rule vs suggestion) dedup. Resolves
      * the secondary model the same way the batch dedup does; any failure returns
      * null so the caller vetoes (keeps both).
      */
@@ -1766,11 +1766,11 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
     }
 
     /**
-     * Cross-stream dedup (PR #1527 follow-up): a Kody Rule and an AI suggestion
+     * Cross-stream dedup (PR #1527 follow-up): a Piku Rule and an AI suggestion
      * can flag the SAME issue on the same file, but they are deduped in separate
-     * streams so both survive. Here we cross-compare FILE-scope Kody Rules
+     * streams so both survive. Here we cross-compare FILE-scope Piku Rules
      * against the already-deduped suggestions; when they describe the same bug we
-     * drop the suggestion and keep the Kody Rule (it is user-configured and
+     * drop the suggestion and keep the Piku Rule (it is user-configured and
      * carries the rule-violation link). PR-scope rules (no relevantFile) are
      * excluded — they are not tied to a file/line. Fail-soft: any error keeps the
      * suggestion (pre-change behavior).

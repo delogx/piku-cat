@@ -1,13 +1,13 @@
 {
     "reviewComment": {
-        "talkToKody": "@kody ஐ குறிப்பிடுவதன் மூலம் Piku உடன் பேசுங்கள்",
+        "talkToKody": "@piku ஐ குறிப்பிடுவதன் மூலம் Piku உடன் பேசுங்கள்",
         "feedback": "இந்த பரிந்துரை பயனுள்ளதாக இருந்ததா? இந்த தொடர்பிலிருந்து கற்றுக்கொள்ள Piku க்கு உதவ 👍 அல்லது 👎 மூலம் பதிலளிக்கவும்."
     },
     "pullRequestFinishSummaryMarkdown": {
         "withComments": "## குறியீட்டு மதிப்பீடு முடிந்தது! 🔥\n\nஉங்கள் தற்போதைய கட்டமைப்புகளின் அடிப்படையில் குறியீட்டு மதிப்பீடு வெற்றிகரமாக முடிந்தது.\n\n",
         "withoutComments": "# Piku மதிப்பீடு முடிந்தது\n**சிறந்த செய்தி!** 🎉\nஉங்கள் தற்போதைய மதிப்பீட்டு கட்டமைப்புகளுடன் பொருந்தும் பிரச்சினைகள் எதுவும் கண்டறியப்படவில்லை.\n\nசிறந்த வேலை தொடருங்கள்! 🚀",
-        "withErrors": "## Code Review Could Not Complete ⚠️\n\nThe review failed before suggestions could be generated.\n\n**Reason:** {{errorMessage}}\n\nAfter fixing the issue, comment `@kody review` on this PR to re-run the review.\n\n",
-        "partialErrorsNotice": "\n\n> ⚠️ Note: some checks couldn't be completed in this run, so auto-approval (when enabled) was skipped. Check the details at {{dashboardUrl}} and then comment `@kody review` on this PR to retry once the issue is resolved.\n"
+        "withErrors": "## Code Review Could Not Complete ⚠️\n\nThe review failed before suggestions could be generated.\n\n**Reason:** {{errorMessage}}\n\nAfter fixing the issue, comment `@piku review` on this PR to re-run the review.\n\n",
+        "partialErrorsNotice": "\n\n> ⚠️ Note: some checks couldn't be completed in this run, so auto-approval (when enabled) was skipped. Check the details at {{dashboardUrl}} and then comment `@piku review` on this PR to retry once the issue is resolved.\n"
     },
     "pullRequestSummaryMarkdown": {
         "title": "PR சுருக்கம் (கருத்து [Piku](https://kodus.io) மூலம் உருவாக்கப்பட்டது 🤖)",
@@ -31,9 +31,9 @@
         "title": "Piku வழிகாட்டி: பயன்பாடு மற்றும் கட்டமைப்பு",
         "interactingTitle": "Piku உடன் தொடர்பு கொள்ளுதல்",
         "requestReview": "மதிப்பீட்டை கோருங்கள்",
-        "requestReviewDesc": "உங்கள் PR இன் அடியில் `@kody start-review` கட்டளையுடன் கருத்து சேர்த்து Piku உங்கள் PR ஐ கைமுறையாக மதிப்பீடு செய்யக் கோருங்கள்.",
+        "requestReviewDesc": "உங்கள் PR இன் அடியில் `@piku start-review` கட்டளையுடன் கருத்து சேர்த்து Piku உங்கள் PR ஐ கைமுறையாக மதிப்பீடு செய்யக் கோருங்கள்.",
         "validateBusinessLogic": "வணிக தர்க்கத்தை சரிபார்க்கவும்",
-        "validateBusinessLogicDesc": "`@kody -v business-logic` கட்டளையுடன் கருத்து சேர்த்து Piku உங்கள் குறியீட்டை வணிக விதிகளுக்கு எதிராக சரிபார்க்கக் கோருங்கள்.",
+        "validateBusinessLogicDesc": "`@piku -v business-logic` கட்டளையுடன் கருத்து சேர்த்து Piku உங்கள் குறியீட்டை வணிக விதிகளுக்கு எதிராக சரிபார்க்கக் கோருங்கள்.",
         "provideFeedback": "பின்னூட்டம் வழங்குங்கள்",
         "provideFeedbackDesc": "Piku கற்றுக்கொள்வதற்கும் மேம்படுத்துவதற்கும் உதவ, அதன் கருத்துக்களுக்கு 👍 பயனுள்ள பரிந்துரைகளுக்கு அல்லது 👎 மேம்பாடுகள் தேவைப்பட்டால் பதிலளிக்கவும்.",
         "configurationTitle": "தற்போதைய Piku கட்டமைப்பு",

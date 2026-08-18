@@ -17,7 +17,7 @@ import {
 } from '@libs/organization/domain/team/contracts/team.service.contract';
 
 /**
- * Tenant isolation for Kody Rules endpoints that accept a `teamId` (and
+ * Tenant isolation for Piku Rules endpoints that accept a `teamId` (and
  * optionally a `repositoryId`) from the request. Runs before the handler so the
  * controller never calls a service directly:
  *  - the team must belong to the JWT's organization → 404 (never leaks whether

@@ -1,13 +1,13 @@
 {
     "reviewComment": {
-        "talkToKody": "Sprechen Sie mit Piku, indem Sie @kody erwähnen",
+        "talkToKody": "Sprechen Sie mit Piku, indem Sie @piku erwähnen",
         "feedback": "War dieser Vorschlag hilfreich? Reagieren Sie mit 👍 oder 👎, um Piku zu helfen, aus dieser Interaktion zu lernen."
     },
     "pullRequestFinishSummaryMarkdown": {
         "withComments": "## Code-Überprüfung abgeschlossen! 🔥\n\nDie Code-Überprüfung wurde basierend auf Ihren aktuellen Konfigurationen erfolgreich abgeschlossen.\n\n",
         "withoutComments": "# Piku-Überprüfung abgeschlossen\n**Großartige Neuigkeiten!** 🎉\nEs wurden keine Probleme gefunden, die mit Ihren aktuellen Überprüfungskonfigurationen übereinstimmen.\n\nWeiter so! 🚀",
-        "withErrors": "## Code-Review konnte nicht abgeschlossen werden ⚠️\n\nDie Prüfung schlug fehl, bevor Vorschläge generiert werden konnten.\n\n**Grund:** {{errorMessage}}\n\nNachdem Sie das Problem behoben haben, kommentieren Sie `@kody review` in diesem PR, um die Prüfung erneut auszuführen.\n\n",
-        "partialErrorsNotice": "\n\n> ⚠️ Hinweis: Einige Schritte der Prüfung konnten in diesem Lauf nicht abgeschlossen werden, daher wurde die automatische Genehmigung (sofern aktiviert) übersprungen. Details finden Sie unter {{dashboardUrl}}. Kommentieren Sie anschließend `@kody review` in diesem PR, um es nach Behebung des Problems erneut zu versuchen.\n"
+        "withErrors": "## Code-Review konnte nicht abgeschlossen werden ⚠️\n\nDie Prüfung schlug fehl, bevor Vorschläge generiert werden konnten.\n\n**Grund:** {{errorMessage}}\n\nNachdem Sie das Problem behoben haben, kommentieren Sie `@piku review` in diesem PR, um die Prüfung erneut auszuführen.\n\n",
+        "partialErrorsNotice": "\n\n> ⚠️ Hinweis: Einige Schritte der Prüfung konnten in diesem Lauf nicht abgeschlossen werden, daher wurde die automatische Genehmigung (sofern aktiviert) übersprungen. Details finden Sie unter {{dashboardUrl}}. Kommentieren Sie anschließend `@piku review` in diesem PR, um es nach Behebung des Problems erneut zu versuchen.\n"
     },
     "pullRequestSummaryMarkdown": {
         "title": "PR-Zusammenfassung (Kommentar erstellt von [Piku](https://kodus.io) 🤖)",
@@ -31,9 +31,9 @@
         "title": "Piku-Leitfaden: Nutzung und Konfiguration",
         "interactingTitle": "Interaktion mit Piku",
         "requestReview": "Überprüfung anfordern",
-        "requestReviewDesc": "Bitten Sie Piku, Ihre PR manuell zu überprüfen, indem Sie einen Kommentar mit dem Befehl `@kody start-review` an der Wurzel Ihrer PR hinzufügen.",
+        "requestReviewDesc": "Bitten Sie Piku, Ihre PR manuell zu überprüfen, indem Sie einen Kommentar mit dem Befehl `@piku start-review` an der Wurzel Ihrer PR hinzufügen.",
         "validateBusinessLogic": "Geschäftslogik validieren",
-        "validateBusinessLogicDesc": "Bitten Sie Piku, Ihren Code gegen Geschäftsregeln zu validieren, indem Sie einen Kommentar mit dem Befehl `@kody -v business-logic` hinzufügen.",
+        "validateBusinessLogicDesc": "Bitten Sie Piku, Ihren Code gegen Geschäftsregeln zu validieren, indem Sie einen Kommentar mit dem Befehl `@piku -v business-logic` hinzufügen.",
         "provideFeedback": "Feedback geben",
         "provideFeedbackDesc": "Helfen Sie Piku zu lernen und sich zu verbessern, indem Sie auf seine Kommentare mit einem 👍 für hilfreiche Vorschläge oder einem 👎 reagieren, wenn Verbesserungen erforderlich sind.",
         "configurationTitle": "Aktuelle Piku-Konfiguration",

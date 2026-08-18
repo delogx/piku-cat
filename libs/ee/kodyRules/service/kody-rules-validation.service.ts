@@ -17,7 +17,7 @@ import {
 import { Injectable } from '@nestjs/common';
 
 /**
- * Service for validating and ordering Kody Rules in cloud mode
+ * Service for validating and ordering Piku Rules in cloud mode
  */
 @Injectable()
 export class KodyRulesValidationService {
@@ -87,7 +87,7 @@ export class KodyRulesValidationService {
     }
 
     /**
-     * Filters and orders Kody Rules.
+     * Filters and orders Piku Rules.
      * It selects directory-specific, repository-specific and global active rules, removes duplicates,
      * orders them by createdAt (oldest first), and if not in cloud mode, limits the result to MAX_KODY_RULES.
      *
@@ -183,7 +183,7 @@ export class KodyRulesValidationService {
     }
 
     /**
-     * Removes duplicate Kody Rules based on the 'rule' property.
+     * Removes duplicate Piku Rules based on the 'rule' property.
      * @param kodyRules Array of KodyRules.
      * @returns Array of unique KodyRules.
      */
@@ -204,12 +204,12 @@ export class KodyRulesValidationService {
     }
 
     /**
-     * Retrieves the specific Kody rules for a *file* based on glob patterns.
+     * Retrieves the specific Piku rules for a *file* based on glob patterns.
      * This method only matches rules whose glob patterns directly match the file.
      * @param fileName Name of the file to be checked.
-     * @param kodyRules Array of objects containing the pattern and Kody rules.
+     * @param kodyRules Array of objects containing the pattern and Piku rules.
      * @param filters Filtering options for repository and directory.
-     * @returns Array of Kody rules applicable to the file.
+     * @returns Array of Piku rules applicable to the file.
      */
     getKodyRulesForFile(
         fileName: string | null,
@@ -232,12 +232,12 @@ export class KodyRulesValidationService {
     }
 
     /**
-     * Retrieves the specific Kody rules for a *folder* based on glob patterns.
+     * Retrieves the specific Piku rules for a *folder* based on glob patterns.
      * This matches rules that apply to the folder itself or are recursive (e.g., ** /*).
      * @param folderName Name of the folder to be checked.
-     * @param kodyRules Array of objects containing the pattern and Kody rules.
+     * @param kodyRules Array of objects containing the pattern and Piku rules.
      * @param filters Filtering options for repository and directory.
-     * @returns Array of Kody rules applicable to the folder.
+     * @returns Array of Piku rules applicable to the folder.
      */
     getKodyRulesForFolder(
         folderName: string | null,

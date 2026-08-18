@@ -1186,7 +1186,7 @@ describe('business-rules blueprint', () => {
                     repository: { id: 'repo-1', name: 'my-repo' },
                     pullRequest: { pullRequestNumber: 31 },
                     taskContext:
-                        'Kody rules por time. Atualmente as kodyRules sao cadastradas somente com organizationId e isso faz com que o billing possa ser resolvido no team errado quando existem dois workspaces configurados.',
+                        'Piku rules por time. Atualmente as kodyRules sao cadastradas somente com organizationId e isso faz com que o billing possa ser resolvido no team errado quando existem dois workspaces configurados.',
                 },
             } as BusinessRulesContext,
             steps,
@@ -1262,7 +1262,7 @@ describe('business-rules blueprint', () => {
                     pullRequestDescription: 'PR body',
                     repository: { id: 'repo-1', name: 'my-repo' },
                     pullRequest: { pullRequestNumber: 33 },
-                    taskContext: 'KC-1441 — Kody rules por time',
+                    taskContext: 'KC-1441 — Piku rules por time',
                 },
             } as BusinessRulesContext,
             steps,
@@ -1326,7 +1326,7 @@ describe('business-rules blueprint', () => {
                     repository: { id: 'repo-1', name: 'my-repo' },
                     pullRequest: { pullRequestNumber: 32 },
                     taskContext:
-                        'Kody rules por time. Billing must respect the selected workspace team, the lookup must not leak billing state from a different workspace, and acceptance must verify the rule creation flow when multiple teams exist in the same organization.',
+                        'Piku rules por time. Billing must respect the selected workspace team, the lookup must not leak billing state from a different workspace, and acceptance must verify the rule creation flow when multiple teams exist in the same organization.',
                 },
             } as BusinessRulesContext,
             steps,

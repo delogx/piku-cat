@@ -1,4 +1,4 @@
-// Kody-rules — SHARDED v2: production-adherent suite (issue #1449).
+// Piku-rules — SHARDED v2: production-adherent suite (issue #1449).
 //
 // v1 (sharded-experiment.js) proved the architecture on the simplest regime:
 // ONE rule per case, one single-shot call per file. Production is not that:

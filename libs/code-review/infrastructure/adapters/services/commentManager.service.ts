@@ -1594,7 +1594,7 @@ You must always respond in ${languageResultPrompt}.`;
                         errorMessage,
                     );
 
-                    // Optional team-authored note appended below Kody's default
+                    // Optional team-authored note appended below Piku's default
                     // error comment (issue #1452). The technical reason above is
                     // always preserved; this is only the org-specific next step
                     // (e.g. "reach out to #devops"). Single newlines collapse in

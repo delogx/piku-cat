@@ -1,13 +1,13 @@
 {
     "reviewComment": {
-        "talkToKody": "พูดคุยกับ Piku โดยการกล่าวถึง @kody",
+        "talkToKody": "พูดคุยกับ Piku โดยการกล่าวถึง @piku",
         "feedback": "คำแนะนำนี้มีประโยชน์หรือไม่? ตอบกลับด้วย 👍 หรือ 👎 เพื่อช่วยให้ Piku เรียนรู้จากการโต้ตอบนี้"
     },
     "pullRequestFinishSummaryMarkdown": {
         "withComments": "## การตรวจสอบโค้ดเสร็จสมบูรณ์! 🔥\n\nการตรวจสอบโค้ดเสร็จสมบูรณ์ตามการตั้งค่าปัจจุบันของคุณ\n\n",
         "withoutComments": "# การตรวจสอบ Piku เสร็จสมบูรณ์\n**ข่าวดี!** 🎉\nไม่พบปัญหาใด ๆ ที่ตรงกับการตั้งค่าการตรวจสอบปัจจุบันของคุณ\n\nทำงานได้ดีต่อไป! 🚀",
-        "withErrors": "## Code Review Could Not Complete ⚠️\n\nThe review failed before suggestions could be generated.\n\n**Reason:** {{errorMessage}}\n\nAfter fixing the issue, comment `@kody review` on this PR to re-run the review.\n\n",
-        "partialErrorsNotice": "\n\n> ⚠️ Note: some checks couldn't be completed in this run, so auto-approval (when enabled) was skipped. Check the details at {{dashboardUrl}} and then comment `@kody review` on this PR to retry once the issue is resolved.\n"
+        "withErrors": "## Code Review Could Not Complete ⚠️\n\nThe review failed before suggestions could be generated.\n\n**Reason:** {{errorMessage}}\n\nAfter fixing the issue, comment `@piku review` on this PR to re-run the review.\n\n",
+        "partialErrorsNotice": "\n\n> ⚠️ Note: some checks couldn't be completed in this run, so auto-approval (when enabled) was skipped. Check the details at {{dashboardUrl}} and then comment `@piku review` on this PR to retry once the issue is resolved.\n"
     },
     "pullRequestSummaryMarkdown": {
         "title": "สรุป PR (ความคิดเห็นสร้างโดย [Piku](https://kodus.io) 🤖)",
@@ -31,9 +31,9 @@
         "title": "คู่มือ Piku: การใช้งานและการตั้งค่า",
         "interactingTitle": "การโต้ตอบกับ Piku",
         "requestReview": "ขอการตรวจสอบ",
-        "requestReviewDesc": "ขอให้ Piku ตรวจสอบ PR ของคุณด้วยตนเองโดยเพิ่มความคิดเห็นพร้อมคำสั่ง `@kody start-review` ที่รูทของ PR ของคุณ",
+        "requestReviewDesc": "ขอให้ Piku ตรวจสอบ PR ของคุณด้วยตนเองโดยเพิ่มความคิดเห็นพร้อมคำสั่ง `@piku start-review` ที่รูทของ PR ของคุณ",
         "validateBusinessLogic": "ตรวจสอบตรรกะทางธุรกิจ",
-        "validateBusinessLogicDesc": "ขอให้ Piku ตรวจสอบโค้ดของคุณกับกฎทางธุรกิจโดยเพิ่มความคิดเห็นพร้อมคำสั่ง `@kody -v business-logic`",
+        "validateBusinessLogicDesc": "ขอให้ Piku ตรวจสอบโค้ดของคุณกับกฎทางธุรกิจโดยเพิ่มความคิดเห็นพร้อมคำสั่ง `@piku -v business-logic`",
         "provideFeedback": "ให้ข้อเสนอแนะ",
         "provideFeedbackDesc": "ช่วยให้ Piku เรียนรู้และปรับปรุงโดยตอบกลับความคิดเห็นของมันด้วย 👍 สำหรับข้อเสนอแนะที่เป็นประโยชน์หรือ 👎 หากต้องการการปรับปรุง",
         "configurationTitle": "การตั้งค่า Piku ปัจจุบัน",

@@ -83,7 +83,7 @@ export const EVENT_DEFAULTS: Readonly<
     [NotificationEvent.KODY_RULES_GENERATED]: {
         criticality: Criticality.INFORMATIONAL,
         category: 'kody_rules',
-        label: 'Kody Rules Generated',
+        label: 'Piku Rules Generated',
         defaultChannels: new Set([
             NotificationChannel.EMAIL,
             NotificationChannel.IN_APP,
@@ -273,7 +273,7 @@ export const EVENT_DEFAULTS: Readonly<
         defaultRoles: [Role.OWNER],
     },
 
-    // ── Kody Rules (file reference validation) ────────────────
+    // ── Piku Rules (file reference validation) ────────────────
 
     [NotificationEvent.RULE_FILE_REFERENCES_INVALID]: {
         criticality: Criticality.TRANSACTIONAL,
@@ -317,7 +317,7 @@ export const CRITICALITY_LABELS: Record<Criticality, string> = {
 export const CATEGORY_LABELS: Record<string, string> = {
     auth: 'Auth',
     team: 'Team',
-    kody_rules: 'Kody Rules',
+    kody_rules: 'Piku Rules',
     sso: 'SSO',
     cockpit: 'Cockpit',
     billing: 'Billing',

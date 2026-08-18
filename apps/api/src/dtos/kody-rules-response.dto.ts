@@ -236,7 +236,7 @@ export class KodyRuleDto {
 
     @ApiPropertyOptional({
         description:
-            'True when the source file currently carries an `@kody-sync` marker — the per-file override that keeps the rule synced even with the repo `ideRulesSyncEnabled=false`. Surfaced so the UI can exclude such rules from the orphan chip and bulk pause/delete actions.',
+            'True when the source file currently carries an `@piku-sync` marker — the per-file override that keeps the rule synced even with the repo `ideRulesSyncEnabled=false`. Surfaced so the UI can exclude such rules from the orphan chip and bulk pause/delete actions.',
     })
     pinnedSync?: boolean;
 

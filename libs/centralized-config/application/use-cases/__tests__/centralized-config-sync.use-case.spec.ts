@@ -30,7 +30,7 @@ describe('CentralizedConfigSyncUseCase', () => {
             }),
             synchronizeKodyRules: jest.fn().mockResolvedValue({
                 success: true,
-                message: 'Kody rules synchronized successfully',
+                message: 'Piku rules synchronized successfully',
             }),
             removeStaleConfigs: jest.fn().mockResolvedValue({
                 success: true,
@@ -38,7 +38,7 @@ describe('CentralizedConfigSyncUseCase', () => {
             }),
             removeStaleKodyRules: jest.fn().mockResolvedValue({
                 success: true,
-                message: 'Stale Kody rules removed successfully',
+                message: 'Stale Piku rules removed successfully',
             }),
         };
 
@@ -135,7 +135,7 @@ describe('CentralizedConfigSyncUseCase', () => {
             }),
             synchronizeKodyRules: jest.fn().mockResolvedValue({
                 success: true,
-                message: 'Kody rules synchronized successfully',
+                message: 'Piku rules synchronized successfully',
             }),
             removeStaleConfigs: jest.fn().mockResolvedValue({
                 success: true,
@@ -143,7 +143,7 @@ describe('CentralizedConfigSyncUseCase', () => {
             }),
             removeStaleKodyRules: jest.fn().mockResolvedValue({
                 success: true,
-                message: 'Stale Kody rules removed successfully',
+                message: 'Stale Piku rules removed successfully',
             }),
         };
 
@@ -180,7 +180,7 @@ describe('CentralizedConfigSyncUseCase', () => {
             }),
             synchronizeKodyRules: jest.fn().mockResolvedValue({
                 success: true,
-                message: 'Kody rules synchronized successfully',
+                message: 'Piku rules synchronized successfully',
             }),
             removeStaleConfigs: jest.fn().mockResolvedValue({
                 success: false,
@@ -188,7 +188,7 @@ describe('CentralizedConfigSyncUseCase', () => {
             }),
             removeStaleKodyRules: jest.fn().mockResolvedValue({
                 success: true,
-                message: 'Stale Kody rules removed successfully',
+                message: 'Stale Piku rules removed successfully',
             }),
         };
 
@@ -248,7 +248,7 @@ describe('CentralizedConfigSyncUseCase', () => {
             }),
             synchronizeKodyRules: jest.fn().mockResolvedValue({
                 success: true,
-                message: 'Kody rules synchronized successfully',
+                message: 'Piku rules synchronized successfully',
             }),
             removeStaleConfigs: jest.fn().mockResolvedValue({
                 success: true,
@@ -256,7 +256,7 @@ describe('CentralizedConfigSyncUseCase', () => {
             }),
             removeStaleKodyRules: jest.fn().mockResolvedValue({
                 success: true,
-                message: 'Stale Kody rules removed successfully',
+                message: 'Stale Piku rules removed successfully',
             }),
         };
 
@@ -355,7 +355,7 @@ describe('CentralizedConfigSyncUseCase', () => {
         ).not.toHaveBeenCalled();
     });
 
-    it('surfaces a partial Kody-rules sync as a failure and skips stale removal (#1518)', async () => {
+    it('surfaces a partial Piku-rules sync as a failure and skips stale removal (#1518)', async () => {
         const centralizedConfigService = {
             validateCentralizedConfig: jest
                 .fn()
@@ -373,7 +373,7 @@ describe('CentralizedConfigSyncUseCase', () => {
             // 27 of 61 materialized, the rest failed — must NOT be success.
             synchronizeKodyRules: jest.fn().mockResolvedValue({
                 success: false,
-                message: 'Kody rules sync incomplete — synced 27, failed 34',
+                message: 'Piku rules sync incomplete — synced 27, failed 34',
             }),
             removeStaleConfigs: jest.fn(),
             removeStaleKodyRules: jest.fn(),

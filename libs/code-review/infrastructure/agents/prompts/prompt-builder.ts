@@ -107,7 +107,7 @@ function resolvePromptOverrideText(value: unknown): string {
 }
 
 /**
- * Renders the user's per-review steering directive (`@kody review <directive>`)
+ * Renders the user's per-review steering directive (`@piku review <directive>`)
  * as a high-priority block at the top of the user prompt so the finder reads it
  * before the diffs. It RAISES depth on the named area; it must NOT suppress
  * concrete issues found elsewhere (priority, not filter). Empty when absent.

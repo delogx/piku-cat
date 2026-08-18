@@ -16,7 +16,7 @@ import { FindByOrganizationIdKodyRulesUseCase } from './find-by-organization-id.
 import { KodyRulesStatus } from '@libs/kodyRules/domain/interfaces/kodyRules.interface';
 
 /**
- * Regression coverage for the listing leak: the Kody Rules screen kept
+ * Regression coverage for the listing leak: the Piku Rules screen kept
  * showing rules even after a "Reset integration and remove repositories
  * config" because this endpoint returned the raw embedded rules array,
  * including soft-deleted entries. The screen now must hide DELETED (and

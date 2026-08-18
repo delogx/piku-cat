@@ -362,7 +362,7 @@ export const getRecommendedKodyRules = async (params?: { limit?: number }) => {
 /** Auto-synced ("imported") rules counted per status for a repository. Used by
  * the IDE auto-sync toggle-off modal and the orphan-rules banner.
  *
- * `pinned` counts ACTIVE+PAUSED rules whose source file carries `@kody-sync`.
+ * `pinned` counts ACTIVE+PAUSED rules whose source file carries `@piku-sync`.
  * The bulk pause/delete actions skip those, so the modal copy uses this to
  * tell the user "M pinned rules will be preserved" before they pick an
  * action and get a surprising result. */

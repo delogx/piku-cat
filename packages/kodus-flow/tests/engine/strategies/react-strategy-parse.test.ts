@@ -2,7 +2,7 @@
  * @file react-strategy-parse.test.ts
  * @description Regression tests for ReActStrategy.parseLLMResponse.
  *
- * Real-world bug (self-hosted, Claude Sonnet via BYOK): an `@kody` mention on a
+ * Real-world bug (self-hosted, Claude Sonnet via BYOK): an `@piku` mention on a
  * PR failed with "I encountered an error while processing your request. Please
  * try rephrasing your question." The underlying cause was that the LLM returned
  * a VALID JSON object carrying a usable `action`, but WITHOUT a top-level string

@@ -1,4 +1,4 @@
-# Kody Rules — resumo estruturado de rules longas (produtização)
+# Piku Rules — resumo estruturado de rules longas (produtização)
 
 ## Contexto
 

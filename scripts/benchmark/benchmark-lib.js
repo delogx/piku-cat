@@ -233,7 +233,7 @@ success AS (
   JOIN targets t
     ON t.repository_id = ae."repositoryId"
    AND t.pull_request_number = ae."pullRequestNumber"
-  WHERE cre.stage_name = 'Kody Review Finished'
+  WHERE cre.stage_name = 'Piku Review Finished'
     AND cre.status = 'success'
 )
 SELECT COALESCE(

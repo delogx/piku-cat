@@ -1,10 +1,10 @@
 /**
  * Regression tests for the bot-comment filter inside
  * `CommentAnalysisService.processComments`. This filter is what stops
- * the rule-generator LLM from learning from Kody's own past reviews of
+ * the rule-generator LLM from learning from Piku's own past reviews of
  * the same repository — a self-feedback loop that surfaced on
  * 2026-05-20 when bitbucket onboarding kept producing the same
- * generated rule run after run because Kody's prior bitbucket
+ * generated rule run after run because Piku's prior bitbucket
  * suggestions were leaking through the filter.
  *
  * Two visible signatures across providers, both have to be matched:
@@ -36,7 +36,7 @@ function longBody(prefix: string): string {
 }
 
 describe('CommentAnalysisService.processComments — bot-comment filter', () => {
-    it('drops bitbucket Kody suggestions (kody|code-review chip)', () => {
+    it('drops bitbucket Piku suggestions (kody|code-review chip)', () => {
         const svc = makeService();
 
         const out = svc.processComments([
@@ -73,7 +73,7 @@ describe('CommentAnalysisService.processComments — bot-comment filter', () => 
         ).toBe(false);
     });
 
-    it('drops github/gitlab/azure Kody comments (kody-codereview HTML marker)', () => {
+    it('drops github/gitlab/azure Piku comments (kody-codereview HTML marker)', () => {
         const svc = makeService();
 
         const out = svc.processComments([

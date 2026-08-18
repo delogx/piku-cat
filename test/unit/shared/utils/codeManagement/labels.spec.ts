@@ -53,7 +53,7 @@ describe('labels', () => {
         label = 'kody_rules';
         shield = getLabelShield(label);
         expect(shield).toBe(
-            '![Kody Rules](https://img.shields.io/badge/Kody_Rules-4527A0)',
+            '![Piku Rules](https://img.shields.io/badge/Kody_Rules-4527A0)',
         );
     });
 

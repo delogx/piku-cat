@@ -68,7 +68,7 @@ describe('convertReviewToHunkContext', () => {
         // metadata becomes the closing tag.
         expect(
             rationale.endsWith(
-                '— Kody · severity error · security_vulnerability · sec/no-token-log',
+                '— Piku · severity error · security_vulnerability · sec/no-token-log',
             ),
         ).toBe(true);
         expect(auth.annotations[0]!.summary).toBe('ℹ consider const');
@@ -213,7 +213,7 @@ describe('convertReviewToHunkContext', () => {
         // left over: the summary is a capped label, so anything it drops has to
         // survive here.
         expect(annotation.rationale).toBe(
-            `${longMessage} — Kody · severity error · bug`,
+            `${longMessage} — Piku · severity error · bug`,
         );
         expect(annotation.rationale).not.toContain('\n');
     });
@@ -426,15 +426,15 @@ describe('wrapCodeBlock', () => {
 });
 
 describe('extractMarkdownLinks', () => {
-    // Kody-rule findings arrive as `... [rule name](https://app.kodus.io/...)`,
+    // Piku-rule findings arrive as `... [rule name](https://app.kodus.io/...)`,
     // which used to wrap a 100-char URL through the middle of a sentence.
     const message =
-        'Kody rule violation: [Tratamento adequado de exce\u00e7\u00f5es\\.](https://app.kodus.io/settings/code-review/1/kody-rules/abc?teamId=xyz)';
+        'Piku rule violation: [Tratamento adequado de exce\u00e7\u00f5es\\.](https://app.kodus.io/settings/code-review/1/kody-rules/abc?teamId=xyz)';
 
     it('replaces a link with its label and returns the url', () => {
         const { text, links } = extractMarkdownLinks(message);
         expect(text).toBe(
-            'Kody rule violation: Tratamento adequado de exce\u00e7\u00f5es.',
+            'Piku rule violation: Tratamento adequado de exce\u00e7\u00f5es.',
         );
         expect(links).toEqual([
             {

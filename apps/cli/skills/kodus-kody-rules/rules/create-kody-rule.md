@@ -1,33 +1,33 @@
 ---
 name: create-kody-rule
-description: Kody Rule Creation Guidelines - Use when the user wants to create a new Kody Rule for Kodus to follow when generating code.
+description: Piku Rule Creation Guidelines - Use when the user wants to create a new Piku Rule for Kodus to follow when generating code.
 ---
 
-# Kody Rule Creation Guidelines
+# Piku Rule Creation Guidelines
 
 ## Overview
 
-When creating a new Kody Rule, it's important to ensure that the rule is clear, actionable, and aligned with the overall goals of code generation. A well-defined Kody Rule helps Kody produce code that meets the user's expectations and project requirements.
+When creating a new Piku Rule, it's important to ensure that the rule is clear, actionable, and aligned with the overall goals of code generation. A well-defined Piku Rule helps Piku produce code that meets the user's expectations and project requirements.
 
-## Workflow for Creating a Kody Rule
+## Workflow for Creating a Piku Rule
 
-1. **Collect the user's intent**: Understand the specific coding practice, style, or requirement that the user wants to enforce with the new Kody Rule. Ask clarifying questions if necessary to ensure you have a clear understanding of the user's intent.
+1. **Collect the user's intent**: Understand the specific coding practice, style, or requirement that the user wants to enforce with the new Piku Rule. Ask clarifying questions if necessary to ensure you have a clear understanding of the user's intent.
 
-2. **Draft the Kody Rule**: Based on the user's intent, draft a Kody Rule that includes a clear description, title, and any relevant metadata such as severity and scope. Use the guidelines outlined in the "Guidelines for Creating a Kody Rule" section to ensure the rule is well-structured and effective.
+2. **Draft the Piku Rule**: Based on the user's intent, draft a Piku Rule that includes a clear description, title, and any relevant metadata such as severity and scope. Use the guidelines outlined in the "Guidelines for Creating a Piku Rule" section to ensure the rule is well-structured and effective.
 
-3. **Review the Kody Rule with the user**: Present the drafted Kody Rule to the user for feedback. Discuss any potential edge cases, exceptions, or clarifications needed to ensure the rule is comprehensive and actionable.
+3. **Review the Piku Rule with the user**: Present the drafted Piku Rule to the user for feedback. Discuss any potential edge cases, exceptions, or clarifications needed to ensure the rule is comprehensive and actionable.
 
-4. **Refine the Kody Rule**: Based on the user's feedback, refine the Kody Rule to address any concerns or suggestions. Ensure that the final version of the rule is clear, specific, and aligned with the user's goals.
+4. **Refine the Piku Rule**: Based on the user's feedback, refine the Piku Rule to address any concerns or suggestions. Ensure that the final version of the rule is clear, specific, and aligned with the user's goals.
 
-5. **Save and Implement the Kody Rule**: Once the Kody Rule is finalized and approved by the user, save it. Send the title, rule, and any optional fields such as severity, scope, and path.
+5. **Save and Implement the Piku Rule**: Once the Piku Rule is finalized and approved by the user, save it. Send the title, rule, and any optional fields such as severity, scope, and path.
 
-Use the following command to save the Kody Rule:
+Use the following command to save the Piku Rule:
 
 ```
 kodus rules create --title <title> --rule <rule-content> [--repo-id <repository-id>] [--severity <severity-level>] [--scope <scope-level>] [--path <glob-pattern>]
 ```
 
-6. **Communicate the new Kody Rule**: Inform the user about the new Kody Rule and how it will be applied in future code generation.
+6. **Communicate the new Piku Rule**: Inform the user about the new Piku Rule and how it will be applied in future code generation.
 
 ## Centralized Config Behavior
 
@@ -35,14 +35,14 @@ When centralized config is enabled, creating a rule may return centralized PR me
 
 In this case, report PR details and clearly explain the rule will only apply after PR merge and sync.
 
-## Guidelines for Creating a Kody Rule
+## Guidelines for Creating a Piku Rule
 
-1. **Identify the Purpose**: Clearly define what the Kody Rule is intended to achieve. Is it meant to enforce a coding style, ensure best practices, or address a specific use case?
+1. **Identify the Purpose**: Clearly define what the Piku Rule is intended to achieve. Is it meant to enforce a coding style, ensure best practices, or address a specific use case?
 
-2. **Be Specific**: The rule should be specific and unambiguous. Avoid vague language and ensure that the rule can be easily understood and applied by Kody.
+2. **Be Specific**: The rule should be specific and unambiguous. Avoid vague language and ensure that the rule can be easily understood and applied by Piku.
 
-3. **Consider Edge Cases**: Think about any edge cases or exceptions that might arise when applying the rule. Address these in the rule definition to ensure Kody can handle them appropriately.
+3. **Consider Edge Cases**: Think about any edge cases or exceptions that might arise when applying the rule. Address these in the rule definition to ensure Piku can handle them appropriately.
 
-4. **Align with Project Goals**: Ensure that the Kody Rule aligns with the overall goals and requirements of the project. The rule should contribute to producing code that is maintainable, efficient, and meets the user's needs.
+4. **Align with Project Goals**: Ensure that the Piku Rule aligns with the overall goals and requirements of the project. The rule should contribute to producing code that is maintainable, efficient, and meets the user's needs.
 
-5. **Review and Refine**: After drafting the Kody Rule, review it for clarity and completeness. Present it to the user for feedback and refine it as necessary to ensure it effectively guides Kody's code generation process.
+5. **Review and Refine**: After drafting the Piku Rule, review it for clarity and completeness. Present it to the user for feedback and refine it as necessary to ensure it effectively guides Piku's code generation process.

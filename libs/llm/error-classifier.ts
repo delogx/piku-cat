@@ -320,7 +320,7 @@ function buildFriendlyMessage(
             return `The configured model is not available on the provider${providerLabel}. Verify the model name in your settings.`;
         case LlmErrorCategory.MODEL_ACCESS_DENIED:
             return (provider || '').toLowerCase().includes('vertex')
-                ? `Your Google Cloud project doesn't have access to the configured model on Vertex AI. Enable it in the project's Vertex AI Model Garden (open the model and accept the provider's terms), then comment \`@kody review\` to retry. The model id and region are fine — this is a one-time per-model enablement in Google Cloud.`
+                ? `Your Google Cloud project doesn't have access to the configured model on Vertex AI. Enable it in the project's Vertex AI Model Garden (open the model and accept the provider's terms), then comment \`@piku review\` to retry. The model id and region are fine — this is a one-time per-model enablement in Google Cloud.`
                 : `Your account doesn't have access to the configured model${providerLabel}. Enable or request access to it on the provider, then retry.`;
         case LlmErrorCategory.CONTEXT_OVERFLOW:
             // Generic fallback only — typed AgentContextWindowTooSmallError /

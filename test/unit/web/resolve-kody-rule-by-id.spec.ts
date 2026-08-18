@@ -54,7 +54,7 @@ describe("resolveKodyRuleById", () => {
 
     it("falls back to the org-wide listing when teamId is missing (broken deep-link)", async () => {
         // Reproduces the client complaint "link doesn't even work" —
-        // Kody-generated comment links omit teamId/directoryId, so the
+        // Piku-generated comment links omit teamId/directoryId, so the
         // repo-scoped and inherited lookups can't find the rule. The
         // org-wide fallback by UUID rescues the deep-link.
         const resolver = buildResolver({

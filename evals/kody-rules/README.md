@@ -1,6 +1,6 @@
-# Kody-rules adherence eval
+# Piku-rules adherence eval
 
-Does the review correctly enforce team Kody Rules? The kody-rules agent is a
+Does the review correctly enforce team Piku Rules? The kody-rules agent is a
 separate agent from the bug/security finder, so this eval is its own thing.
 
 It runs the **production engine** — the real `KodyRulesAgentProvider.execute()`,

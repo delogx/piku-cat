@@ -25,7 +25,7 @@ const MATRIX_DIR = join(import.meta.dirname, "../../matrix");
  *   fast.yml / full-no-sso.yml / repaired-cells.yml
  *     self-hosted × github × license-free — no scenario covers the
  *     self-hosted free tier. license-attribution explicitly excludes it
- *     (self-hosted has no state where Kody posts a license notice), and
+ *     (self-hosted has no state where Piku posts a license notice), and
  *     nothing replaced that coverage.
  *   cloud-reflake*.yml / full-no-sso.yml
  *     cloud × github × trial — these files carry a narrowed scenario list

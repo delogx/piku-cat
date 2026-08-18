@@ -46,7 +46,7 @@ function formatMemoriesSection(
         return '';
     }
 
-    return `## Memories\n\nAdditional context from past learnings in Kody Rules format.\n\n${formattedMemories.join('\n\n')}`;
+    return `## Memories\n\nAdditional context from past learnings in Piku Rules format.\n\n${formattedMemories.join('\n\n')}`;
 }
 
 function formatReferenceSection(references: unknown[] | undefined): string {
@@ -225,7 +225,7 @@ Return a JSON array containing only rules that have violations:
         "violatedFileSha": ["file-sha-1", "file-sha-2"], // The file/files that violated the rule
         "relatedFileSha": ["file-sha-3", "file-sha-5"], // The file/files that are related to the violation
         "oneSentenceSummary": "Concise summary of what needs to be done",
-        "suggestionContent": "Detailed explanation of the violation and specific steps to fix it. Always end with: Kody Rule violation: rule-id-here"
+        "suggestionContent": "Detailed explanation of the violation and specific steps to fix it. Always end with: Piku Rule violation: rule-id-here"
       }
     ]
   }
@@ -244,7 +244,7 @@ Return a JSON array containing only rules that have violations:
       "violatedFileSha": "user-controller",
       "relatedFileSha": ["routes-json"],
       "oneSentenceSummary": "Add documentation for the new /api/users route in routes.json",
-      "suggestionContent": "The new route /api/users was added in the controller but routes.json was not updated. Please add an entry for this route in the routes.json file following the existing format. Kody Rule violation: route-documentation"
+      "suggestionContent": "The new route /api/users was added in the controller but routes.json was not updated. Please add an entry for this route in the routes.json file following the existing format. Piku Rule violation: route-documentation"
     }
   ]
 }
@@ -261,7 +261,7 @@ Return a JSON array containing only rules that have violations:
         "violatedFileSha": null,
         "relatedFileSha": [],
         "oneSentenceSummary": "Add a description to the pull request",
-        "suggestionContent": "Pull request description is empty but is required for all PRs. Kody Rule violation: pr-description-required"
+        "suggestionContent": "Pull request description is empty but is required for all PRs. Piku Rule violation: pr-description-required"
       }
     ]
   }
@@ -278,7 +278,7 @@ Return a JSON array containing only rules that have violations:
       "violatedFileSha": ["user-controller", "product-controller"],
       "relatedFileSha": ["user-service", "product-service"],
       "oneSentenceSummary": "Move business logic from UserController to UserService and ProductController to ProductService",
-      "suggestionContent": "The recoveryPassword method in UserController contains business logic (token generation, user update, sending email) that should be moved to UserService. Create or update UserService to handle this logic and have the controller call the service method instead. Kody Rule violation: business-logic-separation"
+      "suggestionContent": "The recoveryPassword method in UserController contains business logic (token generation, user update, sending email) that should be moved to UserService. Create or update UserService to handle this logic and have the controller call the service method instead. Piku Rule violation: business-logic-separation"
     }
   ]
 }
@@ -290,7 +290,7 @@ Return a JSON array containing only rules that have violations:
 - **Consider file relationships** - a rule might reference files not in the PR (include them in relatedFileIds)
 - **Be specific in reasons** - explain exactly what was expected vs what was found
 - **Generate actionable suggestions** - provide oneSentenceSummary and detailed suggestionContent for each violation
-- **Always include rule reference** - end suggestionContent with "Kody Rule violation: [rule-id]"
+- **Always include rule reference** - end suggestionContent with "Piku Rule violation: [rule-id]"
 - **Base suggestions on actual context** - use the provided code diffs and file information to generate specific guidance
 - **Language: All suggestions and feedback must be provided in ${payload?.language || 'en-US'} language**
 - **Current date: ${new Date().toLocaleDateString('en-GB')}**
@@ -348,7 +348,7 @@ Related File Sha: ${v.relatedFileSha}
       "violatedFileSha": ["file-sha-1", "file-sha-2"], // The file/files that violated the rule
       "relatedFileSha": ["file-sha-3", "file-sha-5"], // The file/files that are related to the violation
       "oneSentenceSummary": "Concise summary of what needs to be done",
-      "suggestionContent": "Detailed explanation of the violation and specific steps to fix it. Always end with: Kody Rule violation: rule-id-here"
+      "suggestionContent": "Detailed explanation of the violation and specific steps to fix it. Always end with: Piku Rule violation: rule-id-here"
     }
   ]
 }
@@ -357,15 +357,15 @@ Related File Sha: ${v.relatedFileSha}
 - Keep the same professional tone as the original violations
 - Ensure all file names and specific details are preserved
 - Respond in the specified language (${payload?.language || 'en-US'})
-- Maintain the existing "Kody Rule violation:" reference at the end if present
+- Maintain the existing "Piku Rule violation:" reference at the end if present
 
 ## Example Consolidation
 **Input Violations**:
-1. "O arquivo de serviço AcompanhamentoNutricionalService.cs foi adicionado, mas o arquivo de teste correspondente não foi encontrado. Kody Rule violation: service-test-required"
-2. "O arquivo de serviço QuestionarioService.cs foi adicionado, mas o arquivo de teste correspondente não foi encontrado. Kody Rule violation: service-test-required"
+1. "O arquivo de serviço AcompanhamentoNutricionalService.cs foi adicionado, mas o arquivo de teste correspondente não foi encontrado. Piku Rule violation: service-test-required"
+2. "O arquivo de serviço QuestionarioService.cs foi adicionado, mas o arquivo de teste correspondente não foi encontrado. Piku Rule violation: service-test-required"
 
 **Expected Output**:
-"Os arquivos de serviço AcompanhamentoNutricionalService.cs e QuestionarioService.cs foram adicionados, mas os arquivos de teste correspondentes não foram encontrados no Pull Request. É necessário adicionar testes para as novas funcionalidades de serviço para garantir a qualidade e o funcionamento correto. Kody Rule violation: service-test-required"
+"Os arquivos de serviço AcompanhamentoNutricionalService.cs e QuestionarioService.cs foram adicionados, mas os arquivos de teste correspondentes não foram encontrados no Pull Request. É necessário adicionar testes para as novas funcionalidades de serviço para garantir a qualidade e o funcionamento correto. Piku Rule violation: service-test-required"
 
 ---
 

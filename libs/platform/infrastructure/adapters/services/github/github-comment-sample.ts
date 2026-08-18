@@ -1,5 +1,5 @@
 /**
- * Shaping helpers for the repository-level comment sample used by Kody-rules
+ * Shaping helpers for the repository-level comment sample used by Piku-rules
  * generation (see `GithubService.getRecentRepositoryComments`).
  *
  * Kept out of the service so the part with actual decisions in it — which

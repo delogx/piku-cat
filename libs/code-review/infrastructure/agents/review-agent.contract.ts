@@ -150,7 +150,7 @@ export interface ReviewRuleConfig {
      * current implementation is correct.
      */
     traceDecisions?: TraceContextDecision[];
-    /** Kody rules passed through so findings tagged with ruleUuid can be cross-referenced. */
+    /** Piku rules passed through so findings tagged with ruleUuid can be cross-referenced. */
     kodyRules?: Partial<IKodyRule>[];
     v2PromptOverrides?: CodeReviewConfig['v2PromptOverrides'];
     generationMain?: string;
@@ -202,7 +202,7 @@ export interface FitConfig {
      *  self-contained CLI flow). */
     skipHeavyPasses?: boolean;
     /** HEAVY mode — run an EXTRA critic pass in the finder for more recall
-     *  (opt-in per review via CLI `--heavy` or PR `@kody review --heavy`). */
+     *  (opt-in per review via CLI `--heavy` or PR `@piku review --heavy`). */
     heavy?: boolean;
     /** When true, run recovery + second-chance but skip ONLY the
      *  synthesis-rescue pass. The rescue pass re-words the same finding
@@ -260,7 +260,7 @@ export interface ReviewAgentInput
     commits?: Array<{ sha: string; message: string }>;
     /**
      * Optional per-review steering directive supplied by the user at trigger
-     * time (e.g. `@kody review focus on the auth logic`). Free text. When set,
+     * time (e.g. `@piku review focus on the auth logic`). Free text. When set,
      * it renders as a high-priority `<ReviewFocus>` block at the top of the user
      * prompt so the finder concentrates depth on the named area WITHOUT
      * suppressing concrete issues found elsewhere. (PR #1417.)
@@ -335,7 +335,7 @@ export interface AgentLoopInput {
     /** When true, skip recovery/rescue/second-chance passes. Used by rule-checking agents that don't benefit from open-ended exploration. */
     skipHeavyPasses?: boolean;
     /** HEAVY mode — run an EXTRA critic pass in the finder for more recall
-     *  (opt-in per review via CLI `--heavy` or PR `@kody review --heavy`). */
+     *  (opt-in per review via CLI `--heavy` or PR `@piku review --heavy`). */
     heavy?: boolean;
     /** Gated A/B knob (default off): wrap readFile so a range-less read of a
      *  large file returns a symbol outline + expand hint instead of dumping the

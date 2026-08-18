@@ -1,8 +1,19 @@
+/**
+ * piku-cat fork: bot names the command parser answers to, most-preferred
+ * first. `piku` is the brand; `kody` stays accepted because comments already
+ * posted to open PRs say `@kody`, and the echo-detection below has to keep
+ * recognising them or the bot re-reviews its own old trigger comments.
+ */
+const BOT_NAME_ALIASES = ['piku', 'kody'] as const;
+
+/** Alternation group matching any accepted bot name, e.g. `(?:piku|kody)`. */
+const BOT_NAME_GROUP = `(?:${BOT_NAME_ALIASES.join('|')})`;
+
 const KODY_CODE_REVIEW_COMPLETED_MARKER = '## Code Review Completed! 🔥';
 const KODY_CODE_REVIEW_COMPLETED_MARKER_ENCODED =
     '## Code Review Completed! ud83dudd25'; // Azure encoded emoji
 const KODY_CRITICAL_ISSUE_COMMENT_MARKER = '# Found critical issues please';
-const KODY_START_COMMAND_MARKER = '@kody start';
+const KODY_START_COMMAND_MARKER = '@piku start';
 
 export {
     KODY_CODE_REVIEW_COMPLETED_MARKER,
@@ -21,11 +32,14 @@ const EXACT_MARKERS = [
  * Each pattern can match multiple variations of the same command
  */
 const PATTERN_MARKERS = [
-    /@?kody\s+(start(-review)?|review)\b|start-review/i,
+    new RegExp(
+        `@?${BOT_NAME_GROUP}\\s+(start(-review)?|review)\\b|start-review`,
+        'i',
+    ),
 ] as const;
 
 /**
- * Check if a comment contains any Kody marker (exact match or pattern)
+ * Check if a comment contains any bot marker (exact match or pattern)
  */
 export const hasKodyMarker = (text: string | undefined | null): boolean => {
     if (!text) return false;
@@ -41,7 +55,7 @@ export const hasKodyMarker = (text: string | undefined | null): boolean => {
 };
 
 /** Default bot username used when no custom username is configured */
-const DEFAULT_BOT_USERNAME = 'kody';
+const DEFAULT_BOT_USERNAME = BOT_NAME_ALIASES[0];
 
 /**
  * Escape special regex characters in a string to use it in a RegExp literal.
@@ -55,11 +69,19 @@ function escapeRegex(str: string): string {
  * Uses (?=\s|$) lookahead to ensure command ends with whitespace or end of string
  * This prevents matching "review-code" as a review command
  */
-export const KODY_REVIEW_COMMAND_PATTERN =
-    /^\s*@kody\s+(start-review|review)(?=\s|$)/i;
+export const KODY_REVIEW_COMMAND_PATTERN = new RegExp(
+    `^\\s*@${BOT_NAME_GROUP}\\s+(start-review|review)(?=\\s|$)`,
+    'i',
+);
+// Deliberately still `kody-codereview` after the piku rebrand. This is the
+// invisible HTML marker already baked into every comment the bot has posted;
+// renaming it would make those comments unrecognisable and the bot would start
+// duplicating them instead of editing in place. Users never see it.
 export const KODY_REVIEW_MARKER_PATTERN = /<!--\s*kody-codereview\s*-->/i;
-export const KODY_MENTION_NON_REVIEW_PATTERN =
-    /^\s*@kody\b(?!\s+(start-review|review)(?=\s|$))/i;
+export const KODY_MENTION_NON_REVIEW_PATTERN = new RegExp(
+    `^\\s*@${BOT_NAME_GROUP}\\b(?!\\s+(start-review|review)(?=\\s|$))`,
+    'i',
+);
 
 /**
  * Force re-review flag. Customers append `--force` (or `force`) to bypass
@@ -68,21 +90,25 @@ export const KODY_MENTION_NON_REVIEW_PATTERN =
  * credits). Telemetry distinguishes it from the regular command via the
  * `command-force` origin set by each provider's webhook handler.
  */
-export const KODY_FORCE_REVIEW_COMMAND_PATTERN =
-    /^\s*@kody\s+(start-review|review)\s+--?force\b/i;
+export const KODY_FORCE_REVIEW_COMMAND_PATTERN = new RegExp(
+    `^\\s*@${BOT_NAME_GROUP}\\s+(start-review|review)\\s+--?force\\b`,
+    'i',
+);
 
 /**
  * Heavy-mode flag. Customers append `--heavy` to a review command to run EXTRA
  * resample passes in the finder — higher recall (finds more), at the cost of
  * more candidates/noise. Opt-in per review. Can be combined with a focus
- * directive and/or `--force` in any order (`@kody review --heavy --force`).
+ * directive and/or `--force` in any order (`@piku review --heavy --force`).
  *
  * A dash is required (like `--force`): a bare `heavy` is treated as directive
  * text, not the flag, to avoid mis-firing on focus phrases (e.g.
- * `@kody review heavy checkout path`).
+ * `@piku review heavy checkout path`).
  */
-export const KODY_HEAVY_REVIEW_COMMAND_PATTERN =
-    /^\s*@kody\s+(?:start-review|review)\b[ \t]+(?:[^\n]*\s)?--?heavy\b/i;
+export const KODY_HEAVY_REVIEW_COMMAND_PATTERN = new RegExp(
+    `^\\s*@${BOT_NAME_GROUP}\\s+(?:start-review|review)\\b[ \\t]+(?:[^\\n]*\\s)?--?heavy\\b`,
+    'i',
+);
 
 /**
  * Build a review command regex for a given bot username.
@@ -151,7 +177,7 @@ function buildMentionNonReviewPattern(
 }
 
 /**
- * Check if the review command carries the heavy flag (`@kody review --heavy`).
+ * Check if the review command carries the heavy flag (`@piku review --heavy`).
  * Subset of isReviewCommand. Callers set `heavy: true` on the review context so
  * the finder runs the extra critic pass.
  */
@@ -167,13 +193,13 @@ export const isHeavyReviewCommand = (
 };
 
 /**
- * Check if comment is a review command (@kody start-review or @kody review).
+ * Check if comment is a review command (@piku start-review or @piku review).
  * Accepts an optional trailing flag like `--force`, so this still returns
  * true for force runs — callers that need to distinguish use
  * isForceReviewCommand().
  *
  * @param botUsername Optional custom bot username. When provided, also matches
- *                   `@<botUsername> review` in addition to `@kody review`.
+ *                   `@<botUsername> review` in addition to `@piku review`.
  */
 export const isReviewCommand = (
     text: string | undefined | null,
@@ -187,7 +213,7 @@ export const isReviewCommand = (
 };
 
 /**
- * Check if the review command carries the force flag (`@kody review --force`).
+ * Check if the review command carries the force flag (`@piku review --force`).
  * Subset of isReviewCommand — when this returns true, isReviewCommand is
  * already true. Callers use this to decide whether to record telemetry as
  * `command-force` and to bypass the re-review guard.
@@ -204,12 +230,14 @@ export const isForceReviewCommand = (
 };
 
 /**
- * Captures the command head (`@kody review` / `@kody start-review`) plus an
+ * Captures the command head (`@piku review` / `@piku start-review`) plus an
  * optional `--force` flag, so the remaining text on the command can be read as
- * a free-text steering directive (e.g. `@kody review focus on the auth logic`).
+ * a free-text steering directive (e.g. `@piku review focus on the auth logic`).
  */
-const KODY_REVIEW_COMMAND_HEAD_PATTERN =
-    /^\s*@kody\s+(?:start-review|review)\b[ \t]*(?:(?:--?force|--?heavy)\b[ \t]*)*/i;
+const KODY_REVIEW_COMMAND_HEAD_PATTERN = new RegExp(
+    `^\\s*@${BOT_NAME_GROUP}\\s+(?:start-review|review)\\b[ \\t]*(?:(?:--?force|--?heavy)\\b[ \\t]*)*`,
+    'i',
+);
 
 /** Hard cap so a pasted wall of text can't blow up the prompt. */
 const MAX_REVIEW_DIRECTIVE_LENGTH = 500;
@@ -253,9 +281,9 @@ export const normalizeReviewDirective = (
 
 /**
  * Extract the free-text steering directive a user appended to a review command
- * (`@kody review <directive>`). Returns the sanitized directive, or undefined
+ * (`@piku review <directive>`). Returns the sanitized directive, or undefined
  * when the comment is not a review command or carries no extra text (the common
- * `@kody review` / `@kody review --force` case). Only the first line after the
+ * `@piku review` / `@piku review --force` case). Only the first line after the
  * command is used; the `--force` flag and surrounding quotes are stripped; the
  * text is sanitized (see sanitizeReviewDirective) and length-capped. Steers what
  * the finder focuses on; it never filters — clear issues elsewhere are still
@@ -268,7 +296,7 @@ export const parseReviewDirective = (
     if (!text) return undefined;
     if (!isReviewCommand(text, botUsername)) return undefined;
 
-    // Try the hardcoded @kody pattern first, then the custom bot pattern
+    // Try the built-in bot-name patterns first, then the custom bot pattern
     const head =
         text.match(KODY_REVIEW_COMMAND_HEAD_PATTERN) ||
         (botUsername ? text.match(buildReviewCommandHeadPattern(botUsername)) : null);
@@ -282,7 +310,7 @@ export const parseReviewDirective = (
             .replace(/^["'`]+|["'`]+$/g, '')
             // Drop `--heavy`/`--force` flags left ANYWHERE in the directive.
             // The head pattern only eats LEADING flags, so a flag placed after
-            // (or between) the focus text — `@kody review auth --heavy` — would
+            // (or between) the focus text — `@piku review auth --heavy` — would
             // otherwise pollute the <ReviewFocus> hint. `\b` keeps focus words
             // like "forced"/"heavyweight" intact; the global flag handles
             // multiple flags in any order. Whitespace is collapsed downstream.
@@ -299,7 +327,7 @@ export const hasReviewMarker = (text: string | undefined | null): boolean => {
 };
 
 /**
- * Check if comment mentions @kody but is NOT a review command
+ * Check if comment mentions @piku but is NOT a review command
  */
 export const isKodyMentionNonReview = (
     text: string | undefined | null,

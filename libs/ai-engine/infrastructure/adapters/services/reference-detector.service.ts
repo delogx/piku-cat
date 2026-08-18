@@ -42,11 +42,19 @@ const TRIAL_MODEL_OVERRIDE = KODUS_TRIAL_MODEL;
  * Kodus control markers are instructions to the sync engine, never file
  * references. They must be filtered from EVERY detection path — both the
  * regex marker extraction and the LLM-based detector (which happily
- * returns "@kody-sync" as a file); the miss on the LLM path kept stamping
- * spurious 'file not found: @kody-sync' sync errors on every rule synced
+ * returns "@piku-sync" as a file); the miss on the LLM path kept stamping
+ * spurious 'file not found: @piku-sync' sync errors on every rule synced
  * via the marker.
+ *
+ * Both spellings are listed: the sync engine still honours the pre-rebrand
+ * `@kody-*` markers, so they still have to be filtered here.
  */
-const KODUS_CONTROL_MARKERS = new Set(['@kody-sync', '@kody-ignore']);
+const KODUS_CONTROL_MARKERS = new Set([
+    '@piku-sync',
+    '@piku-ignore',
+    '@kody-sync',
+    '@kody-ignore',
+]);
 
 /**
  * Escapes every RegExp metacharacter so an arbitrary string can be embedded in
@@ -61,7 +69,8 @@ export function escapeRegExp(value: string): string {
 }
 
 /**
- * Removes Kody control markers (@kody-sync/@kody-ignore) from free text so the
+ * Removes Piku control markers (@piku-sync/@piku-ignore, and their
+ * pre-rebrand @kody-* spellings) from free text so the
  * reference detector never sees them as content. Case-insensitive, every
  * occurrence, and safe for markers containing regex metacharacters.
  */

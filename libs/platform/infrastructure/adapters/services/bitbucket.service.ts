@@ -259,7 +259,7 @@ export class BitbucketService implements Omit<
 
         if (includeFooter) {
             commentBody +=
-                'Was this suggestion helpful? reply with 👍 or 👎 to help Kody learn from this interaction.\n\n';
+                'Was this suggestion helpful? reply with 👍 or 👎 to help Piku learn from this interaction.\n\n';
             commentBody += `\`\`\`\n👍\n\`\`\`\n\n\`\`\`\n👎\n\`\`\``;
         }
 

@@ -54,7 +54,7 @@ license-attribution and per-seat gates are the real signal.
    tenant's `repoFullName` is patched into the provider's env override
    (`GH_TEST_REPO` etc.) for the duration of this step.
 5. **Finish onboarding** via `POST /code-management/finish-onboarding`
-   — triggers Kody-rules generation (uses LLM tokens).
+   — triggers Piku-rules generation (uses LLM tokens).
 6. **Persist** to `~/.kodus-dev/cloud-tenants.json`.
 
 ## Usage

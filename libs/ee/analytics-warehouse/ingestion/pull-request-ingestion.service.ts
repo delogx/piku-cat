@@ -489,7 +489,7 @@ export class PullRequestIngestionService {
             for (const s of file.suggestions ?? []) {
                 // `id` is only populated once a suggestion is actually
                 // delivered (posted as a PR comment). Drafts that never
-                // leave Kody (`deliveryStatus !== 'sent'`) are id-less
+                // leave Piku (`deliveryStatus !== 'sent'`) are id-less
                 // and every cockpit query filters by `sent` anyway, so
                 // dropping them at ingestion is lossless. Skipping here
                 // instead of letting the NOT NULL constraint fire saves

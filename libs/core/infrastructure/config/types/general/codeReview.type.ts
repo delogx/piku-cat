@@ -287,7 +287,7 @@ export interface SuggestionControlConfig {
     limitationType?: LimitationType;
     maxSuggestions: number;
     severityLevelFilter?: SeverityLevel;
-    applyFiltersToKodyRules?: boolean; // Default: false - Applies ALL filters (severity + quantity) to Kody Rules
+    applyFiltersToKodyRules?: boolean; // Default: false - Applies ALL filters (severity + quantity) to Piku Rules
     severityLimits?: {
         low: number;
         medium: number;
@@ -308,7 +308,7 @@ export type CodeReviewConfig = {
     ignorePaths: string[];
     reviewMode?: 'fast' | 'normal' | 'deep';
     /** HEAVY mode — extra critic pass in the finder for more recall. Opt-in per
-     *  review (CLI `--heavy` / PR `@kody review --heavy`). Off by default. */
+     *  review (CLI `--heavy` / PR `@piku review --heavy`). Off by default. */
     heavy?: boolean;
     reviewOptions: ReviewOptions;
     ignoredTitleKeywords: string[];
@@ -327,7 +327,7 @@ export type CodeReviewConfig = {
     isRequestChangesActive?: boolean;
     kodyRulesGeneratorEnabled?: boolean;
     // Provider-native user ids whose review comments are EXCLUDED when learning
-    // Kody Rules from past reviews. Denylist: empty/absent = learn from everyone.
+    // Piku Rules from past reviews. Denylist: empty/absent = learn from everyone.
     kodyLearningExcludedReviewers?: string[];
     kodyKnowledgeApproval?: KodyKnowledgeApprovalConfig;
     reviewModeConfig?: ReviewModeConfig;

@@ -65,7 +65,7 @@ export class CentralizedConfigSyncUseCase implements IUseCase {
                     repository,
                 });
 
-            // Discover Kody rule files in the repository
+            // Discover Piku rule files in the repository
             const ruleFilesMeta =
                 await this.centralizedConfigService.discoverKodyRulesFiles({
                     organizationAndTeamData,
@@ -101,7 +101,7 @@ export class CentralizedConfigSyncUseCase implements IUseCase {
                 };
             }
 
-            // Synchronize Kody rules
+            // Synchronize Piku rules
             const syncRulesResult =
                 await this.centralizedConfigService.synchronizeKodyRules({
                     organizationAndTeamData,
@@ -111,7 +111,7 @@ export class CentralizedConfigSyncUseCase implements IUseCase {
 
             if (!syncRulesResult.success) {
                 this.logger.error({
-                    message: 'Failed to synchronize Kody rules',
+                    message: 'Failed to synchronize Piku rules',
                     context: CentralizedConfigSyncUseCase.name,
                     metadata: {
                         organizationAndTeamData,
@@ -121,11 +121,11 @@ export class CentralizedConfigSyncUseCase implements IUseCase {
 
                 return {
                     success: false,
-                    message: `Failed to synchronize Kody rules: ${syncRulesResult.message}`,
+                    message: `Failed to synchronize Piku rules: ${syncRulesResult.message}`,
                 };
             }
 
-            // Remove stale Kody rules
+            // Remove stale Piku rules
             const cleanupRulesResult =
                 await this.centralizedConfigService.removeStaleKodyRules({
                     organizationAndTeamData,
@@ -139,7 +139,7 @@ export class CentralizedConfigSyncUseCase implements IUseCase {
 
             if (!cleanupRulesResult.success) {
                 this.logger.error({
-                    message: 'Failed to remove stale Kody rules',
+                    message: 'Failed to remove stale Piku rules',
                     context: CentralizedConfigSyncUseCase.name,
                     metadata: {
                         organizationAndTeamData,
@@ -149,7 +149,7 @@ export class CentralizedConfigSyncUseCase implements IUseCase {
 
                 return {
                     success: false,
-                    message: `Failed to remove stale Kody rules: ${cleanupRulesResult.message}`,
+                    message: `Failed to remove stale Piku rules: ${cleanupRulesResult.message}`,
                 };
             }
 

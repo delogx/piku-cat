@@ -29,7 +29,7 @@ const INITIAL_GENERATION_MONTHS = 3;
 export const INITIAL_GENERATION_LOCK_TTL_MS = 1000 * 60 * 30;
 
 /**
- * Seed a repository's Kody Rules from its last 3 months of PR review comments,
+ * Seed a repository's Piku Rules from its last 3 months of PR review comments,
  * the first time its generator is enabled. Idempotent: skips when the repo
  * already has past-reviews rules, so re-enabling (or a duplicate transition
  * signal) never re-runs the expensive analysis. Designed to be fired detached
@@ -87,7 +87,7 @@ export class GenerateInitialKodyRulesUseCase {
             if (!lock) {
                 this.logger.log({
                     message:
-                        'Initial Kody Rules generation skipped — already running for this repository',
+                        'Initial Piku Rules generation skipped — already running for this repository',
                     context: GenerateInitialKodyRulesUseCase.name,
                     metadata: { organizationId, teamId, repositoryId },
                 });
@@ -97,7 +97,7 @@ export class GenerateInitialKodyRulesUseCase {
             if (await this.hasPastReviewRules(organizationId, repositoryId)) {
                 this.logger.log({
                     message:
-                        'Initial Kody Rules generation skipped — repository already has past-review rules',
+                        'Initial Piku Rules generation skipped — repository already has past-review rules',
                     context: GenerateInitialKodyRulesUseCase.name,
                     metadata: { organizationId, teamId, repositoryId },
                 });
@@ -106,7 +106,7 @@ export class GenerateInitialKodyRulesUseCase {
 
             this.logger.log({
                 message:
-                    'Starting initial 3-month Kody Rules generation for newly-enabled repository',
+                    'Starting initial 3-month Piku Rules generation for newly-enabled repository',
                 context: GenerateInitialKodyRulesUseCase.name,
                 metadata: { organizationId, teamId, repositoryId },
             });
@@ -121,7 +121,7 @@ export class GenerateInitialKodyRulesUseCase {
             );
         } catch (error) {
             this.logger.error({
-                message: 'Initial Kody Rules generation failed',
+                message: 'Initial Piku Rules generation failed',
                 context: GenerateInitialKodyRulesUseCase.name,
                 error:
                     error instanceof Error ? error : new Error(String(error)),

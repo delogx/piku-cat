@@ -220,7 +220,7 @@ export class CreateOrUpdateKodyRulesUseCase {
             return result;
         } catch (error) {
             this.logger.error({
-                message: 'Could not create or update Kody rules',
+                message: 'Could not create or update Piku rules',
                 context: CreateOrUpdateKodyRulesUseCase.name,
                 serviceName: 'CreateOrUpdateKodyRulesUseCase',
                 error: this.normalizeError(error),

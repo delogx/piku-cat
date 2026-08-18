@@ -126,7 +126,7 @@ export interface IKodyRule {
     resolvedBy?: string;
     /**
      * Set by the IDE-rule sync flow when the source file currently
-     * carries an `@kody-sync` marker — the per-file override that
+     * carries an `@piku-sync` marker — the per-file override that
      * keeps a rule synchronized even with the repository's
      * `ideRulesSyncEnabled=false`. Recomputed from file content on
      * every sync, so flipping the toggle or editing the marker
@@ -277,14 +277,14 @@ export interface IKodyRuleExternalReference {
     };
 }
 
-/** Where a Kody Rule or Memory came from. */
+/** Where a Piku Rule or Memory came from. */
 export enum KodyRulesOrigin {
     MANUAL = 'manual',
     LIBRARY = 'library',
     PAST_REVIEWS = 'past_reviews',
     REPO_FILE_SYNC = 'repo_file_sync',
     /**
-     * Global Kody Rule imported by syncing rule files from a repository the user
+     * Global Piku Rule imported by syncing rule files from a repository the user
      * selected as a global-rules source (distinct from the per-repo
      * `REPO_FILE_SYNC`). Stored under `repositoryId="global"` alongside
      * user-authored global rules and the onboarding fast-sync scratch, so this
@@ -343,7 +343,7 @@ export enum KodyRuleRequestType {
 }
 
 /**
- * Resolves the effective SeverityLevel for a Kody Rule.
+ * Resolves the effective SeverityLevel for a Piku Rule.
  * Reads `severity` (the only source of truth); defaults to HIGH when missing
  * or set to an unrecognized value.
  */

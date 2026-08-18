@@ -22,7 +22,7 @@ provider errors.
 
 ## Question
 
-Can Trace help Kody find a defect that cannot be established from the diff or
+Can Trace help Piku find a defect that cannot be established from the diff or
 repository alone?
 
 The historical decision says webhook deduplication records must remain valid
@@ -44,7 +44,7 @@ window. The pull request does not contain that provider constraint.
 | 20h control, baseline | 0 findings | 0 findings | 0 findings |
 | 20h control, Trace | 0 findings | 0 findings | 0 findings |
 
-In all three Trace runs, Kody identified the exact mismatch: 43,200 seconds is
+In all three Trace runs, Piku identified the exact mismatch: 43,200 seconds is
 12 hours and therefore six hours shorter than the recorded 18-hour minimum.
 It connected expiration of the Redis deduplication key to repeated externally
 visible side effects. Without Trace, the agent considered the generic retry
@@ -78,7 +78,7 @@ release gate; the expected result is one actionable finding, not two comments.
 ## Conclusion
 
 This is a positive synthetic example of incremental review value: Trace added
-the missing operational fact, Kody found the resulting defect consistently,
+the missing operational fact, Piku found the resulting defect consistently,
 and the negative control did not produce noise. It is not enough to justify a
 broad rollout. The next gate should replay real pull requests with decisions
 captured before the pull request and labels written independently of the eval.

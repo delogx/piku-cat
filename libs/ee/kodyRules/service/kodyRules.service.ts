@@ -286,7 +286,7 @@ export class KodyRulesService implements IKodyRulesService {
     }
 
     /**
-     * Synchronizes an organization's stored Kody Rules in MongoDB with its
+     * Synchronizes an organization's stored Piku Rules in MongoDB with its
      * current plan resource limits (#1626).
      *
      * - On Paid plans (not limited): clears `lockedByPlan` and flips `PAUSED` → `ACTIVE`
@@ -398,7 +398,7 @@ export class KodyRulesService implements IKodyRulesService {
         });
 
         this.logger.log({
-            message: 'Synchronized Kody Rules with current plan limits in MongoDB',
+            message: 'Synchronized Piku Rules with current plan limits in MongoDB',
             context: KodyRulesService.name,
             metadata: {
                 organizationId,
@@ -415,7 +415,7 @@ export class KodyRulesService implements IKodyRulesService {
     }
 
     /**
-     * Obtém informações sobre limites de Kody Rules para uma organização
+     * Obtém informações sobre limites de Piku Rules para uma organização
      * Usado pelo frontend para controlar UI (desabilitar botões, mostrar avisos, etc)
      */
     async getRulesLimitStatus(
@@ -588,7 +588,7 @@ export class KodyRulesService implements IKodyRulesService {
 
             if (!newKodyRules) {
                 throw new Error(
-                    'Could not create new Kody rules for organization',
+                    'Could not create new Piku rules for organization',
                 );
             }
 
@@ -943,7 +943,7 @@ export class KodyRulesService implements IKodyRulesService {
 
         if (!existing) {
             throw new NotFoundException(
-                'Kody rules not found for organization',
+                'Piku rules not found for organization',
             );
         }
 
@@ -997,7 +997,7 @@ export class KodyRulesService implements IKodyRulesService {
         const existing = await this.findByOrganizationId(organizationId);
         if (!existing) {
             throw new NotFoundException(
-                'Kody rules not found for organization',
+                'Piku rules not found for organization',
             );
         }
 
@@ -1147,7 +1147,7 @@ export class KodyRulesService implements IKodyRulesService {
 
             if (result) {
                 this.logger.log({
-                    message: 'Kody rules status updated successfully by filter',
+                    message: 'Piku rules status updated successfully by filter',
                     context: KodyRulesService.name,
                     metadata: {
                         organizationId,
@@ -1161,7 +1161,7 @@ export class KodyRulesService implements IKodyRulesService {
             return result;
         } catch (error) {
             this.logger.error({
-                message: 'Error updating Kody rules status by filter',
+                message: 'Error updating Piku rules status by filter',
                 context: KodyRulesService.name,
                 error: error,
                 metadata: {
@@ -1269,7 +1269,7 @@ export class KodyRulesService implements IKodyRulesService {
         } catch (error) {
             this.logger.error({
                 message:
-                    'Error validating Kody Rules limit - locking rule for safety',
+                    'Error validating Piku Rules limit - locking rule for safety',
                 error: error,
                 context: KodyRulesService.name,
                 metadata: {
@@ -1593,10 +1593,10 @@ export class KodyRulesService implements IKodyRulesService {
 
             const mainRun = 'kodyRulesRecommendationFromSuggestions';
 
-            const systemPrompt = `You are a code quality expert analyzing past code review suggestions to recommend relevant Kody Rules.
+            const systemPrompt = `You are a code quality expert analyzing past code review suggestions to recommend relevant Piku Rules.
 
-## What are Kody Rules?
-Kody Rules are reusable code review guidelines that help enforce best practices. Each rule has:
+## What are Piku Rules?
+Piku Rules are reusable code review guidelines that help enforce best practices. Each rule has:
 - title: Short descriptive name
 - rule: The guideline to follow
 - buckets: Categories like "error-handling", "security-hardening", "maintainability"

@@ -1770,7 +1770,7 @@ export class GitlabService implements Omit<
     private formatDeploymentTypeFromDeploy(workflows) {
         return {
             type: 'deployment',
-            madeBy: 'Kody',
+            madeBy: 'Piku',
             value: {
                 workflows: workflows.flatMap((repo) =>
                     repo.productionWorkflows.map((workflow) => ({

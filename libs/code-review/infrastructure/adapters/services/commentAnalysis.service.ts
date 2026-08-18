@@ -55,7 +55,7 @@ import {
 } from '@libs/kodyRules/domain/interfaces/kodyRules.interface';
 
 /**
- * Resolved model selection for a Kody Rules LLM call. BYOK wins when present;
+ * Resolved model selection for a Piku Rules LLM call. BYOK wins when present;
  * otherwise `modelOverride` forces the managed trial model (DeepSeek V4 Flash
  * on Fireworks); both undefined resolves the self-hosted env model. Produced by
  * `resolveKodyRulesModelPolicy`.
@@ -277,7 +277,7 @@ export class CommentAnalysisService {
 
         if (!filteredComments || filteredComments.length === 0) {
             this.logger.log({
-                message: 'No comments to generate Kody rules after filtering',
+                message: 'No comments to generate Piku rules after filtering',
                 context: CommentAnalysisService.name,
                 metadata: { organizationAndTeamData },
             });
@@ -546,8 +546,8 @@ export class CommentAnalysisService {
                             comment?.user?.type?.toLowerCase() !== 'bot',
                     )
                     ?.filter(
-                        // Drop comments authored by Kody itself — otherwise
-                        // the rule-generator LLM learns from Kody's own
+                        // Drop comments authored by Piku itself — otherwise
+                        // the rule-generator LLM learns from Piku's own
                         // past reviews and creates duplicate rules on
                         // subsequent onboardings (self-feedback loop).
                         // Both provider signatures are checked centrally

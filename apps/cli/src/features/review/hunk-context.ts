@@ -145,7 +145,7 @@ function toAnnotation(issue: ReviewIssue): HunkAgentAnnotation | null {
         );
     }
 
-    parts.push(`— Kody · ${attribution}`);
+    parts.push(`— Piku · ${attribution}`);
 
     return {
         newRange: [start, end],
@@ -163,7 +163,7 @@ function buildAttribution(issue: ReviewIssue, severity: Severity): string {
     if (issue.category) {
         bits.push(issue.category);
     }
-    // Kody-rule findings carry the rule's UUID, which reads as noise and is
+    // Piku-rule findings carry the rule's UUID, which reads as noise and is
     // already in the rule link the body keeps. Named rule ids still earn a spot.
     if (issue.ruleId && !UUID_RE.test(issue.ruleId)) {
         bits.push(issue.ruleId);
@@ -235,7 +235,7 @@ function buildMarkup(
 
     // URLs go last, out of the prose flow but never dropped: STML's `<a>`
     // renders only the label and discards the href entirely (no OSC 8 either),
-    // so a Kody-rule link put there would be unreachable. A dim paragraph keeps
+    // so a Piku-rule link put there would be unreachable. A dim paragraph keeps
     // it — and `p` wraps long tokens instead of clipping them.
     for (const link of links) {
         // The label already reads inline above, so repeating it only earns its
@@ -247,7 +247,7 @@ function buildMarkup(
         blocks.push(`<p><dim>${caption}${escapeStml(link.url)}</dim></p>`);
     }
 
-    blocks.push(`<text><dim>— Kody · ${escapeStml(attribution)}</dim></text>`);
+    blocks.push(`<text><dim>— Piku · ${escapeStml(attribution)}</dim></text>`);
 
     return blocks.join('\n');
 }
@@ -260,7 +260,7 @@ export interface ExtractedLink {
 /**
  * Pull Markdown links out of a finding and undo Markdown escaping.
  *
- * Kody-rule findings arrive with the rule name as `[label](url)` plus
+ * Piku-rule findings arrive with the rule name as `[label](url)` plus
  * backslash-escaped punctuation, which rendered verbatim in the note: a
  * hundred-character URL wrapped through the middle of a sentence. The label
  * stays inline where it reads naturally; the URL is returned for the caller to

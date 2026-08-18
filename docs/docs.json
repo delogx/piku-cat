@@ -66,7 +66,7 @@
                                         ]
                                     },
                                     {
-                                        "group": "Kody Rules",
+                                        "group": "Piku Rules",
                                         "pages": [
                                             "how_to_use/en/code_review/configs/kody_rules",
                                             "how_to_use/en/code_review/configs/rules_inheritance",
@@ -117,7 +117,7 @@
                                 ]
                             },
                             {
-                                "group": "Kody Issues",
+                                "group": "Piku Issues",
                                 "pages": [
                                     "how_to_use/en/issues/overview"
                                 ]
@@ -398,7 +398,7 @@
                                         ]
                                     },
                                     {
-                                        "group": "Reglas de Kody",
+                                        "group": "Reglas de Piku",
                                         "pages": [
                                             "how_to_use/es/code_review/configs/kody_rules",
                                             "how_to_use/es/code_review/configs/rules_inheritance",
@@ -449,7 +449,7 @@
                                 ]
                             },
                             {
-                                "group": "Kody Issues",
+                                "group": "Piku Issues",
                                 "pages": [
                                     "how_to_use/es/issues/overview"
                                 ]
@@ -730,7 +730,7 @@
                                         ]
                                     },
                                     {
-                                        "group": "Regras do Kody",
+                                        "group": "Regras do Piku",
                                         "pages": [
                                             "how_to_use/pt-br/code_review/configs/kody_rules",
                                             "how_to_use/pt-br/code_review/configs/rules_inheritance",
@@ -781,7 +781,7 @@
                                 ]
                             },
                             {
-                                "group": "Kody Issues",
+                                "group": "Piku Issues",
                                 "pages": [
                                     "how_to_use/pt-br/issues/overview"
                                 ]
@@ -1113,7 +1113,7 @@
                                 ]
                             },
                             {
-                                "group": "Kody Issues",
+                                "group": "Piku Issues",
                                 "pages": [
                                     "how_to_use/ja/issues/overview"
                                 ]
@@ -1394,7 +1394,7 @@
                                         ]
                                     },
                                     {
-                                        "group": "Kody 规则",
+                                        "group": "Piku 规则",
                                         "pages": [
                                             "how_to_use/zh/code_review/configs/kody_rules",
                                             "how_to_use/zh/code_review/configs/rules_inheritance",
@@ -1445,7 +1445,7 @@
                                 ]
                             },
                             {
-                                "group": "Kody 工单",
+                                "group": "Piku 工单",
                                 "pages": [
                                     "how_to_use/zh/issues/overview"
                                 ]

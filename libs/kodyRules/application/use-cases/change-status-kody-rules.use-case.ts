@@ -185,7 +185,7 @@ export class ChangeStatusKodyRulesUseCase {
 
                 if (!result) {
                     throw new Error(
-                        'Failed to change status pending Kody rule',
+                        'Failed to change status pending Piku rule',
                     );
                 }
 
@@ -203,7 +203,7 @@ export class ChangeStatusKodyRulesUseCase {
             return updated;
         } catch (error) {
             this.logger.error({
-                message: 'Could not change status pending Kody rules',
+                message: 'Could not change status pending Piku rules',
                 context: ChangeStatusKodyRulesUseCase.name,
                 serviceName: 'ChangeStatusPendingKodyRulesUseCase',
                 error: error,

@@ -23,7 +23,7 @@ import { logger } from '../lib/log.js';
 
 const log = logger('provider:github');
 
-// Map a Kody license-block notification body to a discriminator the
+// Map a Piku license-block notification body to a discriminator the
 // scenario layer can assert on. Loose keyword match so we can tell
 // "trial expired" apart from "BYOK not yet configured" without
 // committing to exact copy that may change.
@@ -39,7 +39,7 @@ function classifyLicenseNotice(
 }
 
 /**
- * Classify a Kody comment on a PR. Hoisted and exported because it has
+ * Classify a Piku comment on a PR. Hoisted and exported because it has
  * misread comments twice: once ranking an incidental status above a real
  * one, and once reading a security finding that mentions BYOK as a BYOK
  * license notice (cloud run 31616209955).
@@ -58,8 +58,8 @@ export function classifyKodyComment(
     // routine: cloud run 31616209955 failed
     // license-attribution x community-byok on a genuine
     // Security/critical finding about /stats exposing an API
-    // key. The keyword match below cannot tell "Kody is telling
-    // you to configure a key" from "Kody found a key problem in
+    // key. The keyword match below cannot tell "Piku is telling
+    // you to configure a key" from "Piku found a key problem in
     // your code", so the badge has to decide first.
     if (/severity_level-/.test(body)) return 'review';
     // Trial / BYOK / plan-activation prompts. Stable
@@ -434,7 +434,7 @@ export class GitHubProvider extends BaseProvider {
             {
                 method: 'POST',
                 headers: this.authorHeaders(),
-                body: { body: '@kody review' },
+                body: { body: '@piku review' },
             },
         );
         ensureOk(resp, 'github:triggerReview');
@@ -564,20 +564,20 @@ export class GitHubProvider extends BaseProvider {
                             `${this.apiBase}/repos/${this.repoFullName}/pulls/${pr.number}/reviews`,
                         ),
                     ]);
-                // Kody posts three distinct comment shapes that all carry
+                // Piku posts three distinct comment shapes that all carry
                 // the `<!-- kody-codereview -->` discriminator:
                 //
                 //   1. "Code Review Started!" placeholder — no findings
                 //      yet. Pure status, drop.
                 //   2. "Your trial has ended! Activate your plan…" OR
                 //      "Set up your BYOK key…" — license/entitlement
-                //      gate fired and Kody is telling the user why no
+                //      gate fired and Piku is telling the user why no
                 //      review is coming. NOT a real review, but a
                 //      meaningful UX signal we want to surface as
                 //      `licenseBlockedNotice` (not as reviewComments).
                 //   3. Real review output — either
                 //      `<!-- kody-codereview-completed-… -->` (Complete
-                //      summary with "Kody Review Complete" / "Kody
+                //      summary with "Piku Review Complete" / "Piku
                 //      Guide") or individual finding comments with the
                 //      docs.kodus.io footer. Keep as a review signal.
                 const classify = classifyKodyComment;
@@ -591,7 +591,7 @@ export class GitHubProvider extends BaseProvider {
                     for (const c of items) {
                         if (String(c.id) === opts.triggerId) continue;
                         const body = c.body ?? '';
-                        if (body.toLowerCase().startsWith('@kody')) continue;
+                        if (body.toLowerCase().startsWith('@piku')) continue;
                         const kind = classify(body);
                         if (kind === 'started') continue;
                         if (kind === 'license-block') {
@@ -615,12 +615,12 @@ export class GitHubProvider extends BaseProvider {
                     const ts = r.submitted_at ?? r.created_at ?? '';
                     if (ts <= opts.sinceIso) return false;
                     const body = r.body ?? '';
-                    if (body.toLowerCase().startsWith('@kody')) return false;
+                    if (body.toLowerCase().startsWith('@piku')) return false;
                     return classify(body) === 'review';
                 });
                 // Surface any license-block notice we found via comments,
                 // even when no real review fired. Lets the scenario layer
-                // assert on "gate blocked AND Kody notified" instead of
+                // assert on "gate blocked AND Piku notified" instead of
                 // bare silence.
                 const licenseNotice =
                     rcRes.licenseNotice?.body ??
@@ -704,7 +704,7 @@ export class GitHubProvider extends BaseProvider {
     // comment with the `<!-- kody-codereview` discriminator shows up
     // on the PR. Includes the "Code Review Started!" placeholder
     // that pollForReview drops — by design, since this phase only
-    // proves the worker dequeued the PR and Kody got far enough to
+    // proves the worker dequeued the PR and Piku got far enough to
     // post a heartbeat. Issue comments only (placeholder lives
     // there); review-comments and reviews lag behind by definition.
     async waitForPipelineStart(
@@ -754,10 +754,10 @@ export class GitHubProvider extends BaseProvider {
     }
 
     // Posts an issue comment AS A DIFFERENT GitHub identity (token override).
-    // The conversation scenario needs this: Kody ignores any comment whose
+    // The conversation scenario needs this: Piku ignores any comment whose
     // author login contains "kody"/"kodus" (isKodyComment → treats it as its
-    // own), and the e2e bots are all `kodus-e2e-bot-N`. So the `@kody` mention
-    // must come from a non-Kody account.
+    // own), and the e2e bots are all `kodus-e2e-bot-N`. So the `@piku` mention
+    // must come from a non-Piku account.
     async postCommentAs(
         prNumber: number,
         body: string,
@@ -780,7 +780,7 @@ export class GitHubProvider extends BaseProvider {
     }
 
     // Posts an INLINE review comment as a different identity (token override).
-    // Kody's ConversationAgent only resolves the mention when it's a review
+    // Piku's ConversationAgent only resolves the mention when it's a review
     // (inline) comment — `getPullRequestReviewComment` lists review comments
     // only, so an issue comment is never found and the flow silently returns.
     // We attach it at file level (subject_type=file) so no valid diff line is
@@ -823,10 +823,10 @@ export class GitHubProvider extends BaseProvider {
         return { id: String(resp.body.id) };
     }
 
-    // Polls for Kody's conversational reply to an `@kody <question>` review
+    // Polls for Piku's conversational reply to an `@piku <question>` review
     // via createReplyForReviewComment, so the answer lands in the PR's REVIEW
     // comments. Returns the first NEW review comment that is neither ours
-    // (`@kody …`) nor a code-review finding (those carry the
+    // (`@piku …`) nor a code-review finding (those carry the
     // `<!-- kody-codereview` marker). null at timeout.
     async pollForKodyReply(
         pr: { number: number },
@@ -844,7 +844,7 @@ export class GitHubProvider extends BaseProvider {
                 for (const c of comments.body ?? []) {
                     if (String(c.id) === opts.triggerId) continue;
                     const body = c.body ?? '';
-                    if (body.toLowerCase().startsWith('@kody')) continue;
+                    if (body.toLowerCase().startsWith('@piku')) continue;
                     // Skip code-review status/findings — conversation replies
                     // don't carry the review discriminator.
                     if (body.includes('<!-- kody-codereview')) continue;

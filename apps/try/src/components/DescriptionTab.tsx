@@ -28,7 +28,7 @@ export function DescriptionTab({ pr }: { pr: PrInfo }) {
                         />
                         <div className="min-w-0">
                             <p className="text-sm text-[var(--text)] font-medium">
-                                Kody's analysis
+                                Piku's analysis
                             </p>
                             <p className="text-[11px] text-[var(--text-dim)]">
                                 Generated when this PR was submitted ·

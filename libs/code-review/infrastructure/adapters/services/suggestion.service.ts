@@ -557,7 +557,7 @@ export class SuggestionService implements ISuggestionService {
     }
 
     /**
-     * Determina se deve aplicar filtros às Kody Rules
+     * Determina se deve aplicar filtros às Piku Rules
      */
     private shouldApplyFiltersToKodyRules(
         suggestionControl: SuggestionControlConfig,
@@ -677,10 +677,10 @@ export class SuggestionService implements ISuggestionService {
             const problemDescription =
                 parentSuggestion?.oneSentenceSummary ||
                 parentSuggestion?.suggestionContent ||
-                'This Kody Rule issue appears in multiple locations.';
+                'This Piku Rule issue appears in multiple locations.';
 
             const actionStatement =
-                'Please fix this Kody Rule violation in all listed locations.';
+                'Please fix this Piku Rule violation in all listed locations.';
 
             clusteredSuggestions.push({
                 ...parentSuggestion,
@@ -826,7 +826,7 @@ export class SuggestionService implements ISuggestionService {
 
             if (hasKodyRules) {
                 this.logger.log({
-                    message: `✅ Kody Rules detected for PR#${prNumber} - using enhanced control logic`,
+                    message: `✅ Piku Rules detected for PR#${prNumber} - using enhanced control logic`,
                     context: SuggestionService.name,
                     metadata: {
                         totalSuggestions: suggestions.length,
@@ -888,10 +888,10 @@ export class SuggestionService implements ISuggestionService {
         const shouldApplyFiltersToKodyRules =
             this.shouldApplyFiltersToKodyRules(suggestionControl);
 
-        // Se deve aplicar filtros às Kody Rules, processa TODAS as sugestões juntas
+        // Se deve aplicar filtros às Piku Rules, processa TODAS as sugestões juntas
         if (shouldApplyFiltersToKodyRules) {
             this.logger.log({
-                message: `Applying ALL filters to ALL suggestions (including Kody Rules) for PR#${prNumber}`,
+                message: `Applying ALL filters to ALL suggestions (including Piku Rules) for PR#${prNumber}`,
                 context: SuggestionService.name,
                 metadata: {
                     totalSuggestions: suggestions.length,
@@ -910,7 +910,7 @@ export class SuggestionService implements ISuggestionService {
             );
         }
 
-        // Se NÃO deve aplicar filtros às Kody Rules, separa e processa diferenciadamente
+        // Se NÃO deve aplicar filtros às Piku Rules, separa e processa diferenciadamente
         let kodyRulesSuggestions = suggestions.filter((s) => {
             const normalizedLabel = this.normalizeLabel(s.label);
             return normalizedLabel === 'kody_rules';
@@ -921,7 +921,7 @@ export class SuggestionService implements ISuggestionService {
         });
 
         this.logger.log({
-            message: `Separating suggestions for PR#${prNumber} - Kody Rules exempt from filters`,
+            message: `Separating suggestions for PR#${prNumber} - Piku Rules exempt from filters`,
             context: SuggestionService.name,
             metadata: {
                 totalSuggestions: suggestions.length,
@@ -961,7 +961,7 @@ export class SuggestionService implements ISuggestionService {
             );
         }
 
-        // Processa Kody Rules SEM filtros - todas passam
+        // Processa Piku Rules SEM filtros - todas passam
         if (kodyRulesSuggestions.length > 0) {
             // PERF: Mutar in-place ao invés de criar novos objetos
             for (const s of kodyRulesSuggestions) {
@@ -972,7 +972,7 @@ export class SuggestionService implements ISuggestionService {
         }
 
         this.logger.log({
-            message: `Suggestions processed with Kody Rules control for PR#${prNumber}`,
+            message: `Suggestions processed with Piku Rules control for PR#${prNumber}`,
             context: SuggestionService.name,
             metadata: {
                 totalPrioritized: allPrioritized.length,

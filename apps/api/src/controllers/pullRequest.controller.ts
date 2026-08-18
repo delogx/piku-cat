@@ -214,7 +214,7 @@ export class PullRequestController implements OnApplicationShutdown {
     )
     @ApiOperation({
         summary: 'Awaiting-review PRs',
-        description: 'Open pull requests with no Kody review yet.',
+        description: 'Open pull requests with no Piku review yet.',
     })
     public async getAwaitingPullRequests(
         @Query('teamId') teamId?: string,

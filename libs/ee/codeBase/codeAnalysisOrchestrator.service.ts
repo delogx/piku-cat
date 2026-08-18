@@ -113,7 +113,7 @@ export class CodeAnalysisOrchestrator {
 
             if (!result) {
                 this.logger.log({
-                    message: `Kody rules suggestions null for file: ${fileContext?.file?.filename} from PR#${prNumber}`,
+                    message: `Piku rules suggestions null for file: ${fileContext?.file?.filename} from PR#${prNumber}`,
                     context: CodeAnalysisOrchestrator.name,
                     metadata: {
                         organizationAndTeamData,
@@ -125,7 +125,7 @@ export class CodeAnalysisOrchestrator {
 
             if (result?.codeSuggestions?.length === 0) {
                 this.logger.log({
-                    message: `Kody rules suggestions empty for file: ${fileContext?.file?.filename} from PR#${prNumber}`,
+                    message: `Piku rules suggestions empty for file: ${fileContext?.file?.filename} from PR#${prNumber}`,
                     context: CodeAnalysisOrchestrator.name,
                     metadata: {
                         organizationAndTeamData,
@@ -138,7 +138,7 @@ export class CodeAnalysisOrchestrator {
             return result;
         } catch (error) {
             this.logger.error({
-                message: `Error executing Kody rules analysis for file: ${fileContext?.file?.filename} from PR#${prNumber}`,
+                message: `Error executing Piku rules analysis for file: ${fileContext?.file?.filename} from PR#${prNumber}`,
                 context: CodeAnalysisOrchestrator.name,
                 error: error,
                 metadata: {
@@ -161,7 +161,7 @@ export class CodeAnalysisOrchestrator {
 
         if (!hasRules) {
             this.logger.log({
-                message: `Kody rules will not execute: ${!hasRules ? 'No rules found' : 'Feature disabled'} for PR#${prNumber}`,
+                message: `Piku rules will not execute: ${!hasRules ? 'No rules found' : 'Feature disabled'} for PR#${prNumber}`,
                 context: CodeAnalysisOrchestrator.name,
                 metadata: {
                     organizationAndTeamData,

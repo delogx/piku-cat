@@ -190,7 +190,7 @@ export class ProcessFilesPrLevelReviewStage extends BasePipelineStage<CodeReview
         }
 
         return this.updateContext(businessLogicContext ?? context, (draft) => {
-            // Kody Rules Results
+            // Piku Rules Results
             if (kodyRulesResult?.suggestions?.length > 0) {
                 if (!draft.validSuggestionsByPR) {
                     draft.validSuggestionsByPR = [];
@@ -229,7 +229,7 @@ export class ProcessFilesPrLevelReviewStage extends BasePipelineStage<CodeReview
     private async runKodyRulesAnalysis(
         _context: CodeReviewPipelineContext,
     ): Promise<{ suggestions: ISuggestionByPR[]; error?: PipelineError }> {
-        // Kody Rules (file + PR level) are handled by the KodyRulesAgent
+        // Piku Rules (file + PR level) are handled by the KodyRulesAgent
         // in the AgentReviewStage. No longer needed here.
         return { suggestions: [] };
     }
@@ -341,7 +341,7 @@ export class ProcessFilesPrLevelReviewStage extends BasePipelineStage<CodeReview
 
         try {
             const prepareContext = {
-                userQuestion: '@kody -v business-logic',
+                userQuestion: '@piku -v business-logic',
                 pullRequest: {
                     pullRequestNumber: context.pullRequest.number,
                     headRef: context.pullRequest?.head?.ref,

@@ -66,13 +66,13 @@ export interface CodeReviewPipelineContext extends PipelineContext {
     userGitId?: string;
     /**
      * Free-text steering directive from a review command
-     * (`@kody review focus on the auth logic`). Threaded into the finder prompt
+     * (`@piku review focus on the auth logic`). Threaded into the finder prompt
      * as a high-priority focus block. Empty/undefined = a normal review.
      */
     reviewDirective?: string;
 
     /**
-     * HEAVY mode — opt-in per review (CLI `--heavy` or PR `@kody review
+     * HEAVY mode — opt-in per review (CLI `--heavy` or PR `@piku review
      * --heavy`). Runs an extra "what did you miss?" critic pass in the finder
      * for higher recall, at ~+1 finder pass of cost. Off by default.
      */

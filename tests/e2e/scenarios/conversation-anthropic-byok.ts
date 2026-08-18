@@ -2,14 +2,14 @@ import { ensureLicenseSeat } from "../lib/onboarding.js";
 import { http } from "../lib/http.js";
 import type { RunContext, Scenario, KodusSession } from "../lib/types.js";
 
-// Anthropic-BYOK variant of conversation-vertex-byok: drives the REAL @kody
+// Anthropic-BYOK variant of conversation-vertex-byok: drives the REAL @piku
 // conversation flow (webhook → ConversationAgent → BYOKPromptRunner → Anthropic
 // Sonnet → kodus-flow parser) on a real self-hosted env. Used to reproduce the
 // "Missing or invalid reasoning field" failure (old flow) and verify the fix
 // (new flow) end-to-end. Hardened: rejects the generic error fallback.
 const FIXTURE = { head: "bug/missing-null-check", base: "main" };
 const QUESTION =
-    "@kody this cron deactivates licenses daily, right? explain it to me naturally, like a colleague would, briefly.";
+    "@piku this cron deactivates licenses daily, right? explain it to me naturally, like a colleague would, briefly.";
 
 async function setAnthropicByok(
     apiBaseUrl: string,
@@ -45,7 +45,7 @@ async function setAnthropicByok(
 
 export const conversationAnthropicByok: Scenario = {
     id: "conversation-anthropic-byok",
-    title: "Kody answers an @kody mention using an Anthropic Sonnet BYOK key (v2 path)",
+    title: "Piku answers an @piku mention using an Anthropic Sonnet BYOK key (v2 path)",
     priority: "P2",
     appliesTo: {
         target: ["self-hosted"],
@@ -111,7 +111,7 @@ export const conversationAnthropicByok: Scenario = {
 
             ctx.assert(
                 reply && reply.body.trim().length > 0,
-                `Kody never answered the @kody mention on PR #${pr.number} within 600s (model=${model}).`,
+                `Piku never answered the @piku mention on PR #${pr.number} within 600s (model=${model}).`,
             );
 
             // Reject the generic error fallback — a non-empty reply is NOT enough.
@@ -121,7 +121,7 @@ export const conversationAnthropicByok: Scenario = {
                 lowered.includes("please try rephrasing your question");
             ctx.assert(
                 !isFallback,
-                `Kody replied with the GENERIC ERROR FALLBACK (the parse failure), not a real answer: "${reply!.body.slice(0, 300)}" (model=${model}).`,
+                `Piku replied with the GENERIC ERROR FALLBACK (the parse failure), not a real answer: "${reply!.body.slice(0, 300)}" (model=${model}).`,
             );
 
             return {

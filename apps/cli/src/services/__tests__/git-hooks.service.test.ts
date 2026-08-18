@@ -230,7 +230,7 @@ describe('gitHooksService.install', () => {
             'echo "mine"',
             '',
             '# kodus-session-hooks',
-            'echo "Kody-Checkpoint stuff"',
+            'echo "Piku-Checkpoint stuff"',
             '# /kodus-session-hooks',
             '',
         ].join('\n');
@@ -244,7 +244,7 @@ describe('gitHooksService.install', () => {
         );
         expect(content).toContain('echo "mine"');
         expect(content).not.toContain('kodus-session-hooks');
-        expect(content).not.toContain('Kody-Checkpoint');
+        expect(content).not.toContain('Piku-Checkpoint');
         expect(content).toContain(TRACE_HOOK_MARKER);
     });
 

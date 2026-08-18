@@ -105,7 +105,7 @@ export interface ICentralizedConfigService {
     }): Promise<IKodyRuleFileMeta[]>;
 
     /**
-     * Fetches and parses a Kody rule file from the centralized repository
+     * Fetches and parses a Piku rule file from the centralized repository
      */
     fetchKodyRuleFile(params: {
         organizationAndTeamData: OrganizationAndTeamData;
@@ -114,7 +114,7 @@ export interface ICentralizedConfigService {
     }): Promise<DeepPartial<IKodyRule> | null>;
 
     /**
-     * Synchronizes Kody rules from centralized repository to target scopes
+     * Synchronizes Piku rules from centralized repository to target scopes
      */
     synchronizeKodyRules(params: {
         organizationAndTeamData: OrganizationAndTeamData;
@@ -133,7 +133,7 @@ export interface ICentralizedConfigService {
     }>;
 
     /**
-     * Removes stale Kody rules that are no longer present in centralized repository
+     * Removes stale Piku rules that are no longer present in centralized repository
      */
     removeStaleKodyRules(params: {
         organizationAndTeamData: OrganizationAndTeamData;

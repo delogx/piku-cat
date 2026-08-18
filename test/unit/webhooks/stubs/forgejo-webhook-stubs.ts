@@ -227,7 +227,7 @@ export const forgejoIssueCommentPayload = {
             html_url: 'https://git.example.com/developer',
             username: 'developer',
         },
-        body: '@kody please review this',
+        body: '@piku please review this',
         created_at: '2026-02-03T19:11:03+11:00',
         updated_at: '2026-02-03T19:11:03+11:00',
     },

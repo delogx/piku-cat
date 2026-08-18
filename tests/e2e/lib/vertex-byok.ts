@@ -30,7 +30,7 @@ export function readVertexByokEnv(): VertexByokCfg | null {
  * Point the org's main BYOK slot at a Claude model on Google Vertex. Probes
  * /test-byok first so a missing Model-Garden enablement or a bad service
  * account fails HERE with Google's actual reason — not later as a silent
- * "Kody never responded".
+ * "Piku never responded".
  */
 export async function setVertexByok(
     apiBaseUrl: string,

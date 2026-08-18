@@ -59,7 +59,7 @@ function printRuleList(
     fallbackRepositoryId = 'global',
 ): void {
     if (rules.length === 0) {
-        cliInfo(chalk.yellow('No Kody Rules found.'));
+        cliInfo(chalk.yellow('No Piku Rules found.'));
         return;
     }
 
@@ -92,7 +92,7 @@ export async function rulesCreateAction(
         if (isCentralizedPrResponseTypeGuard(createdRule)) {
             cliInfo(
                 chalk.green(
-                    'Kody Rule change proposed through centralized pull request.',
+                    'Piku Rule change proposed through centralized pull request.',
                 ),
             );
             if (createdRule.message) {
@@ -107,7 +107,7 @@ export async function rulesCreateAction(
             return;
         }
 
-        cliInfo(chalk.green('Kody Rule created successfully.'));
+        cliInfo(chalk.green('Piku Rule created successfully.'));
         printRule(createdRule, options.repoId ?? 'global');
     } catch (error) {
         const normalized = normalizeCommandError(error);
@@ -138,7 +138,7 @@ export async function rulesUpdateAction(
         if (isCentralizedPrResponseTypeGuard(updatedRule)) {
             cliInfo(
                 chalk.green(
-                    'Kody Rule change proposed through centralized pull request.',
+                    'Piku Rule change proposed through centralized pull request.',
                 ),
             );
             if (updatedRule.message) {
@@ -153,7 +153,7 @@ export async function rulesUpdateAction(
             return;
         }
 
-        cliInfo(chalk.green('Kody Rule updated successfully.'));
+        cliInfo(chalk.green('Piku Rule updated successfully.'));
         printRule(updatedRule, options.repoId ?? 'global');
     } catch (error) {
         const normalized = normalizeCommandError(error);
@@ -185,12 +185,12 @@ export async function rulesViewAction(
 }
 
 export const rulesCommand = new Command('rules')
-    .description('Create, update, and view Kody Rules')
+    .description('Create, update, and view Piku Rules')
     .showHelpAfterError();
 
 rulesCommand
     .command('create')
-    .description('Create a new Kody Rule')
+    .description('Create a new Piku Rule')
     .requiredOption('--title <title>', 'Rule title')
     .requiredOption('--rule <rule>', 'Rule content/description')
     .option('--repo-id <id>', 'Repository ID for the rule', 'global')
@@ -206,7 +206,7 @@ rulesCommand
 
 rulesCommand
     .command('update')
-    .description('Update an existing Kody Rule')
+    .description('Update an existing Piku Rule')
     .requiredOption('--uuid <uuid>', 'Rule UUID to update')
     .option('--repo-id <id>', 'Updated rule repository ID')
     .option('--title <title>', 'Updated rule title')
@@ -222,7 +222,7 @@ rulesCommand
 
 rulesCommand
     .command('view')
-    .description('View Kody Rules')
+    .description('View Piku Rules')
     .option('--uuid <uuid>', 'Rule UUID to fetch')
     .option('--repo-id <id>', 'Repository ID to filter rules')
     .option('--json', 'Output rules as JSON')

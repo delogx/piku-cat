@@ -7,7 +7,7 @@ import {
 } from './fit-pr-description';
 
 const END_MARKER = '<!-- kody-pr-summary:end -->';
-const NOTICE_FRAGMENT = '(truncated by Kody';
+const NOTICE_FRAGMENT = '(truncated by Piku';
 
 describe('fitPRDescription', () => {
     describe.each([
@@ -70,7 +70,7 @@ describe('fitPRDescription', () => {
             // where everything must fit in 4000 chars. Marker (28) + notice
             // (~70) leave plenty of room — pathological case is exercised
             // in the unit-level test below using a hand-built fixture.
-            const noticeLength = '\n\n_…(truncated by Kody to fit the platform description size limit)_\n'
+            const noticeLength = '\n\n_…(truncated by Piku to fit the platform description size limit)_\n'
                 .length;
             const markerLength = END_MARKER.length;
             const minSafeLimit = noticeLength + markerLength + 1;

@@ -1,5 +1,5 @@
 /**
- * A repository the user selected as a source of GLOBAL Kody Rules. The sync
+ * A repository the user selected as a source of GLOBAL Piku Rules. The sync
  * engine scans each of these repos and imports their rule files into the
  * org-wide `"global"` scope (see `KodyRulesSyncService.syncRepositoryGlobal`).
  *

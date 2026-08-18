@@ -23,7 +23,7 @@ describe("isOrphanAutoSyncRule", () => {
         expect(isOrphanAutoSyncRule(autoSync)).toBe(true);
     });
 
-    it("excludes pinnedSync rules (still synced via @kody-sync)", () => {
+    it("excludes pinnedSync rules (still synced via @piku-sync)", () => {
         expect(isOrphanAutoSyncRule({ ...autoSync, pinnedSync: true })).toBe(
             false,
         );

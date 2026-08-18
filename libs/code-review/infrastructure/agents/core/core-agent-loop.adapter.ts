@@ -113,7 +113,7 @@ export async function runAgentLoopViaCore(
 
     // Recall-pass gating — ported from the legacy loop: skip the heavy passes in
     // fast mode, self-contained (no tools) trial flow, or when the caller asks.
-    // EXCEPTION: an explicit `heavy` opt-in (CLI `--heavy` / PR `@kody review
+    // EXCEPTION: an explicit `heavy` opt-in (CLI `--heavy` / PR `@piku review
     // --heavy`) forces the recall passes to run regardless — the whole point of
     // heavy is more recall via resampling, so it must not be silently nullified
     // by the default fast/self-contained gating.

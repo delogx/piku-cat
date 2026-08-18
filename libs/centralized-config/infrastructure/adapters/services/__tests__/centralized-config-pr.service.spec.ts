@@ -190,7 +190,7 @@ describe('CentralizedConfigPrService', () => {
                     operation: 'delete',
                 },
             ],
-            title: 'Remove Kody Rule from global',
+            title: 'Remove Piku Rule from global',
             description: 'Delete centralized rule file',
             commitMessage: 'remove rule via centralized config',
             sourceBranch: 'kodus-centralized-standard-delete-new',

@@ -180,7 +180,7 @@ export class DeleteRuleInOrganizationByIdKodyRulesUseCase {
             );
         } catch (error) {
             this.logger.error({
-                message: 'Error deleting Kody Rule in organization by ID',
+                message: 'Error deleting Piku Rule in organization by ID',
                 context: DeleteRuleInOrganizationByIdKodyRulesUseCase.name,
                 error: error,
                 metadata: {

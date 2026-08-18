@@ -16,7 +16,7 @@ import { inferRuleOrigin, type InferredRuleOrigin } from './infer-origin';
 export type ListFilters = {
     origins: Set<InferredRuleOrigin>;
     severities: Set<string>; // lower-case (low/medium/high/critical)
-    /** Toggle: when true, only Auto-sync rules pinned via `@kody-sync` pass. */
+    /** Toggle: when true, only Auto-sync rules pinned via `@piku-sync` pass. */
     kodySync: boolean;
     withSyncErrors: boolean;
     /** Toggle: when true, only rules with status === "paused" pass the filter. */
@@ -54,7 +54,7 @@ export function matchesOriginFilter(
  * that repo. The fix itself is still made at the rule's owning scope.)
  *
  * Excludes only:
- *   - pinnedSync rules — their source file carries `@kody-sync`, so the
+ *   - pinnedSync rules — their source file carries `@piku-sync`, so the
  *     backend keeps syncing them even with the toggle off (maintained, not
  *     orphaned). This mirrors the badge, which hides on pinned rules too.
  *
@@ -84,7 +84,7 @@ export function matchesSeverityFilter(
 }
 
 /**
- * @kody-sync filter: only Auto-sync rules still pinned via `@kody-sync`
+ * @piku-sync filter: only Auto-sync rules still pinned via `@piku-sync`
  * (`pinnedSync`) pass. Everything else is excluded while it's on.
  */
 export function matchesKodySyncFilter(

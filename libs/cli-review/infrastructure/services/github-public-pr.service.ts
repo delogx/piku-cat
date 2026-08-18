@@ -210,14 +210,14 @@ export class GitHubPublicPrService implements IGitHubPublicPrService {
         const totalLines = meta.additions + meta.deletions;
         if (totalLines > this.MAX_CHANGED_LINES) {
             throw new PublicPrFetchError(
-                `This PR has ${totalLines.toLocaleString()} lines changed — a bit much for the free demo. Sign up (free) and Kody reviews PRs of any size on your own repos.`,
+                `This PR has ${totalLines.toLocaleString()} lines changed — a bit much for the free demo. Sign up (free) and Piku reviews PRs of any size on your own repos.`,
                 'too_large',
                 413,
             );
         }
         if (meta.changedFiles > this.MAX_CHANGED_FILES) {
             throw new PublicPrFetchError(
-                `This PR touches ${meta.changedFiles} files — past the free demo cap. Sign up (free) and Kody reviews PRs of any size on your own repos.`,
+                `This PR touches ${meta.changedFiles} files — past the free demo cap. Sign up (free) and Piku reviews PRs of any size on your own repos.`,
                 'too_large',
                 413,
             );

@@ -317,7 +317,7 @@ async function runReviewPhase(
             );
             // Adherence: "no review comment" alone is a weak negative — a lost
             // or mis-routed webhook produces the same silence. Require the
-            // POSITIVE block signal (Kody's 👎 from validate-prerequisites'
+            // POSITIVE block signal (Piku's 👎 from validate-prerequisites'
             // USER_NOT_LICENSED path) so the assertion proves the seat gate
             // actually fired. By now we've already polled the full review
             // budget with no review, so the 👎 (posted within seconds of the

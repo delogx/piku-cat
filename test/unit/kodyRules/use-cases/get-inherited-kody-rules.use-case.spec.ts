@@ -4,7 +4,7 @@ import { OrganizationAndTeamData } from '@libs/core/infrastructure/config/types/
 
 /**
  * Regression coverage for the `/inherited-rules` endpoint that feeds the
- * Kody Rules settings page.
+ * Piku Rules settings page.
  *
  *  - Only ACTIVE rules are inherited (paused/pending/deleted do not flow
  *    down to child scopes — the product rule is "rules count/inherit only

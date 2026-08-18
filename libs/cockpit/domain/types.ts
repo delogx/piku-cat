@@ -143,7 +143,7 @@ export interface ImplementationRateBySeverityRow
     extends ImplementationRateBreakdown {
     severity: string;
     /**
-     * Same counters excluding rule-driven suggestions (Kody Rules carry a
+     * Same counters excluding rule-driven suggestions (Piku Rules carry a
      * user-defined severity, not a Kodus risk call). Lets the chart toggle
      * between the full population and a Kodus-native calibration view.
      */
@@ -197,7 +197,7 @@ export interface KodyRuleUsageRow {
 }
 
 /**
- * Review-quality split by suggestion origin — rule-driven (enforces a Kody
+ * Review-quality split by suggestion origin — rule-driven (enforces a Piku
  * Rule) vs Kodus-native analysis — computed in one pass over `suggestions_mv`
  * joined to feedback, using the same IS_KODY_RULE predicate as the severity
  * chart. Powers the report's "is the team acting on / liking what we say?"
@@ -312,7 +312,7 @@ export interface SuggestionsExplorerQuery {
     repository?: string;
     category?: string;
     severity?: string;
-    /** Kody Rule UUID — matches suggestions enforcing this rule. */
+    /** Piku Rule UUID — matches suggestions enforcing this rule. */
     ruleId?: string;
     implementationStatus?:
         | 'implemented'

@@ -41,8 +41,8 @@
     },
     {
         "type": "kody_rules",
-        "name": "Kody Rules",
-        "description": "Suggestions that enforce the rules defined in the Kody configuration."
+        "name": "Piku Rules",
+        "description": "Suggestions that enforce the rules defined in the Piku configuration."
     },
     {
         "type": "breaking_changes",
