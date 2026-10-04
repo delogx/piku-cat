@@ -6,21 +6,66 @@
  * provider's native thinking format, and layers OpenRouter provider-pinning on
  * top. No review/agent shapes — any caller building a model request can use it.
  */
-import { BYOKProvider } from '@kodus/kodus-common/llm';
+import { BYOKProvider } from '@libs/llm/model-providers';
 import { createLogger } from '@libs/core/log/logger';
 import type { LangfuseTelemetryMetadata } from '@libs/core/log/langfuse';
-import { resolveAnthropicModelTraits } from '@libs/llm/anthropic-model-traits';
+import { REGISTRY } from '@libs/llm/providers';
+import type { ProviderBuildConfig } from '@libs/llm/providers/kernel/types';
+import {
+    NON_REASONING_TRAITS,
+    resolveCompatibleReasoningTraits,
+} from '@libs/llm/providers/kernel/reasoning-traits';
+import type { NormalizedModel } from '@libs/llm/byok-config';
 
 const logger = createLogger('ReasoningOptions');
 
 export type ReasoningEffort = 'none' | 'low' | 'medium' | 'high';
 
-export const EFFORT_TO_BUDGET: Record<ReasoningEffort, number> = {
-    none: 0,
-    low: 5_000,
-    medium: 15_000,
-    high: 40_000,
-};
+// Re-exported from the kernel leaf so existing importers keep working; the
+// value itself lives in ONE place now (kernel/effort-budget.ts).
+export { EFFORT_TO_BUDGET } from '@libs/llm/providers/kernel/effort-budget';
+
+/**
+ * The DEFAULT reasoning effort for a model when its slot leaves `reasoningEffort`
+ * unset — derived from the provider module's own `reasoningTraits`, so it is
+ * FAMILY-driven (a new opus/sonnet/kimi inherits it with no code change) and
+ * applied UNIFORMLY to both the env-managed and BYOK slot paths through the one
+ * `resolveModelConfig` funnel. This is the tuning default that used to sit (dead)
+ * in the model catalog — now it lives with the provider, exactly like
+ * `temperaturePolicy`, and reaches BOTH config paths instead of just BYOK.
+ *
+ * Rule: a model that THINKS BY DEFAULT gets 'medium' unless the slot overrides;
+ * models that don't (budget/opt-in reasoners, non-reasoning) stay unset so the
+ * caller's own default (e.g. the review's 'none') decides. No per-model table.
+ */
+export function defaultReasoningEffortFor(
+    slot: NormalizedModel | undefined,
+): ReasoningEffort | undefined {
+    const provider = slot?.provider as string | undefined;
+    if (!provider || !slot?.model || !REGISTRY.has(provider)) return undefined;
+    try {
+        const module = REGISTRY.get(provider);
+        const traits =
+            module.reasoningTraits?.(slot as any) ?? NON_REASONING_TRAITS;
+        if (!traits.thinksByDefault) return undefined;
+
+        // `thinksByDefault` is a FACT; imposing a family default is a POLICY.
+        // Reading one as the other is what made the fact unsafe to declare — a
+        // provider whose omission is harmless (Gemini) could not state that it
+        // reasons without us overriding its own default level.
+        //
+        // The policy needs exactly one answer: would omitting turn reasoning OFF?
+        // That is NOT derivable — `reasoning(cfg,'none')` emitting nothing looks
+        // neutral, but OpenAI defaults gpt-5.1's effort to `none`, so omitting
+        // there disables. So the module DECLARES it, and an undeclared model
+        // stays on the safe side (impose; costs tokens, never disables).
+        return traits.omittingDisablesReasoning === false ? undefined : 'medium';
+    } catch {
+        // A lookup failure must never break the call — fall back to the caller's
+        // own default (matches resolveStructuredPlan's best-effort posture).
+        return undefined;
+    }
+}
 
 /**
  * Build provider-specific reasoning `providerOptions` for a generateText call.
@@ -46,10 +91,44 @@ export function buildProviderOptions(
             const override = autoWrapProviderOverride(
                 parsed,
                 input?.byokProvider,
+                input?.modelName,
             );
+            const routing = buildOpenRouterRouting({
+                ...input,
+                // A hand-written override IS a request for reasoning when it
+                // names reasoning at all — gated the same way as the effort
+                // path below.
+                wantsReasoning:
+                    JSON.stringify(parsed).includes('reasoning') &&
+                    !!resolveCompatibleReasoningTraits(input?.modelName ?? '')
+                        ?.thinksByDefault,
+            });
             return {
-                ...buildOpenRouterRouting(input),
+                ...routing,
                 ...override,
+                // A plain spread REPLACES the routing's `openrouter` object
+                // with the override's, so an override naming only `reasoning`
+                // came out with no `provider` block at all — losing the very
+                // `require_parameters` it needed, on the routing lottery this
+                // exists to escape.
+                //
+                // The guard is what keeps this scoped: `buildOpenRouterRouting`
+                // returns {} for every provider that is not OpenRouter, so
+                // `routing.openrouter` is undefined and the spread above is the
+                // whole answer — an Anthropic or Gemini override is untouched.
+                //
+                // An `openrouter.provider` block the user wrote themselves
+                // still wins outright. Someone who pins their own routing has
+                // already solved the problem, and the two production overrides
+                // that do this set `require_parameters` by hand.
+                ...(routing.openrouter && override.openrouter
+                    ? {
+                          openrouter: {
+                              ...routing.openrouter,
+                              ...override.openrouter,
+                          },
+                      }
+                    : {}),
             };
         } catch {
             // Invalid JSON — fall through to effort-based mapping
@@ -61,7 +140,17 @@ export function buildProviderOptions(
         input?.reasoningEffort,
         input?.modelName,
     );
-    const routing = buildOpenRouterRouting(input);
+    const routing = buildOpenRouterRouting({
+        ...input,
+        // An effort above 'none' is a request for reasoning — but only a model
+        // the table CONFIRMS reasons may have that request made binding, or
+        // the routing has nowhere left to send it.
+        wantsReasoning:
+            !!input?.reasoningEffort &&
+            input.reasoningEffort !== 'none' &&
+            !!resolveCompatibleReasoningTraits(input?.modelName ?? '')
+                ?.thinksByDefault,
+    });
     const merged = mergeOpenRouterOptions(reasoning, routing);
     logger.log({
         message: '[thinking] providerOptions resolved',
@@ -89,6 +178,8 @@ function buildOpenRouterRouting(input?: {
     byokProvider?: BYOKProvider | string;
     openrouterProviderOrder?: string[];
     openrouterAllowFallbacks?: boolean;
+    /** The slot asked for reasoning AND the model is a confirmed reasoner. */
+    wantsReasoning?: boolean;
 }): Record<string, any> {
     if (!input || input.byokProvider !== BYOKProvider.OPEN_ROUTER) return {};
 
@@ -99,40 +190,89 @@ function buildOpenRouterRouting(input?: {
     const hasFallbacksOverride =
         typeof input.openrouterAllowFallbacks === 'boolean';
 
-    if (!hasOrder && !hasFallbacksOverride) return {};
+    if (!hasOrder && !hasFallbacksOverride && !input.wantsReasoning) {
+        return {};
+    }
 
     const providerPayload: Record<string, any> = {};
     if (hasOrder) providerPayload.order = order;
     if (hasFallbacksOverride) {
         providerPayload.allow_fallbacks = input.openrouterAllowFallbacks;
     }
+    // A reasoning effort the routing can silently discard is not a setting, it
+    // is a coin flip — but forcing the point breaks the models that have no
+    // reasoning-capable upstream at all, so it is gated.
+    //
+    // OpenRouter picks an upstream PER REQUEST, weighted by price, and the
+    // parameters it routes on are `tools`, `response_format` and `verbosity`.
+    // Reasoning is not among them, and the docs say what happens then: "the
+    // request is still routed to that model and the parameter is ignored". No
+    // error, no warning, a normal answer that simply did not think. Measured,
+    // not inferred: the same z-ai/glm-5.2 request returned 135 reasoning
+    // tokens on one call and 0 on the next, minutes apart.
+    //
+    // `require_parameters` turns that soft preference into a hard one. It is
+    // sent ONLY for a model the family table confirms reasons, and that limit
+    // is measured too — applied to every slot with an effort, a live run came
+    // back with:
+    //
+    //     qwen/qwen3-coder — No endpoints found that can handle the requested
+    //     parameters.
+    //
+    // Not a degraded answer: no answer. There is no reasoning-capable upstream
+    // for that model, so the hard preference removed every candidate and the
+    // review would have failed outright. A silently ignored parameter costs
+    // the user a setting; a dead request costs them the review.
+    //
+    // Models that reason WITHOUT being declared (nemotron, grok and mimo all
+    // did on the same run) stay on the soft preference. They lose the
+    // guarantee; they never lose the call.
+    //
+    // https://openrouter.ai/docs/features/provider-routing
+    if (input.wantsReasoning) {
+        providerPayload.require_parameters = true;
+    }
     return { openrouter: { provider: providerPayload } };
 }
 
 /**
- * Maps a BYOK provider ID to the Vercel AI SDK `providerOptions` namespace key
- * that the corresponding adapter listens on.
+ * The Vercel AI SDK `providerOptions` namespace key for a BYOK provider id,
+ * resolved from its provider module (the single source) — never a hand-kept map.
  */
-const PROVIDER_OPTIONS_NAMESPACE: Partial<Record<string, string>> = {
-    [BYOKProvider.ANTHROPIC]: 'anthropic',
-    [BYOKProvider.ANTHROPIC_COMPATIBLE]: 'anthropic',
-    [BYOKProvider.GOOGLE_GEMINI]: 'google',
-    [BYOKProvider.GOOGLE_VERTEX]: 'google',
-    [BYOKProvider.OPENAI]: 'openai',
-    [BYOKProvider.OPEN_ROUTER]: 'openrouter',
-    [BYOKProvider.OPENAI_COMPATIBLE]: 'openaiCompatible',
-    [BYOKProvider.NOVITA]: 'openaiCompatible',
-};
+function providerOptionsNamespace(
+    provider?: BYOKProvider | string,
+    model?: string,
+): string | undefined {
+    if (!provider) return undefined;
+    const id = String(provider);
+    return REGISTRY.has(id)
+        ? REGISTRY.get(id).providerOptionsNamespace?.(id, model)
+        : undefined;
+}
 
-/** Keys that count as "already namespaced" at the top level of an override. */
-const KNOWN_NAMESPACE_KEYS = new Set([
-    'anthropic',
-    'google',
-    'openai',
-    'openrouter',
-    'openaiCompatible',
-    'langsmith',
-]);
+/** Keys that count as "already namespaced" at the top level of an override:
+ *  every namespace the registry's modules declare, plus `langsmith` (a telemetry
+ *  namespace, not a provider). Derived so a new provider is recognized for free.
+ *  Model-less on purpose: this asks "is this key A namespace", not "is it THIS
+ *  model's namespace", and every model-dependent answer (Vertex's `anthropic`)
+ *  is already contributed by the module that owns it.
+ *
+ *  Aliases count too. Recognising a key is not the same question as choosing one:
+ *  we wrap under the canonical namespace, but a paste that already carries a key
+ *  the SDK reads must be left alone. Missing an alias is the worst outcome here —
+ *  a CORRECT override gets wrapped a second time and disappears. */
+function knownNamespaceKeys(): Set<string> {
+    const keys = new Set<string>(['langsmith']);
+    for (const id of REGISTRY.ids()) {
+        const mod = REGISTRY.get(id);
+        const ns = mod.providerOptionsNamespace?.(id);
+        if (ns) keys.add(ns);
+        for (const alias of mod.providerOptionsNamespaceAliases?.(id) ?? []) {
+            keys.add(alias);
+        }
+    }
+    return keys;
+}
 
 /**
  * Auto-wrap a user-pasted override JSON under the active provider's namespace
@@ -145,6 +285,7 @@ const KNOWN_NAMESPACE_KEYS = new Set([
 function autoWrapProviderOverride(
     override: unknown,
     provider?: BYOKProvider | string,
+    model?: string,
 ): Record<string, any> {
     if (!override || typeof override !== 'object' || Array.isArray(override)) {
         return {};
@@ -153,12 +294,11 @@ function autoWrapProviderOverride(
     const keys = Object.keys(obj);
     if (keys.length === 0) return {};
 
-    const alreadyNamespaced = keys.some((k) => KNOWN_NAMESPACE_KEYS.has(k));
+    const known = knownNamespaceKeys();
+    const alreadyNamespaced = keys.some((k) => known.has(k));
     if (alreadyNamespaced) return obj;
 
-    const ns = provider
-        ? PROVIDER_OPTIONS_NAMESPACE[provider as string]
-        : undefined;
+    const ns = providerOptionsNamespace(provider, model);
     if (!ns) return obj; // Unknown provider — pass through and let the SDK decide.
 
     return { [ns]: obj };
@@ -182,7 +322,7 @@ function mergeOpenRouterOptions(
  * Build provider-specific reasoning/thinking options for generateText.
  *
  * Maps a normalized effort level to each provider's native format:
- *   - Anthropic: per model generation — see `anthropic-model-traits.ts`
+ *   - Anthropic: per model generation — see `providers/anthropic/traits.ts`
  *   - Google Gemini 3+: thinkingConfig.thinkingLevel (minimal/low/medium/high)
  *   - Google Gemini 2.5: thinkingConfig.thinkingBudget
  *   - OpenAI o-series: reasoningEffort (low/medium/high)
@@ -209,150 +349,22 @@ export function buildReasoningProviderOptions(
 ): Record<string, any> {
     if (!provider) return {};
 
-    // Anthropic is the only provider where "off" needs to be said out loud:
-    // Opus 5, Sonnet 5 and Fable 5 think by default, so omitting the config
-    // leaves thinking ON for a user who explicitly picked Off.
-    if (provider === BYOKProvider.ANTHROPIC && (!effort || effort === 'none')) {
-        return buildAnthropicThinkingOff(modelName);
-    }
-
-    if (!effort || effort === 'none') return {};
-
-    switch (provider) {
-        case BYOKProvider.ANTHROPIC:
-            return buildAnthropicReasoning(effort, modelName);
-
-        case BYOKProvider.GOOGLE_GEMINI:
-        case BYOKProvider.GOOGLE_VERTEX: {
-            // Gemini 3+: thinkingLevel (minimal/low/medium/high)
-            // Gemini 2.5: thinkingBudget (number)
-            // Cannot disable thinking on Gemini 3.1 Pro.
-            const isGemini3 =
-                modelName &&
-                (modelName.includes('gemini-3') ||
-                    modelName.includes('gemini3'));
-
-            if (isGemini3) {
-                return {
-                    google: {
-                        thinkingConfig: { thinkingLevel: effort },
-                    },
-                };
-            }
-
-            return {
-                google: {
-                    thinkingConfig: {
-                        thinkingBudget: EFFORT_TO_BUDGET[effort],
-                    },
-                },
-            };
-        }
-
-        case BYOKProvider.OPENAI:
-            // o-series and GPT-5: reasoningEffort (low/medium/high)
-            return {
-                openai: { reasoningEffort: effort },
-            };
-
-        case BYOKProvider.OPEN_ROUTER:
-            // OpenRouter normalizes across all providers
-            return {
-                openrouter: { reasoning: { effort } },
-            };
-
-        case BYOKProvider.OPENAI_COMPATIBLE: {
-            // Kimi K2.5: thinking ON by default, only need to send disable
-            // GLM-5/5.1: thinking.type = enabled/disabled
-            // For compatible providers that support thinking, send the
-            // standard OpenAI-compatible thinking param
-            return {
-                openaiCompatible: {
-                    thinking: { type: 'enabled' },
-                },
-            };
-        }
-
-        case BYOKProvider.ANTHROPIC_COMPATIBLE:
-            // Anthropic-protocol endpoints from other vendors (Kimi Code,
-            // Z.ai, DeepSeek). They speak the classic thinking shape
-            // (enabled + budget_tokens); none of them implement Anthropic's
-            // newer adaptive thinking, so always use the budget form.
-            return {
-                anthropic: {
-                    thinking: {
-                        type: 'enabled',
-                        budgetTokens: EFFORT_TO_BUDGET[effort],
-                    },
-                },
-            };
-
-        default:
-            return {};
-    }
-}
-
-/**
- * Map an effort tier onto the thinking shape the given Claude accepts.
- *
- * The three generations are mutually exclusive on the wire: sending
- * `budgetTokens` to a 4.7+ model is a 400, and sending `type: 'adaptive'` to a
- * pre-4.6 model is a 400 too. When the model can't be identified we send
- * nothing — a review that runs without thinking beats a review that dies on a
- * request the provider rejects outright.
- */
-function buildAnthropicReasoning(
-    effort: Exclude<ReasoningEffort, 'none'>,
-    modelName?: string,
-): Record<string, any> {
-    const traits = resolveAnthropicModelTraits(modelName);
-
-    switch (traits.thinkingShape) {
-        case 'adaptive':
-            // `effort` is the SDK-level key; @ai-sdk/anthropic renders it as
-            // `output_config.effort` on the wire. Passing `output_config`
-            // ourselves would be silently stripped by the provider's schema.
-            return {
-                anthropic: { thinking: { type: 'adaptive' }, effort },
-            };
-
-        case 'budget':
-            return {
-                anthropic: {
-                    thinking: {
-                        type: 'enabled',
-                        budgetTokens: EFFORT_TO_BUDGET[effort],
-                    },
-                },
-            };
-
-        default:
-            logger.warn({
-                message:
-                    '[thinking] unrecognized Anthropic model — thinking config omitted',
-                context: 'buildAnthropicReasoning',
-                metadata: { modelName, effort },
-            });
-            return {};
-    }
-}
-
-/**
- * Express "thinking off" for Anthropic. On Opus 5, Sonnet 5 and Fable 5
- * thinking is on by default, so omitting the config is not the same as
- * disabling it — the user picks Off and still pays for thinking.
- *
- * Fable/Mythos reject `disabled` outright (400), so there the only honest
- * answer is to leave thinking on.
- */
-function buildAnthropicThinkingOff(modelName?: string): Record<string, any> {
-    const traits = resolveAnthropicModelTraits(modelName);
-
-    if (traits.thinkingShape === 'adaptive' && traits.canDisableThinking) {
-        return { anthropic: { thinking: { type: 'disabled' } } };
-    }
-
-    // Legacy models don't think unless asked, and unidentified models get no
-    // config at all — omitting is already "off" for both.
-    return {};
+    // The provider module's reasoning() is the SINGLE source for the effort→
+    // native mapping — including "off": Anthropic must say `disabled` out loud on
+    // models that think by default, and only its own module knows that. Generic
+    // code stays provider-agnostic: one uniform call for every effort, no
+    // per-provider branch. An unknown / reasoning-less provider (novita, bedrock)
+    // yields {}.
+    const id = String(provider);
+    if (!REGISTRY.has(id)) return {};
+    const providerModule = REGISTRY.get(id);
+    if (!providerModule.reasoning) return {};
+    return providerModule.reasoning(
+        {
+            provider: id,
+            model: modelName ?? '',
+            apiKey: '',
+        } as ProviderBuildConfig,
+        effort ?? 'none',
+    );
 }

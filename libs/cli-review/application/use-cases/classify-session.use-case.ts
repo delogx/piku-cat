@@ -1,13 +1,8 @@
 import { createLogger } from '@libs/core/log/logger';
-import {
-    LLMModelProvider,
-    ParserType,
-    PromptRole,
-    PromptRunnerService,
-} from '@kodus/kodus-common/llm';
+import { LLM } from '@libs/llm/llm';
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
-import { BYOKPromptRunnerService } from '@libs/core/infrastructure/services/tokenTracking/byokPromptRunner.service';
+import { ObservabilityService } from '@libs/core/log/observability.service';
 import {
     CliSessionClassifiedDecision,
     CliSessionDecisionOrigin,
@@ -15,6 +10,9 @@ import {
 } from '@libs/cli-review/domain/types/cli-session-capture.types';
 import { SessionEventRepository } from '@libs/cli-review/infrastructure/repositories/session-event.repository';
 import { SessionEventModel } from '@libs/cli-review/infrastructure/repositories/schemas/session-event.model';
+import { OrganizationAndTeamData } from '@libs/core/infrastructure/config/types/general/organizationAndTeamData';
+import { PermissionValidationService } from '@libs/ee/shared/services/permissionValidation.service';
+import { LLM_TASK } from '@libs/llm/byok-config';
 
 const LLMDecisionSchema = z.object({
     type: z.enum([
@@ -33,7 +31,7 @@ const LLMDecisionSchema = z.object({
     scope: z.array(z.string().max(300)).max(20).optional(),
 });
 
-const LLMDecisionExtractionSchema = z.object({
+export const LLMDecisionExtractionSchema = z.object({
     decisions: z.array(LLMDecisionSchema).max(12),
 });
 
@@ -63,7 +61,8 @@ export class ClassifySessionUseCase {
 
     constructor(
         private readonly sessionEventRepository: SessionEventRepository,
-        private readonly promptRunnerService: PromptRunnerService,
+        private readonly observabilityService: ObservabilityService,
+        private readonly permissionValidationService: PermissionValidationService,
     ) {}
 
     async execute(sessionEndEventUuid: string): Promise<void> {
@@ -107,7 +106,10 @@ export class ClassifySessionUseCase {
         );
 
         try {
-            const decisions = await this.extractWithLLM(aggregated);
+            const decisions = await this.extractWithLLM(aggregated, {
+                organizationId: sessionEndEvent.organizationId,
+                teamId: sessionEndEvent.teamId,
+            });
             if (decisions.length > 0) {
                 await this.sessionEventRepository.markClassificationCompleted(
                     sessionEndEventUuid,
@@ -292,13 +294,8 @@ export class ClassifySessionUseCase {
 
     private async extractWithLLM(
         aggregated: AggregatedSession,
+        organizationAndTeamData: OrganizationAndTeamData,
     ): Promise<CliSessionClassifiedDecision[]> {
-        const promptRunner = new BYOKPromptRunnerService(
-            this.promptRunnerService,
-            LLMModelProvider.CEREBRAS_GLM_47,
-            LLMModelProvider.GEMINI_3_FLASH_PREVIEW,
-        );
-
         const systemPrompt = [
             'You are classifying a complete coding session into reusable decisions.',
             '',
@@ -350,22 +347,31 @@ export class ClassifySessionUseCase {
             subagents: aggregated.subagents.slice(0, 10),
         };
 
-        const result = await promptRunner
-            .builder()
-            .setParser(ParserType.ZOD, LLMDecisionExtractionSchema)
-            .setLLMJsonMode(true)
-            .setTemperature(0)
-            .setPayload(userPayload)
-            .addPrompt({
-                role: PromptRole.SYSTEM,
-                prompt: systemPrompt,
-            })
-            .addPrompt({
-                role: PromptRole.USER,
-                prompt: JSON.stringify(userPayload),
-            })
-            .setRunName('classifySession')
-            .execute();
+        // Migrated off the legacy LangChain PromptRunner path onto the AI SDK
+        // path (REQ-NOLC-01). Routed through the org's own BYOK slot for
+        // LLM_TASK.prSummary (falls back to the managed default when the org
+        // has none) — this used to hardcode `byokConfig: undefined` regardless
+        // of BYOK, a leftover of the migration off LangChain. prSummary is
+        // reused rather than a dedicated task: this is the same "structured
+        // extraction over a session/PR" workload as the module's other
+        // prSummary callers (public-pr-ai-summary/public-pr-grouping), not a
+        // primary review workload like codeReview/kodyRulesReview.
+        // `.setTemperature(0)` is likewise dropped — runStructuredReviewCall
+        // does not thread temperature; acceptable for this structured
+        // extraction. Parity is on the parsed decisions[] mapping.
+        const byokConfig = await this.permissionValidationService.resolveTaskSlot(
+            organizationAndTeamData,
+            LLM_TASK.prSummary,
+        );
+
+        const result = await LLM.run({
+            schema: LLMDecisionExtractionSchema,
+            system: systemPrompt,
+            user: JSON.stringify(userPayload),
+            runName: 'ClassifySessionUseCase::classifySession',
+            organizationId: organizationAndTeamData?.organizationId,
+            byokConfig,
+        });
 
         const rawDecisions = result?.decisions ?? [];
         return rawDecisions.map((decision) => {

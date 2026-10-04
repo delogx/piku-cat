@@ -34,20 +34,25 @@ import { InMemoryToolRegistry } from '@libs/agent-harness/infrastructure/tools/i
 
 import { LlmVerifier } from '@libs/code-review/infrastructure/agents/core/verifier.agent';
 import { buildToolEvidenceSummary } from '@libs/code-review/infrastructure/agents/core/agent-anomalies';
-import { supportsStrictTools } from '@libs/code-review/infrastructure/agents/core/model-strictness';
+import { supportsStrictToolsForRun } from '@libs/code-review/infrastructure/agents/core/model-strictness';
 import type { ToolEvidenceSummary } from '@libs/code-review/infrastructure/agents/review-agent.contract';
-import type { Verdict } from '@libs/agent-harness/domain/contracts/verifier.contract';
+import type { PrDecisionRecord } from '@libs/code-review/domain/contracts/pr-decision-store.contract';
+import type {
+    Verdict,
+    VerdictParseMode,
+} from '@libs/agent-harness/domain/contracts/verifier.contract';
 import {
     buildLangfuseTelemetry,
+    toAiSdkTelemetryArgs,
     type LangfuseTelemetryMetadata,
 } from '@libs/core/log/langfuse';
 // Domain helper relocated out of the legacy file (Zod validation of findings).
 import { sanitizeFindingsResult } from '@libs/code-review/infrastructure/agents/core/findings-schema';
-import { withStructuredOutputFallback } from '@libs/llm/byok-to-vercel';
+import { LLM } from '@libs/llm/llm';
+import { extractJsonFromText } from '@libs/llm/structured-output-repair';
 import { collapseNearDuplicates } from '@libs/code-review/infrastructure/agents/engine/dedup-prompt';
 import { createLogger } from '@libs/core/log/logger';
-import type { BYOKConfig } from '@kodus/kodus-common/llm';
-import { generateObject } from 'ai';
+import type { NormalizedModel } from '@libs/llm/byok-config';
 import { z } from 'zod';
 
 export const FINDER_DONE_TOOL = 'submitResult' as const;
@@ -139,6 +144,11 @@ export const submitResultTool: AgentTool = {
 export interface BuildFinderSpecParams {
     systemPrompt: string;
     modelId: string;
+    /** The runtime failover target's model id, when the resolved slot has one.
+     *  Strict tool use is only enabled when BOTH this and `modelId` support it —
+     *  a strict tool built for the primary but swapped onto a non-strict fallback
+     *  (e.g. Gemini → OpenAI) is rejected by the fallback's Structured Outputs. */
+    fallbackModelId?: string;
     /** Investigation tools (grep/readFile/...) from buildFinderToolRegistry. */
     tools: ToolRegistry;
     coverageLedger: ProgressLedger;
@@ -146,9 +156,14 @@ export interface BuildFinderSpecParams {
     maxSteps?: number;
     /** Provider options (reasoning/thinking config) forwarded to the model. */
     providerOptions?: Readonly<Record<string, unknown>>;
+    /** Cost-span run name for this finder's leaf model calls (e.g.
+     *  `code-review-bug`). Buckets the usage span to `review` in `deriveArea`.
+     *  Defaults to `code-review` (still `review`) when unset. */
+    usageRunName?: string;
+    /** Cost-span agentName (the review agent's identity name). */
+    agentName?: string;
     /** Provider options attached to the system message (e.g. Anthropic prompt
      *  caching) so the long system prompt is cached across the loop's steps. */
-    systemProviderOptions?: Readonly<Record<string, unknown>>;
 }
 
 export function buildFinderAgentSpec(params: BuildFinderSpecParams): AgentSpec {
@@ -158,7 +173,15 @@ export function buildFinderAgentSpec(params: BuildFinderSpecParams): AgentSpec {
         // strict-capable models (Gemini VALIDATED mode) so the findings payload
         // can't be omitted or emitted as prose. Best-effort otherwise. NOT
         // enabled for Anthropic — see model-strictness.ts (it craters recall).
-        { ...submitResultTool, strict: supportsStrictTools(params.modelId) },
+        // Considers the failover target too: a strict tool built for a Gemini
+        // primary must NOT be sent to an OpenAI fallback (it rejects the schema).
+        {
+            ...submitResultTool,
+            strict: supportsStrictToolsForRun(
+                params.modelId,
+                params.fallbackModelId,
+            ),
+        },
     ]);
 
     const policies = [
@@ -177,8 +200,12 @@ export function buildFinderAgentSpec(params: BuildFinderSpecParams): AgentSpec {
 
     return {
         id: 'finder',
+        // Cost-span identity: LLM.run records the ONE usage span per model call
+        // with this runName; `deriveArea` buckets `code-review*` under `review`.
+        runName: params.usageRunName ?? 'code-review',
+        agentName: params.agentName,
+        phase: 'review',
         systemPrompt: params.systemPrompt,
-        modelId: params.modelId,
         tools,
         policies,
         maxSteps: params.maxSteps ?? 20,
@@ -187,7 +214,6 @@ export function buildFinderAgentSpec(params: BuildFinderSpecParams): AgentSpec {
         // doneToolName concern — same tool, distinct roles.
         resultToolName: FINDER_DONE_TOOL,
         providerOptions: params.providerOptions,
-        systemProviderOptions: params.systemProviderOptions,
     };
 }
 
@@ -196,7 +222,13 @@ export function buildFinderAgentSpec(params: BuildFinderSpecParams): AgentSpec {
  *  submitResult call into RunState.artifacts in step order). The LAST artifact
  *  is the finder's final output. Falls back to [] if the agent never finalized
  *  (budget-exhausted). No hand re-scan of steps — that is the runner's job. */
-export function extractFindings(state: RunState): {
+export function extractFindings(
+    state: RunState,
+    // Purely for the [LLM_ENVELOPE] logs sanitizeFindingsResult emits — see
+    // that function's own doc comment for why this is an untyped inline
+    // shape rather than LangfuseTelemetryMetadata.
+    telemetryMetadata?: { organizationId?: string },
+): {
     reasoning: string;
     suggestions: FinderSuggestion[];
 } {
@@ -204,8 +236,20 @@ export function extractFindings(state: RunState): {
     const artifact = [...state.artifacts]
         .reverse()
         .find((a) => a.type === FINDER_DONE_TOOL);
+    // OBSERVABILIDADE: "zero findings" tem TRES causas distintas aqui e nenhuma
+    // era registrada — artefato valido com lista vazia, artefato inutilizavel
+    // (submitResult({}) vazio ou prosa), e artefato ausente. Sem isto, o numero
+    // publicado nao distingue "revisou e nao achou" de "quebrou o formato".
+    (state as any).__findingsOutcome = !artifact
+        ? 'no-artifact'
+        : sanitizeFindingsResult(artifact.payload as any, telemetryMetadata)
+          ? 'structured'
+          : 'artifact-unusable';
     if (artifact) {
-        const clean = sanitizeFindingsResult(artifact.payload as any);
+        const clean = sanitizeFindingsResult(
+            artifact.payload as any,
+            telemetryMetadata,
+        );
         if (clean) {
             return {
                 reasoning: clean.reasoning ?? '',
@@ -223,7 +267,7 @@ export function extractFindings(state: RunState): {
                 ? ((artifact.payload as { reasoning: string }).reasoning ?? '')
                 : '';
         return (
-            findingsFromText(state) ?? {
+            findingsFromText(state, telemetryMetadata) ?? {
                 reasoning: proseReasoning,
                 suggestions: [],
             }
@@ -231,22 +275,35 @@ export function extractFindings(state: RunState): {
     }
     // 2. Fallback: the model answered in TEXT instead of calling submitResult
     //    (or called it empty). Recover the findings JSON from its final text.
-    return findingsFromText(state) ?? { reasoning: '', suggestions: [] };
+    return (
+        findingsFromText(state, telemetryMetadata) ?? {
+            reasoning: '',
+            suggestions: [],
+        }
+    );
 }
 
 /** Recover findings from the model's final text — covers "answered in prose/JSON
  *  instead of calling submitResult" and empty-arg submitResult. */
-function findingsFromText(state: RunState): {
+function findingsFromText(
+    state: RunState,
+    telemetryMetadata?: { organizationId?: string },
+): {
     reasoning: string;
     suggestions: FinderSuggestion[];
 } | null {
     for (let i = state.steps.length - 1; i >= 0; i--) {
         const text = state.steps[i].message.content;
-        if (typeof text !== 'string' || !text.trim()) continue;
-        const json = extractJsonBlock(text);
+        if (typeof text !== 'string' || !text.trim()) {
+            continue;
+        }
+        const json = extractJsonFromText(text);
         if (!json) continue;
         try {
-            const clean = sanitizeFindingsResult(JSON.parse(json));
+            const clean = sanitizeFindingsResult(
+                JSON.parse(json),
+                telemetryMetadata,
+            );
             if (clean) {
                 return {
                     reasoning: clean.reasoning ?? '',
@@ -258,17 +315,12 @@ function findingsFromText(state: RunState): {
             // not valid JSON in this step — try an earlier one
         }
     }
-    return null;
-}
-
-/** Pull a JSON object out of free text: a ```json fenced block, else the
- *  widest {...} span. */
-function extractJsonBlock(text: string): string | null {
-    const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (fenced?.[1]) return fenced[1].trim();
-    const start = text.indexOf('{');
-    const end = text.lastIndexOf('}');
-    if (start >= 0 && end > start) return text.slice(start, end + 1);
+    // KNOWN LIMITATION (E) — total parse failure under-reports SILENTLY: no step
+    // held extractable JSON. The caller falls to prose recovery
+    // (recoverFindingsFromProse), which also returns [] when the prose doesn't read
+    // like findings. If BOTH miss, the finder's findings are dropped with no
+    // counter/log — a review can silently under-report. Accepted for now; a
+    // parse-failure metric would make the drop observable.
     return null;
 }
 
@@ -313,9 +365,7 @@ const RECOVERY_SCHEMA = z.object({
 /** Injected capability: re-structure a prose `reasoning` into findings. The
  *  domain (finder/recall passes) depends only on this function; the adapter
  *  wires it to the concrete internal-model fallback. Undefined = recovery off. */
-export type ProseRecoverer = (
-    reasoning: string,
-) => Promise<FinderSuggestion[]>;
+export type ProseRecoverer = (reasoning: string) => Promise<FinderSuggestion[]>;
 
 /** Extract findings from a run, and — if the model produced NONE but wrote
  *  finding-like prose in `reasoning` (the Anthropic omission mode) — recover
@@ -324,8 +374,9 @@ export type ProseRecoverer = (
 export async function extractFindingsWithRecovery(
     state: RunState,
     recover?: ProseRecoverer,
+    telemetryMetadata?: { organizationId?: string },
 ): Promise<FinderFindings> {
-    const found = extractFindings(state);
+    const found = extractFindings(state, telemetryMetadata);
     if (found.suggestions.length > 0 || !recover) return found;
     const recovered = await recover(found.reasoning);
     return recovered.length > 0
@@ -335,33 +386,50 @@ export async function extractFindingsWithRecovery(
 
 export async function recoverFindingsFromProse(
     prose: string,
-    byokConfig: BYOKConfig | undefined,
+    byokConfig: NormalizedModel | undefined,
     organizationId: string | undefined,
+    usageRunName?: string,
 ): Promise<FinderSuggestion[]> {
     if (!looksLikeFindings(prose)) return [];
     try {
-        const suggestions = await withStructuredOutputFallback(
-            {
-                byokConfig,
-                organizationId,
-                label: 'finder-prose-recovery',
-            },
-            async (model) => {
-                const { object } = await generateObject({
-                    model,
-                    schema: RECOVERY_SCHEMA,
-                    prompt:
-                        "The following is a code reviewer's analysis written as " +
-                        'prose. Extract EVERY concrete finding it describes into ' +
-                        'the structured schema — one entry per distinct issue, ' +
-                        'using the file paths and line numbers mentioned. Do NOT ' +
-                        'invent findings; only extract what is explicitly ' +
-                        `described.\n\nANALYSIS:\n${prose}`,
-                });
-                return object.suggestions as unknown as FinderSuggestion[];
-            },
-        );
-        return suggestions ?? [];
+        // ONE primitive: LLM.run resolves the slot (or managed default), owns the
+        // span + the json_schema→json_object fallback the recovery pass needs, and
+        // returns the parsed object. The runName buckets this recovery call's
+        // usage span to `review` (deriveArea) alongside the finder/verify calls —
+        // it is part of the same review, not a separate `other` area.
+        const result = await LLM.run({
+            byokConfig,
+            schema: RECOVERY_SCHEMA,
+            // Original instruction text is untouched — only the trailing
+            // sentence is new. It must literally contain the word "json"
+            // somewhere: OpenAI (and OpenAI-compatible providers) reject a
+            // `json_object` response-format request outright otherwise —
+            // their own error is "'messages' must contain the word 'json'
+            // in some form" — which is exactly the json_schema→json_object
+            // fallback LLM.run owns for this call (prod incident,
+            // 2026-09-17: this silently 400'd recovery for every provider
+            // needing that fallback, e.g. gpt-5.6-sol/gpt-5.6-terra).
+            // Verified live against the real OpenAI API (2026-09-17): the
+            // exact same request 400s with that message without this
+            // sentence, and 200s with it.
+            // Since #1916 the structured executor guarantees the same thing
+            // centrally for every json_object route (it writes the schema AND
+            // the keyword into the system prompt), so this sentence is now a
+            // belt-and-braces duplicate rather than the only thing standing
+            // between this call and a 400.
+            user:
+                "The following is a code reviewer's analysis written as " +
+                'prose. Extract EVERY concrete finding it describes into ' +
+                'the structured schema — one entry per distinct issue, ' +
+                'using the file paths and line numbers mentioned. Do NOT ' +
+                'invent findings; only extract what is explicitly ' +
+                `described.\n\nRespond with a JSON object.\n\nANALYSIS:\n${prose}`,
+            runName: usageRunName
+                ? `${usageRunName}-recovery`
+                : 'code-review-recovery',
+            organizationId,
+        });
+        return (result.suggestions as unknown as FinderSuggestion[]) ?? [];
     } catch {
         // Best-effort: recovery must never break the review.
         return [];
@@ -378,6 +446,9 @@ export interface RunFinderWithVerifyParams {
     makeResampleSpec?: () => AgentSpec;
     /** Model id for the verifier runs. */
     modelId: string;
+    /** Failover target model id — threaded to the verifier so its strict tool
+     *  use accounts for the failover model (Gemini→OpenAI must not send strict). */
+    fallbackModelId?: string;
     /** Investigation tools shared with the verifier. */
     tools: ToolRegistry;
     /** Verify concurrency (default 4). */
@@ -386,7 +457,6 @@ export interface RunFinderWithVerifyParams {
     providerOptions?: Readonly<Record<string, unknown>>;
     /** System-message provider options (e.g. Anthropic prompt caching), forwarded
      *  to the finder spec and the verifier runs. */
-    systemProviderOptions?: Readonly<Record<string, unknown>>;
     /** Skip the recall pass entirely (fast mode / self-contained trial). */
     skipHeavyPasses?: boolean;
     /** Skip ONLY the synthesis-rescue pass. */
@@ -400,9 +470,16 @@ export interface RunFinderWithVerifyParams {
     telemetryMetadata?: LangfuseTelemetryMetadata;
     /** Agent name (finder/security/...) — prefixes every observation name. */
     agentName?: string;
+    /** Cost-span run name base (e.g. `code-review-bug`) forwarded to the verifier
+     *  runs so their leaf usage spans bucket to `review` in `deriveArea`. */
+    usageRunName?: string;
     /** Injected prose-findings recovery capability (see ProseRecoverer). The
      *  adapter wires it to the internal-model fallback; omit to disable. */
     recoverProse?: ProseRecoverer;
+    /** Suggestions already posted on THIS PR in a previous review round
+     *  (issue #1313). Forwarded to the LlmVerifier, which filters by file per
+     *  candidate — see LlmVerifierParams. */
+    previousDecisions?: PrDecisionRecord[];
 }
 
 export interface VerifyUsage {
@@ -419,10 +496,16 @@ export interface FinderWithVerifyResult {
      *  `kept`): which files the verifier itself read/grepped while judging each.
      *  Empty summary when the verifier used no tools for that finding. */
     keptEvidence: ToolEvidenceSummary[];
+    /** How each KEPT finding's verdict was read (same order as `kept`) — the
+     *  verify funnel's provenance, so a `keep` that is really a parse miss is
+     *  visible in the trace instead of indistinguishable from a judged keep
+     *  (issue #1937). */
+    keptParseMode: VerdictParseMode[];
     droppedByVerify: Array<{
         finding: FinderSuggestion;
         evidence?: string;
         verifierEvidence: ToolEvidenceSummary;
+        parseMode: VerdictParseMode;
     }>;
     /** The finder's RunState (for usage/steps/trace mapping by callers). */
     finderState: RunState;
@@ -457,9 +540,11 @@ export async function runFinderWithVerify(
         params.finderSpec,
         {
             ...input,
-            telemetry: buildLangfuseTelemetry(
-                params.agentName ?? 'finder',
-                params.telemetryMetadata,
+            ...toAiSdkTelemetryArgs(
+                buildLangfuseTelemetry(
+                    params.agentName ?? 'finder',
+                    params.telemetryMetadata,
+                ),
             ),
         },
         ctx,
@@ -469,6 +554,7 @@ export async function runFinderWithVerify(
     const base = await extractFindingsWithRecovery(
         finderState,
         params.recoverProse,
+        params.telemetryMetadata,
     );
 
     // RECALL PASS: synthesis rescue — one extra finder run that re-thinks from
@@ -521,6 +607,7 @@ export async function runFinderWithVerify(
             reasoning,
             kept: [],
             keptEvidence: [],
+            keptParseMode: [],
             droppedByVerify: [],
             finderState,
             verifyUsage: ZERO_VERIFY_USAGE,
@@ -532,11 +619,13 @@ export async function runFinderWithVerify(
     // LlmVerifier: high-confidence → light depth, low-confidence → full depth.
     const verifier = new LlmVerifier(params.runner, {
         modelId: params.modelId,
+        fallbackModelId: params.fallbackModelId,
         tools: params.tools,
         providerOptions: params.providerOptions,
-        systemProviderOptions: params.systemProviderOptions,
         telemetryMetadata: params.telemetryMetadata,
         agentName: params.agentName,
+        usageRunName: params.usageRunName,
+        previousDecisions: params.previousDecisions,
     });
     const pass = await runVerificationPass<FinderSuggestion>(
         { candidates: suggestions, verifier, concurrency: params.concurrency },
@@ -563,12 +652,14 @@ export async function runFinderWithVerify(
     if (unevidenced.length > 0) {
         const fullVerifier = new LlmVerifier(params.runner, {
             modelId: params.modelId,
+            fallbackModelId: params.fallbackModelId,
             tools: params.tools,
             forceFull: true,
             providerOptions: params.providerOptions,
-            systemProviderOptions: params.systemProviderOptions,
             telemetryMetadata: params.telemetryMetadata,
             agentName: params.agentName,
+            usageRunName: params.usageRunName,
+            previousDecisions: params.previousDecisions,
         });
         const gate = await runVerificationPass<FinderSuggestion>(
             {
@@ -583,7 +674,9 @@ export async function runFinderWithVerify(
         gate.kept.forEach((f, i) =>
             verdictByFinding.set(f, gate.keptVerdicts[i]),
         );
-        gate.dropped.forEach((d) => verdictByFinding.set(d.candidate, d.verdict));
+        gate.dropped.forEach((d) =>
+            verdictByFinding.set(d.candidate, d.verdict),
+        );
         const stillDropped = new Set(gate.dropped.map((d) => d.candidate));
         kept = kept.filter((f) => !stillDropped.has(f));
         dropped = [...dropped, ...gate.dropped];
@@ -603,14 +696,19 @@ export async function runFinderWithVerify(
         );
 
     // The harness speaks neutral "candidate"; code-review's own term is "finding".
+    const parseModeOf = (f: FinderSuggestion): VerdictParseMode =>
+        verdictByFinding.get(f)?.parseMode ?? 'default-keep';
+
     return {
         reasoning,
         kept,
         keptEvidence: kept.map(evidenceOf),
+        keptParseMode: kept.map(parseModeOf),
         droppedByVerify: dropped.map((d) => ({
             finding: d.candidate,
             evidence: d.verdict.rationale,
             verifierEvidence: evidenceOf(d.candidate),
+            parseMode: d.verdict.parseMode ?? 'default-keep',
         })),
         finderState,
         verifyUsage: sumVerifyUsage(verifier.usage, gateUsage),
@@ -738,9 +836,11 @@ export async function runRecallPasses(
             spec,
             {
                 prompt,
-                telemetry: buildLangfuseTelemetry(
-                    `${params.agentName ?? 'finder'}-${label}`,
-                    params.telemetryMetadata,
+                ...toAiSdkTelemetryArgs(
+                    buildLangfuseTelemetry(
+                        `${params.agentName ?? 'finder'}-${label}`,
+                        params.telemetryMetadata,
+                    ),
                 ),
             },
             ctx,
@@ -753,6 +853,7 @@ export async function runRecallPasses(
         const extracted = await extractFindingsWithRecovery(
             state,
             params.recoverProse,
+            params.telemetryMetadata,
         );
         usage = sumVerifyUsage(usage, usageOf(state.usage));
         toolCalls.push(...collectToolCalls(state));
@@ -804,7 +905,7 @@ export async function runRecallPasses(
         // between them) → run them CONCURRENTLY. Cuts heavy latency from
         // base+synthesis+N×finder to base+synthesis+~1×finder. Cost note: the
         // base run has already WRITTEN the Anthropic prompt cache (system prompt
-        // via anthropicSystemCacheControl), so the parallel re-runs both get
+        // via systemCacheControl), so the parallel re-runs both get
         // cache READS on the static prefix — the marginal cost of a re-run is
         // well under a full run's input price.
         await Promise.all(

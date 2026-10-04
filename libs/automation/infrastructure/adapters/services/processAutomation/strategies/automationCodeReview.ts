@@ -22,6 +22,10 @@ import {
 } from '@libs/automation/domain/teamAutomation/contracts/team-automation.service';
 import { ITeamAutomation } from '@libs/automation/domain/teamAutomation/interfaces/team-automation.interface';
 import { CodeReviewHandlerService } from '@libs/code-review/infrastructure/adapters/services/codeReviewHandlerService.service';
+import {
+    isPrReviewInProgressError,
+    PrReviewInProgressError,
+} from '@libs/code-review/domain/errors/pr-review-in-progress.error';
 import { describePipelineError } from '@libs/code-review/utils/describe-pipeline-error';
 
 /**
@@ -29,6 +33,14 @@ import { describePipelineError } from '@libs/code-review/utils/describe-pipeline
  * these on a FAILED run tells the user nothing about what went wrong — a
  * failed review used to be labelled "Pipeline started" (#1568).
  */
+/**
+ * How far back `getActiveExecution` will look for the run holding a PR.
+ * A holder older than this stops being visible to the gate even while it
+ * is still running, so it also bounds how long a refused command may keep
+ * retrying — past it, a retry sees no holder and starts a second review.
+ */
+const ACTIVE_EXECUTION_LOOKBACK_MINUTES = 30;
+
 const STALE_STARTUP_MESSAGES = new Set([
     'pipeline started',
     'code review started',
@@ -150,28 +162,15 @@ export class AutomationCodeReviewService implements Omit<
 
         const lockKey = `CODE_REVIEW:${orgId}:${repoId}:${prNumber}`;
         let lock: DistributedLock | null = null;
+        // Distinct from `!lock`: a lock service outage also leaves `lock`
+        // null, and that has to stay fail-open rather than read as "busy".
+        let lockHeldByAnotherRun = false;
 
         try {
             lock = await this.distributedLockService.acquire(lockKey, {
                 ttl: 1000 * 60, // 1 minute TTL
             });
-
-            if (!lock) {
-                this.logger.warn({
-                    message: `Code review already being processed for PR#${pullRequest?.number}, skipping`,
-                    context: AutomationCodeReviewService.name,
-                    metadata: {
-                        lockKey,
-                        organizationAndTeamData,
-                        repository: {
-                            id: repository?.id,
-                            name: repository?.name,
-                        },
-                        pullRequestNumber: pullRequest?.number,
-                    },
-                });
-                return 'Code review already in progress for this PR';
-            }
+            lockHeldByAnotherRun = !lock;
         } catch (error) {
             // Fail-open: if lock service is unavailable, proceed with the review
             // (better to risk a duplicate than to block all reviews)
@@ -181,6 +180,41 @@ export class AutomationCodeReviewService implements Omit<
                 error: error instanceof Error ? error : undefined,
                 metadata: { lockKey },
             });
+        }
+
+        if (lockHeldByAnotherRun) {
+            this.logger.warn({
+                message: `Code review already being processed for PR#${pullRequest?.number}, skipping`,
+                context: AutomationCodeReviewService.name,
+                metadata: {
+                    lockKey,
+                    organizationAndTeamData,
+                    repository: {
+                        id: repository?.id,
+                        name: repository?.name,
+                    },
+                    pullRequestNumber: pullRequest?.number,
+                },
+            });
+            // Anchor the deadline on the holder's row rather than on "now".
+            // Recomputing it per retry would let it slide forever, leaving
+            // MAX_DEFERRALS as the only stop — safe today only because the
+            // lock's TTL is short enough that this path stops firing after a
+            // minute. Only commands defer, so only they pay for the lookup.
+            const lockHolder = this.isCommandOrigin(origin)
+                ? await this.getActiveExecution(
+                      teamAutomationId,
+                      pullRequest?.number,
+                      repository?.id,
+                  )
+                : null;
+
+            this.refuseCommand(
+                'lock',
+                payload,
+                this.holderVisibleUntil(lockHolder?.createdAt),
+            );
+            return 'Code review already in progress for this PR';
         }
 
         let execution: IAutomationExecution | null = null;
@@ -203,6 +237,11 @@ export class AutomationCodeReviewService implements Omit<
                         pullRequestNumber: pullRequest?.number,
                     },
                 });
+                this.refuseCommand(
+                    'execution',
+                    payload,
+                    this.holderVisibleUntil(existingExecution.createdAt),
+                );
                 return 'Code review already in progress for this PR';
             }
 
@@ -280,9 +319,20 @@ export class AutomationCodeReviewService implements Omit<
                     heavy, // @piku review --heavy — extra critic pass
                 );
 
-            await this._handleExecutionCompletion(execution, result, payload);
+            await this._handleExecutionCompletion(
+                execution,
+                result,
+                payload,
+                lastExecution?.dataExecution,
+            );
             return 'Automation executed successfully';
         } catch (error) {
+            // A refused command is not a failed run — there is no execution
+            // to mark errored, and swallowing it here would put the request
+            // back on the silent path this whole change removes.
+            if (isPrReviewInProgressError(error)) {
+                throw error;
+            }
             await this._handleExecutionError(execution, error, payload);
             return 'Error executing automation';
         } finally {
@@ -301,6 +351,63 @@ export class AutomationCodeReviewService implements Omit<
         }
     }
 
+    /**
+     * Both refusal paths drop the run before the pipeline, which is where
+     * every other piece of user feedback is posted. An automation losing
+     * the race is genuinely redundant and stays dropped; a person who typed
+     * `@kody review` gets their request handed back to the job processor to
+     * retry once the PR frees up (#1700).
+     */
+    /**
+     * When the run holding this PR stops being visible to the gate.
+     *
+     * Falls back to "now" only when the holder has no execution row yet —
+     * it takes the lock just before creating one, so a collision can land
+     * in that gap. Anywhere else the holder's own `createdAt` is used, so
+     * the deadline is fixed rather than sliding with each retry.
+     */
+    private isCommandOrigin(origin: unknown): boolean {
+        return typeof origin === 'string' && origin.startsWith('command');
+    }
+
+    private holderVisibleUntil(holderCreatedAt?: Date): Date {
+        const since = holderCreatedAt ?? new Date();
+        return new Date(
+            since.getTime() + ACTIVE_EXECUTION_LOOKBACK_MINUTES * 60_000,
+        );
+    }
+
+    private refuseCommand(
+        gate: 'lock' | 'execution',
+        payload: Record<string, any>,
+        holderVisibleUntil: Date,
+    ): void {
+        const {
+            origin,
+            organizationAndTeamData,
+            repository,
+            pullRequest,
+            platformType,
+            triggerCommentId,
+        } = payload;
+
+        if (!this.isCommandOrigin(origin)) {
+            return;
+        }
+
+        throw new PrReviewInProgressError({
+            gate,
+            holderVisibleUntil,
+            target: {
+                organizationAndTeamData,
+                repository: { id: repository?.id, name: repository?.name },
+                pullRequest: { number: pullRequest?.number },
+                platformType,
+                triggerCommentId,
+            },
+        });
+    }
+
     private async getActiveExecution(
         teamAutomationId: string,
         pullRequestNumber: number,
@@ -308,7 +415,9 @@ export class AutomationCodeReviewService implements Omit<
     ): Promise<IAutomationExecution | null> {
         try {
             const cutoffTime = new Date();
-            cutoffTime.setMinutes(cutoffTime.getMinutes() - 30);
+            cutoffTime.setMinutes(
+                cutoffTime.getMinutes() - ACTIVE_EXECUTION_LOOKBACK_MINUTES,
+            );
 
             const activeExecutions = await this.automationExecutionService.find(
                 {
@@ -448,20 +557,25 @@ export class AutomationCodeReviewService implements Omit<
         execution: IAutomationExecution,
         result: any,
         payload: any,
+        lastExecutionData?: Record<string, any>,
     ) {
         if (!result) {
             await this.updateAutomationExecution(
                 execution,
                 AutomationStatus.ERROR,
                 'Error processing the pull request: handler returned no result.',
-                this._buildExecutionData(payload),
+                this._buildExecutionData(payload, undefined, lastExecutionData),
             );
             return;
         }
 
         const finalStatus = this.deriveFinalStatus(result);
         const finalMessage = this.buildFinalMessage(result, finalStatus);
-        const newData = this._buildExecutionData(payload, result);
+        const newData = this._buildExecutionData(
+            payload,
+            result,
+            lastExecutionData,
+        );
 
         await this.updateAutomationExecution(
             execution,
@@ -601,7 +715,44 @@ export class AutomationCodeReviewService implements Omit<
         );
     }
 
-    private _buildExecutionData(payload: any, result?: any): any {
+    /**
+     * The one-shot business-logic markers, preferring what this run produced and
+     * otherwise inheriting the previous execution's.
+     *
+     * They have to survive executions that did not themselves validate (skipped,
+     * or failed before the stage): only the latest execution is read back, so
+     * dropping a marker would let the automatic validation fire again on the
+     * next push. `businessLogicHash` is the legacy EE marker, kept so a PR
+     * mid-flight kept its gate across the change.
+     */
+    private carriedBusinessLogicMarkers(
+        lastExecutionData?: Record<string, any>,
+        result?: any,
+    ): Record<string, string> {
+        const markers: Record<string, string> = {};
+
+        const validatedAt =
+            result?.businessLogicValidatedAt ??
+            lastExecutionData?.businessLogicValidatedAt;
+        if (validatedAt) {
+            markers.businessLogicValidatedAt = validatedAt;
+        }
+
+        const hash =
+            result?.businessLogicPrBodyHash ??
+            lastExecutionData?.businessLogicHash;
+        if (hash) {
+            markers.businessLogicHash = hash;
+        }
+
+        return markers;
+    }
+
+    private _buildExecutionData(
+        payload: any,
+        result?: any,
+        lastExecutionData?: Record<string, any>,
+    ): any {
         const {
             codeManagementEvent,
             platformType,
@@ -619,7 +770,10 @@ export class AutomationCodeReviewService implements Omit<
         };
 
         if (!result) {
-            return baseData;
+            return Object.assign(
+                baseData,
+                this.carriedBusinessLogicMarkers(lastExecutionData),
+            );
         }
 
         const validLastAnalyzedCommit =
@@ -643,11 +797,10 @@ export class AutomationCodeReviewService implements Omit<
             });
         }
 
-        if (result.businessLogicPrBodyHash) {
-            Object.assign(baseData, {
-                businessLogicHash: result.businessLogicPrBodyHash,
-            });
-        }
+        Object.assign(
+            baseData,
+            this.carriedBusinessLogicMarkers(lastExecutionData, result),
+        );
 
         // Adaptive-fit fidelity warnings — emitted by the agent pipeline
         // when a small context window forced a degraded path (compact

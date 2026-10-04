@@ -1,38 +1,25 @@
 "use client";
 
-import { Badge } from "@components/ui/badge";
+import Link from "next/link";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardHeader } from "@components/ui/card";
 import { Separator } from "@components/ui/separator";
+import type { ByokModelCost } from "@services/usage/byok-cost";
+import { formatUsd } from "@services/usage/format";
 import {
+    ArrowUpRightIcon,
     BrainCircuitIcon,
     CheckCircle2Icon,
     CoinsIcon,
-    ArrowUpRightIcon,
-    KeyRoundIcon,
-    LinkIcon,
     PencilIcon,
     ThermometerIcon,
     TrashIcon,
 } from "lucide-react";
-import Link from "next/link";
 
-import type { ByokModelCost } from "@services/usage/byok-cost";
-import { formatUsd } from "@services/usage/format";
+import { PROVIDER_LABELS } from "../_data/provider-labels";
+import type { BYOKConnectInput } from "../_types";
 
-import curatedCatalog from "../_data/curated-models.json";
-import type { CuratedModel } from "../_data/curated-models.types";
-import type { BYOKConfig } from "../_types";
-import { maskKey } from "../_utils";
-import { PROVIDER_LABELS } from "./catalog/model-card";
-
-function formatTokens(n: number): string {
-    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
-    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-    return n.toLocaleString();
-}
-
-const formatReasoning = (config: BYOKConfig): string | null => {
+const formatReasoning = (config: BYOKConnectInput): string | null => {
     if (!config.reasoningEffort || config.reasoningEffort === "none")
         return null;
     if (config.reasoningConfigOverride) return "Custom";
@@ -51,7 +38,7 @@ export function ConfiguredSummary({
     periodLabel,
     costRangeQuery,
 }: {
-    config: BYOKConfig;
+    config: BYOKConnectInput;
     onChange: () => void;
     onDelete: () => void;
     isDeleting?: boolean;
@@ -65,14 +52,8 @@ export function ConfiguredSummary({
     /** `start=..&end=..` so the Costs deep-link opens on the SAME window. */
     costRangeQuery?: string;
 }) {
-    const curated = (curatedCatalog.models as CuratedModel[]).find(
-        (m) => m.id === config.model,
-    );
-    const displayName = curated?.displayName ?? config.model;
-    const providerLabel =
-        curated?.providerDisplayName ??
-        PROVIDER_LABELS[config.provider] ??
-        config.provider;
+    const displayName = config.model;
+    const providerLabel = PROVIDER_LABELS[config.provider] ?? config.provider;
     const reasoningLabel = formatReasoning(config);
 
     return (
@@ -88,14 +69,6 @@ export function ConfiguredSummary({
                         </span>
                         <span className="text-text-tertiary text-xs">
                             {providerLabel}
-                            {curated && (
-                                <>
-                                    {" · ★ "}
-                                    <span className="tabular-nums">
-                                        {curated.benchmarkScore}
-                                    </span>
-                                </>
-                            )}
                         </span>
                     </div>
                 </div>
@@ -123,25 +96,10 @@ export function ConfiguredSummary({
             <CardContent>
                 <Separator className="bg-card-lv2 mb-3" />
 
+                {/* Key + Base URL rows were removed in SLICE 2 — the credential
+                    now lives on the provider group header, not the per-model
+                    summary. This card keeps only per-model config + cost. */}
                 <dl className="text-text-secondary grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">
-                    <dt className="flex items-center gap-1.5">
-                        <KeyRoundIcon size={12} /> Key
-                    </dt>
-                    <dd className="font-mono text-xs">
-                        {maskKey(config.apiKey)}
-                    </dd>
-
-                    {config.baseURL && (
-                        <>
-                            <dt className="flex items-center gap-1.5">
-                                <LinkIcon size={12} /> Base URL
-                            </dt>
-                            <dd className="font-mono text-xs break-all">
-                                {config.baseURL}
-                            </dd>
-                        </>
-                    )}
-
                     {reasoningLabel && (
                         <>
                             <dt className="flex items-center gap-1.5">

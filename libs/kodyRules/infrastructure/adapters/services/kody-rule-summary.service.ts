@@ -1,15 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { LLM } from '@libs/llm/llm';
 import { createHash } from 'crypto';
 import { createLogger } from '@libs/core/log/logger';
 import { PermissionValidationService } from '@libs/ee/shared/services/permissionValidation.service';
 import { SubscriptionStatus } from '@libs/ee/license/interfaces/license.interface';
-import { byokToVercelModel, getModelName } from '@libs/llm/byok-to-vercel';
-import {
-    tracedGenerateText,
-    timeoutSignal,
-    LLM_CALL_TIMEOUT_MS,
-} from '@libs/llm/llm-call';
-import { buildLangfuseTelemetry } from '@libs/core/log/langfuse';
+import { getModelName } from '@libs/llm/byok-to-vercel';
+import { LLM_TASK } from '@libs/llm/byok-config';
 import { ObservabilityService } from '@libs/core/log/observability.service';
 import { OrganizationAndTeamData } from '@libs/core/infrastructure/config/types/general/organizationAndTeamData';
 import {
@@ -23,7 +19,7 @@ import {
     IKodyRuleSummary,
 } from '@libs/kodyRules/domain/interfaces/kodyRules.interface';
 import { z } from 'zod';
-import { runStructuredReviewCall } from '@libs/llm/structured-review-call';
+import type { NormalizedModel } from '@libs/llm/byok-config';
 import {
     compileRuleDetector,
     compilerOutputSchema,
@@ -99,6 +95,80 @@ export const decomposeOutputSchema = z.object({
         )
         .default([]),
 });
+
+type DecomposedAtom = z.infer<typeof decomposeOutputSchema>['atoms'][number];
+
+/**
+ * Guards the decomposition call against three failure modes, none of which
+ * `compileRuleDetector`'s own example gate can catch (it only checks a
+ * detector against ITS OWN atom's examples — never against the parent
+ * rule's actual intent, and it never runs at all for atoms that stay
+ * semantic). All three are DECOMPOSE_SYSTEM_PROMPT constraints that were
+ * previously only ever *instructed*, never *verified*:
+ *
+ *  1. Inverted polarity — an atom's `isCorrect:true` example is actually
+ *     what the rule prohibits (root cause of a prod incident: an atom
+ *     titled after the flaggable state itself, e.g. "Declaration is
+ *     direct", got its compliant/violating examples swapped).
+ *  2. Invented requirement — an atom whose condition does not correspond
+ *     to anything actually stated in the original rule.
+ *  3. Missing coverage — an enforceable requirement in the original rule
+ *     that no atom covers at all (observability only; nothing to drop).
+ *
+ * One extra structured call per rule, at generation time only — atoms are
+ * cached and reused on every future review, so this cost is not paid
+ * per-review.
+ */
+const VERIFY_ATOMS_SYSTEM_PROMPT = `You audit atomic requirements decomposed from a team code-review rule for three failure modes, judged against the ORIGINAL rule below — NOT against the atoms' own title/spec wording, which may be self-consistent while still wrong:
+
+1. INVERTED POLARITY: an atom's "isCorrect:true" example is actually what the original rule prohibits, or its "isCorrect:false" example is actually what the rule requires or allows.
+2. NOT IN THE ORIGINAL RULE: an atom's condition is invented — it does not correspond to any requirement actually stated in the original rule.
+3. MISSING COVERAGE: the original rule states an enforceable requirement that NO atom covers at all.
+
+Return ONLY JSON:
+{"invalidAtoms":[{"index":<the atom's own [n] index>,"reason":"<one short phrase: inverted polarity, or not in original rule>"}],"missingRequirements":["<one short phrase per requirement in the original rule with no matching atom>"]}
+
+Empty arrays when nothing is wrong.`;
+
+export const verifyAtomsOutputSchema = z.object({
+    invalidAtoms: z
+        .array(
+            z.object({
+                index: z.number().int().nonnegative(),
+                reason: z.string().optional(),
+            }),
+        )
+        .default([]),
+    missingRequirements: z.array(z.string()).default([]),
+});
+
+function buildVerifyAtomsUserPrompt(
+    rule: Partial<IKodyRule>,
+    atoms: Array<{ index: number } & DecomposedAtom>,
+): string {
+    const atomBlocks = atoms
+        .map((a) => {
+            const exampleLines = (a.examples ?? [])
+                .map(
+                    (e) =>
+                        `    - isCorrect:${e.isCorrect}: ${JSON.stringify(e.snippet)}`,
+                )
+                .join('\n');
+            return `[${a.index}] ${a.title}\n  spec: ${a.spec}\n  examples:\n${exampleLines}`;
+        })
+        .join('\n\n');
+
+    return [
+        `<OriginalRule>`,
+        `Title: ${rule.title ?? ''}`,
+        rule.rule ?? '',
+        `</OriginalRule>`,
+        ``,
+        `<Atoms>`,
+        atomBlocks,
+        `</Atoms>`,
+    ].join('\n');
+}
 
 /**
  * Verbatim from the validated experiment (evals/kody-rules/summarize-rules.js,
@@ -220,15 +290,19 @@ export class KodyRuleSummaryService {
         }
         try {
             const [byokConfig, subscriptionStatus] = await Promise.all([
-                this.permissionValidationService.getBYOKConfig(
+                // Model policy = the review's: resolve the codeReview task to a
+                // `{main}` carrier (BYOK main when configured; managed default
+                // only during trial). undefined ⇒ no BYOK ⇒ env default downstream.
+                this.permissionValidationService.resolveTaskSlot(
                     organizationAndTeamData,
+                    LLM_TASK.codeReview,
                 ),
                 this.permissionValidationService.getSubscriptionStatus(
                     organizationAndTeamData,
                 ),
             ]);
 
-            const hasByok = !!byokConfig?.main;
+            const hasByok = !!byokConfig;
             if (
                 !hasByok &&
                 POST_TRIAL_REQUIRES_BYOK.includes(
@@ -248,36 +322,23 @@ export class KodyRuleSummaryService {
                 return null;
             }
 
-            const model = byokToVercelModel(byokConfig ?? undefined, 'main', {});
-            const modelName = getModelName(byokConfig ?? undefined);
-            const runName = 'kody-rules.summary-generation';
-            // Usage span + Langfuse telemetry: generation may run on the
-            // customer's BYOK key, so tokens must reach the user-facing
-            // analytics — same wrap the shard judge uses. The timeout keeps a
-            // hung provider call from delaying the review (the lazy backfill
-            // awaits this before the orchestrator starts).
-            const { text } = await this.observabilityService.runAiSdkLLMInSpan({
-                spanName: runName,
-                runName,
-                model: modelName,
+            // LLM.run owns it end to end: the model (built from the resolved slot,
+            // or the managed default when no BYOK), the usage span + Langfuse
+            // telemetry, and the hard timeout — the SAME one door the review path
+            // uses. Generation may run on the customer's BYOK key, so its tokens
+            // reach the user-facing analytics exactly as before.
+            const text = await LLM.run({
+                byokConfig: byokConfig ?? undefined,
+                runName: 'kody-rules.summary-generation',
+                system: SUMMARY_SYSTEM_PROMPT,
+                user: `Rule title: ${rule.title ?? ''}\n\nRule text:\n${rule.rule}`,
                 attrs: {
                     organizationId: organizationAndTeamData.organizationId,
                     ruleUuid: rule.uuid,
                 },
-                exec: () =>
-                    tracedGenerateText({
-                        model,
-                        system: SUMMARY_SYSTEM_PROMPT,
-                        prompt: `Rule title: ${rule.title ?? ''}\n\nRule text:\n${rule.rule}`,
-                        abortSignal: timeoutSignal(LLM_CALL_TIMEOUT_MS),
-                        experimental_telemetry: buildLangfuseTelemetry(
-                            runName,
-                            {
-                                organizationId:
-                                    organizationAndTeamData.organizationId,
-                            },
-                        ),
-                    } as any),
+                telemetryMetadata: {
+                    organizationId: organizationAndTeamData.organizationId,
+                },
             });
 
             const content = (text ?? '').trim();
@@ -302,7 +363,7 @@ export class KodyRuleSummaryService {
                 content,
                 sourceHash: this.hashOf(rule.rule),
                 generatedAt: new Date(),
-                model: modelName,
+                model: getModelName(byokConfig ?? undefined),
             };
         } catch (error) {
             this.logger.warn({
@@ -449,14 +510,20 @@ export class KodyRuleSummaryService {
         }
         try {
             const [byokConfig, subscriptionStatus] = await Promise.all([
-                this.permissionValidationService.getBYOKConfig(
+                // Model policy = the review's: resolve the codeReview task to a
+                // `{main}` carrier (BYOK main when configured; managed default
+                // only during trial). undefined ⇒ no BYOK ⇒ env default downstream.
+                this.permissionValidationService.resolveTaskSlot(
                     organizationAndTeamData,
+                    LLM_TASK.codeReview,
                 ),
                 this.permissionValidationService.getSubscriptionStatus(
                     organizationAndTeamData,
                 ),
             ]);
-            const hasByok = !!byokConfig?.main;
+            const hasByok = !!byokConfig;
+            // The carrier's resolved main slot, read at this consumer boundary.
+            const mainSlot = byokConfig ?? undefined;
             if (
                 !hasByok &&
                 POST_TRIAL_REQUIRES_BYOK.includes(
@@ -476,7 +543,7 @@ export class KodyRuleSummaryService {
                 return null;
             }
 
-            const decomposed = (await runStructuredReviewCall({
+            const decomposed = (await LLM.run({
                 byokConfig: byokConfig ?? undefined,
                 schema: decomposeOutputSchema,
                 system: DECOMPOSE_SYSTEM_PROMPT,
@@ -484,7 +551,6 @@ export class KodyRuleSummaryService {
                 runName: 'kody-rules.atom-decomposition',
                 organizationId: organizationAndTeamData.organizationId,
                 attrs: { ruleUuid: rule.uuid },
-                observabilityService: this.observabilityService,
             })) as z.infer<typeof decomposeOutputSchema> | null;
 
             const raw = decomposed?.atoms?.slice(0, MAX_ATOMS_PER_RULE) ?? [];
@@ -501,25 +567,80 @@ export class KodyRuleSummaryService {
                 return null;
             }
 
+            // Verify gate: drop any atom that's inverted or invented relative
+            // to the ORIGINAL rule before it ever reaches the T0 compiler or
+            // a review, and log any requirement the decomposition dropped.
+            // Never blocks decomposition — an unverifiable batch ships as-is
+            // rather than losing every atom.
+            const { invalidIndexes, missingRequirements } =
+                await this.verifyAtoms(
+                    rule,
+                    raw,
+                    byokConfig,
+                    organizationAndTeamData,
+                );
+            const verifiedAtoms = raw.filter((_, i) => !invalidIndexes.has(i));
+            if (invalidIndexes.size > 0) {
+                this.logger.warn({
+                    message: `[kody-rule-atoms] dropped ${invalidIndexes.size}/${raw.length} atom(s) — inverted or not present in the parent rule`,
+                    context: KodyRuleSummaryService.name,
+                    metadata: {
+                        organizationId: organizationAndTeamData.organizationId,
+                        ruleUuid: rule.uuid,
+                        dropped: raw
+                            .map((a, i) => ({
+                                title: a.title,
+                                reason: invalidIndexes.get(i),
+                            }))
+                            .filter((_, i) => invalidIndexes.has(i)),
+                    },
+                });
+            }
+            if (missingRequirements.length > 0) {
+                // Observability only — we can't synthesize a missing atom,
+                // just make the coverage gap visible instead of it silently
+                // reading as "the rule is fully enforced".
+                this.logger.warn({
+                    message: `[kody-rule-atoms] decomposition may be missing coverage for ${missingRequirements.length} requirement(s) in the original rule`,
+                    context: KodyRuleSummaryService.name,
+                    metadata: {
+                        organizationId: organizationAndTeamData.organizationId,
+                        ruleUuid: rule.uuid,
+                        missingRequirements,
+                    },
+                });
+            }
+            if (verifiedAtoms.length === 0) {
+                this.logger.warn({
+                    message:
+                        '[kody-rule-atoms] every decomposed atom failed verification — rule stays on summary/full-text path',
+                    context: KodyRuleSummaryService.name,
+                    metadata: {
+                        organizationId: organizationAndTeamData.organizationId,
+                        ruleUuid: rule.uuid,
+                    },
+                });
+                return null;
+            }
+
             // T0 attempt per atom via the shipped compiler + example gate.
             // A compiler failure only keeps that atom semantic — never fails
             // the decomposition.
             const runCompiler = makeLLMRunCompiler(async ({ system, user }) => {
-                const parsed = await runStructuredReviewCall({
+                const parsed = await LLM.run({
                     byokConfig: byokConfig ?? undefined,
                     schema: compilerOutputSchema,
                     system,
                     user,
                     runName: 'kody-rules.atom-detector-compiler',
                     organizationId: organizationAndTeamData.organizationId,
-                    observabilityService: this.observabilityService,
                 });
                 return (parsed as CompilerOutput) ?? null;
             });
 
             const items: IKodyRuleAtom[] = [];
-            for (let i = 0; i < raw.length; i++) {
-                const a = raw[i];
+            for (let i = 0; i < verifiedAtoms.length; i++) {
+                const a = verifiedAtoms[i];
                 const atom: IKodyRuleAtom = {
                     id: `${rule.uuid}-atom-${i + 1}`,
                     title: a.title,
@@ -560,7 +681,7 @@ export class KodyRuleSummaryService {
                 items,
                 sourceHash: this.atomsHashOf(rule),
                 generatedAt: new Date(),
-                model: getModelName(byokConfig ?? undefined),
+                model: getModelName(mainSlot),
             };
         } catch (error) {
             this.logger.warn({
@@ -575,6 +696,98 @@ export class KodyRuleSummaryService {
                 },
             });
             return null;
+        }
+    }
+
+    /**
+     * Audits a rule's freshly decomposed atoms against the ORIGINAL rule text
+     * — see VERIFY_ATOMS_SYSTEM_PROMPT for the three failure modes checked.
+     * `invalidIndexes` maps each bad atom's 0-based index (into `atoms`) to a
+     * short reason, for atoms to drop; `missingRequirements` is observability
+     * only (nothing to drop — there's no atom to synthesize one from). EVERY
+     * atom is sent, including example-free ones — coverage is checked
+     * against the original rule regardless of examples, so restricting the
+     * call to example-bearing atoms would silently skip that check on an
+     * all-semantic decomposition. Any returned index outside the sent set is
+     * dropped, not applied (see the comment on `sentIndexes` below).
+     * Never throws: a failed/empty verification ships every atom unverified
+     * rather than losing the whole decomposition over a flaky extra call.
+     */
+    private async verifyAtoms(
+        rule: Partial<IKodyRule>,
+        atoms: DecomposedAtom[],
+        byokConfig: NormalizedModel | undefined,
+        organizationAndTeamData: OrganizationAndTeamData,
+    ): Promise<{
+        invalidIndexes: Map<number, string>;
+        missingRequirements: string[];
+    }> {
+        if (atoms.length === 0) {
+            return { invalidIndexes: new Map(), missingRequirements: [] };
+        }
+        // Send EVERY atom, not just ones with examples: the missing-coverage
+        // check needs the full picture regardless of examples (an
+        // all-semantic, example-free decomposition must still be auditable
+        // for coverage gaps — restricting the call to example-bearing atoms
+        // would silently skip that check and read as "fully enforced").
+        // Polarity/fidelity naturally has nothing to flag on an
+        // example-free atom's (empty) examples block; that's fine, it just
+        // won't be a source of INVERTED POLARITY findings.
+        const indexed = atoms.map((a, index) => ({ ...a, index }));
+        // The prompt shows atoms under their own index and asks the model to
+        // echo that same number back. A model that instead re-numbers
+        // sequentially would otherwise cause the WRONG atom to be dropped
+        // downstream while the actually-bad one survives — silently
+        // defeating the gate. Only accept indexes we actually sent.
+        const sentIndexes = new Set(indexed.map((a) => a.index));
+        try {
+            const parsed = (await LLM.run({
+                byokConfig: byokConfig ?? undefined,
+                schema: verifyAtomsOutputSchema,
+                system: VERIFY_ATOMS_SYSTEM_PROMPT,
+                user: buildVerifyAtomsUserPrompt(rule, indexed),
+                runName: 'kody-rules.atom-verify',
+                organizationId: organizationAndTeamData.organizationId,
+                attrs: { ruleUuid: rule.uuid },
+            })) as z.infer<typeof verifyAtomsOutputSchema> | null;
+            const outOfRange: number[] = [];
+            const invalidIndexes = new Map<number, string>();
+            for (const a of parsed?.invalidAtoms ?? []) {
+                if (sentIndexes.has(a.index)) {
+                    invalidIndexes.set(a.index, a.reason ?? 'unspecified');
+                } else {
+                    outOfRange.push(a.index);
+                }
+            }
+            if (outOfRange.length > 0) {
+                this.logger.warn({
+                    message:
+                        '[kody-rule-atoms] verify pass returned index(es) outside the atoms it was sent — ignoring them rather than risk dropping the wrong atom',
+                    context: KodyRuleSummaryService.name,
+                    metadata: {
+                        organizationId: organizationAndTeamData.organizationId,
+                        ruleUuid: rule.uuid,
+                        outOfRange,
+                    },
+                });
+            }
+            return {
+                invalidIndexes,
+                missingRequirements: parsed?.missingRequirements ?? [],
+            };
+        } catch (error) {
+            this.logger.warn({
+                message:
+                    '[kody-rule-atoms] verification failed — atoms ship unverified',
+                context: KodyRuleSummaryService.name,
+                metadata: {
+                    organizationId: organizationAndTeamData.organizationId,
+                    ruleUuid: rule.uuid,
+                    error:
+                        error instanceof Error ? error.message : String(error),
+                },
+            });
+            return { invalidIndexes: new Map(), missingRequirements: [] };
         }
     }
 
@@ -716,7 +929,10 @@ export class KodyRuleSummaryService {
         rules: Partial<IKodyRule>[],
         organizationAndTeamData: OrganizationAndTeamData,
     ): Promise<Partial<IKodyRule>[]> {
-        const withAtoms = await this.ensureAtoms(rules, organizationAndTeamData);
+        const withAtoms = await this.ensureAtoms(
+            rules,
+            organizationAndTeamData,
+        );
         return withAtoms.flatMap((r) => this.expandForReview(r));
     }
 }

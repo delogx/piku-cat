@@ -200,10 +200,6 @@ export default {
         '^@/core/infrastructure/adapters/services/logger/loggerWrapper\\.service$':
             '<rootDir>/libs/core/log/loggerWrapper.service',
 
-        // LLM (legacy alias)
-        '^@/llm$': '<rootDir>/packages/kodus-common/src/llm',
-        '^@/llm/(.*)$': '<rootDir>/packages/kodus-common/src/llm/$1',
-
         // Utils
         '^@/utils/json$': '<rootDir>/libs/common/utils/transforms/json',
         '^@/shared/utils/cache/(.*)$': '<rootDir>/libs/core/cache/$1',
@@ -240,8 +236,6 @@ export default {
         '^@/(.*)$': '<rootDir>/libs/$1',
         '^@libs/(.*)$': '<rootDir>/libs/$1',
         '^@apps/(.*)$': '<rootDir>/apps/$1/src',
-        '^@kodus/kodus-common/(.*)$': '<rootDir>/packages/kodus-common/src/$1',
-        '^@kodus/kodus-common$': '<rootDir>/packages/kodus-common/src',
     },
     transformIgnorePatterns: [
         // `jose` (used by apps/web's helpers.ts for JWT decoding) ships
@@ -251,7 +245,10 @@ export default {
         // The Vercel AI SDK stack (`ai` + every `@ai-sdk/*` provider) is also
         // ESM-only; the code-review/agents/llm specs import it transitively, so
         // it must be transformed too or Jest chokes on its `import` syntax.
-        'node_modules/(?!(@octokit|universal-user-agent|p-limit|uuid|universal-github-app-jwt|before-after-hook|yocto-queue|jose|@ai-sdk|ai|@workflow|archiver|zip-stream|compress-commons|crc32-stream|readdir-glob|is-stream|lazystream|normalize-path)/)',
+        // The `(?:.*/)?` prefix lets these ESM-only packages be transformed even
+        // when NESTED (e.g. typeorm/node_modules/uuid — uuid@14 is ESM-only and
+        // ships inside typeorm after the dep bump), not just at the top level.
+        'node_modules/(?!(?:.*/)?(@octokit|universal-user-agent|p-limit|uuid|universal-github-app-jwt|before-after-hook|yocto-queue|jose|@ai-sdk|ai|@workflow|archiver|zip-stream|compress-commons|crc32-stream|readdir-glob|is-stream|lazystream|normalize-path)/)',
     ],
     modulePathIgnorePatterns: [
         '<rootDir>/dist',
@@ -263,6 +260,10 @@ export default {
         // in jest's Haste map ("looked up in the Haste module map ... several
         // different files") and break every suite. Never load modules from them.
         '<rootDir>/.claude/worktrees',
+        // Stryker's sandbox copies the whole repo (worktrees included) under
+        // here; the duplicated specs collide in the Haste map and re-run every
+        // integration suite against the same test DB.
+        '<rootDir>/.stryker-tmp',
     ],
     // The mcp-manager e2e spec imports the full AppModule and needs a
     // dedicated e2e setup to run; excluded here as a focused follow-up (would
@@ -271,6 +272,7 @@ export default {
     testPathIgnorePatterns: [
         '/node_modules/',
         '<rootDir>/apps/mcp-manager/test/e2e/',
+        '<rootDir>/.stryker-tmp/',
     ],
     // Resolve ESM-style .js imports to .ts files in packages
     resolver: '<rootDir>/jest-resolver.cjs',

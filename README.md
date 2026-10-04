@@ -228,7 +228,7 @@ Choose the workflow that matches how you want to use piku-cat.
 
 ## Monorepo Structure
 
-piku-cat is a monorepo with multiple applications, shared domain libraries, and published packages.
+piku-cat is a monorepo with multiple applications and shared domain libraries.
 
 ```txt
 kodus-ai/
@@ -237,10 +237,7 @@ kodus-ai/
 │   ├── web/          # Next.js dashboard
 │   ├── worker/       # Review execution and queue consumers
 │   └── webhooks/     # Git provider webhook ingestion
-├── libs/             # Shared NestJS domain modules
-├── packages/
-│   ├── kodus-flow/   # AI agent orchestration SDK
-│   └── kodus-common/ # LLM abstraction package
+├── libs/             # Shared NestJS domain modules (incl. libs/llm — LLM/BYOK layer)
 └── scripts/          # Dev, deploy, benchmark, and automation scripts
 ```
 
@@ -251,8 +248,7 @@ kodus-ai/
 | `apps/worker` | Background service for code review execution, queue processing, suggestion checks, automation jobs, and monitoring tasks. |
 | `apps/webhooks` | Webhook ingestion service for GitHub, GitLab, Azure Repos, Bitbucket, and Forgejo events. |
 | `libs` | Shared NestJS domain modules used across piku-cat applications. |
-| `packages/kodus-flow` | SDK for AI agent orchestration. |
-| `packages/kodus-common` | Shared LLM abstraction package for model providers. |
+| `libs/llm` | In-repo LLM/BYOK abstraction layer for model providers. |
 
 For full setup instructions, follow the [Local Quickstart](https://docs.kodus.io/how_to_deploy/en/local_quickstart/orchestrator).
 
@@ -267,7 +263,7 @@ For full setup instructions, follow the [Local Quickstart](https://docs.kodus.io
 | Users | Unlimited | Unlimited | Unlimited |
 | Piku Rules | Up to 10 | Unlimited | Unlimited |
 | Active plugins | Up to 3 | Unlimited | Unlimited |
-| Piku Learnings and Memory | ✅ | ✅ | ✅ |
+| Piku Memory | ✅ | ✅ | ✅ |
 | Quality Radar issues | Unlimited | Unlimited | Unlimited |
 | Priority queue for Piku Agents | ❌ | ✅ | ✅ |
 | Engineering Metrics / Cockpit | ❌ | ✅ | ✅ |

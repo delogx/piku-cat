@@ -5,6 +5,7 @@ name: "E2E: self-hosted matrix"
 # from secrets, not GITHUB_TOKEN. No job writes back to the repo.
 permissions:
     contents: read
+    id-token: write # quality signal (report-signal action, WIF)
 
 # Runs the matrix runner (tests/e2e/cli/run-matrix.ts) against a self-hosted
 # stack provisioned from the given image tag. Spawns one ephemeral droplet
@@ -59,6 +60,30 @@ on:
                 required: false
                 default: false
                 type: boolean
+        # The gate stays binary (advisory failures don't fail the job), so the
+        # caller's notification needs these to say what "green" actually hid.
+        outputs:
+            digest:
+                description: "One-line scoreboard: passed/executed, advisories, setup skips"
+                value: ${{ jobs.aggregate.outputs.digest }}
+            status:
+                description: "Roll-up: green (all clear), yellow (advisories/coverage gaps behind a green gate), red (gating)"
+                value: ${{ jobs.aggregate.outputs.status }}
+            discord_color:
+                description: "Embed color matching status (green/amber/red)"
+                value: ${{ jobs.aggregate.outputs.discord_color }}
+            gating_count:
+                description: "Gating failure count across cells"
+                value: ${{ jobs.aggregate.outputs.gating_count }}
+            advisory_count:
+                description: "Advisory (non-gating) failure count across cells"
+                value: ${{ jobs.aggregate.outputs.advisory_count }}
+            setup_skipped:
+                description: "Planned scenarios that did not run (setup skips)"
+                value: ${{ jobs.aggregate.outputs.setup_skipped }}
+            llm_note:
+                description: "Optional LLM interpretation of the evidence (empty when no key configured)"
+                value: ${{ jobs.aggregate.outputs.llm_note }}
     # Own cadence — Tue/Thu 04:00 UTC (01:00 BRT).
     #
     # Until now the ONLY automatic caller was the release train, where this
@@ -245,6 +270,15 @@ jobs:
               working-directory: tests/e2e
               run: npm install --no-audit --no-fund
 
+            # Browser scenarios currently apply only to the GitHub cell. The
+            # Playwright npm package does not install Chromium by itself on a
+            # fresh GitHub runner, so without this step rbac-ui-render and the
+            # Cockpit render check fail before opening a page.
+            - name: Install Playwright Chromium
+              if: matrix.cell.provider == 'github'
+              working-directory: tests/e2e
+              run: npx playwright install --with-deps chromium
+
             - name: Resolve cell-specific secrets
               id: secrets
               env:
@@ -262,6 +296,12 @@ jobs:
                   IMAGE_TAG: ${{ needs.plan.outputs.image_tag }}
                   SOURCE_MATRIX_FILE: ${{ inputs.matrix_file || 'matrix/fast.yml' }}
                   LICENSE_MODE: ${{ matrix.cell.license }}
+                  # Scheduled cron runs test the newest PUBLISHED release against
+                  # a main-refreshed RBAC manifest, so endpoints added since that
+                  # release legitimately 404. PR / release-train runs test an
+                  # image built from the same commit as the manifest — there a
+                  # 404 is a real regression and must keep failing (#1696).
+                  RBAC_ALLOW_MISSING_ROUTE: ${{ github.event_name == 'schedule' && '1' || '0' }}
                   KODUS_INSTALLER_PATH: ${{ github.workspace }}/kodus-installer
                   # AWS by default: Kodus has credit there, and DigitalOcean
                   # was the direct cause of two failure classes — 504s on
@@ -290,18 +330,9 @@ jobs:
 
                   DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
 
-                  # GitHub bot-account token POOL. The runner round-robins
-                  # every github scenario across GH_TEST_TOKEN + GH_TEST_TOKEN_2..N
-                  # (see lib/github-token-pool.ts), so the ~26-scenario
-                  # license-paid cell spreads its polling/content-creation load
-                  # across multiple accounts instead of draining one account's
-                  # 5,000 req/hr primary quota and cascading into ~19 misleading
-                  # rate-limit SKIPs. GH_TEST_TOKEN_2 is a second dedicated bot
-                  # (Admin on the fixture repo). Empty siblings are dropped, so
-                  # this stays a single-token pool — identical to before — until
-                  # the secret is set.
+                  # One human PAT is kept for PR/comment authorship because
+                  # product review triggers intentionally ignore bot authors.
                   GH_TEST_TOKEN: ${{ secrets.GH_TEST_TOKEN }}
-                  GH_TEST_TOKEN_2: ${{ secrets.GH_TEST_TOKEN_FREE }}
                   # GitHub App installation token: 5000/h of its own, immune to
                   # the abuse flags that cap the bot PATs at ~60/h. The cloud
                   # workflow has passed these for a while; self-hosted could not
@@ -311,25 +342,20 @@ jobs:
                   # works here too -- but the secrets were never wired in, which
                   # is why run 31270321822 still burned the PAT quota on the
                   # FIRST scenario and reported 8 P0 cells unverified.
-                  # All three unset -> the PAT pool behaves exactly as before.
+                  # All three unset -> the single human PAT remains in use.
                   GH_APP_ID: ${{ secrets.GH_APP_ID }}
                   GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
                   GH_APP_INSTALLATION_ID: ${{ secrets.GH_APP_INSTALLATION_ID }}
                   # Dedicated account for the PRODUCT's stored GitHub
                   # integration credential, separate from the harness driver
-                  # pool above. The self-hosted product uses this for all its
+                  # credential above. The self-hosted product uses this for its
                   # own GitHub calls (read diff/files, post comments) — pinning
                   # it to GH_TEST_TOKEN meant product + harness drained one
                   # account and tripped the rate limit mid-cell.
                   #
-                  # Split by license so the two github cells don't share ONE
-                  # product account: the license-paid cell (heavy — ~13 review
-                  # scenarios, several multi-PR) gets its own bot, license-free
-                  # keeps GH_INTEGRATION_TOKEN. Falls back to GH_INTEGRATION_TOKEN
-                  # when GH_INTEGRATION_TOKEN_PAID is unset (graceful until the
-                  # secret is added), and to GH_TEST_TOKEN when both are unset
-                  # (see github.ts authToken()).
-                  GH_INTEGRATION_TOKEN: ${{ (matrix.cell.license == 'license-paid' && secrets.GH_INTEGRATION_TOKEN_PAID) || secrets.GH_INTEGRATION_TOKEN }}
+                  # One durable product credential; plans do not need distinct
+                  # GitHub identities.
+                  GH_INTEGRATION_TOKEN: ${{ secrets.GH_INTEGRATION_TOKEN }}
                   GH_TEST_REPO: ${{ secrets.GH_TEST_REPO }}
                   # Without this the centralized-config scenario self-skips as
                   # a setup gap, and the cell reports 8/9 verified forever. The
@@ -368,8 +394,9 @@ jobs:
                   # AI Model Garden; `global` serves the bare-id Claude models.
                   # conversation-vertex-byok additionally needs a NON-Kody GitHub
                   # account token (login without "kody"/"kodus", PR R/W on the
-                  # fixture repo) AND a kodus-common release carrying the v2
-                  # adapter fix — until that release it runs red, not skip.
+                  # fixture repo). The MCP adapter it exercises now lives in-repo
+                  # at @libs/mcp-server/mcp-adapter (kodus-common was removed), so
+                  # there is no external release to wait on.
                   VERTEX_SA_JSON: ${{ secrets.VERTEX_SA_JSON }}
                   VERTEX_REGION: global
                   VERTEX_MODEL: claude-haiku-4-5
@@ -391,7 +418,7 @@ jobs:
                   # provider is stated, never inferred from the model name.
                   API_LLM_PROVIDER: ${{ vars.E2E_LLM_PROVIDER || 'openai_compatible' }}
                   API_OPENAI_FORCE_BASE_URL: ${{ vars.E2E_LLM_BASE_URL || 'https://api.fireworks.ai/inference/v1' }}
-                  API_LLM_PROVIDER_MODEL: ${{ vars.E2E_LLM_MODEL || 'accounts/fireworks/models/deepseek-v4-flash-0731' }}
+                  API_LLM_PROVIDER_MODEL: ${{ vars.E2E_LLM_MODEL || 'accounts/fireworks/models/deepseek-v4p1-flash' }}
 
                   TARGET_FILTER_PROVIDER: ${{ matrix.cell.provider }}
 
@@ -430,13 +457,14 @@ jobs:
                   # which — finding no ~/.kodus-dev/config — runs the INTERACTIVE
                   # setup.sh and aborts in ~1s on the non-TTY runner. Writing the
                   # config from the secrets we already pass lets the script find a
-                  # ready config instead. Plain values (not op:// refs) skip the
+                  # ready config instead. AWS credentials are inherited from
+                  # the job environment, just like the regular matrix VM. Plain
+                  # values (not op:// refs) skip the
                   # 1Password resolver in _common.sh. Harmless for non-SSO cells
                   # (nothing else reads it). Written to the file directly (never
                   # echoed) so secret values don't hit the log.
                   mkdir -p "$HOME/.kodus-dev"
                   {
-                      echo "DIGITALOCEAN_TOKEN=${DIGITALOCEAN_TOKEN:-}"
                       echo "SH_LICENSE_KEY=${SH_LICENSE_KEY_PAID:-}"
                       echo "GH_DEV_TOKEN=${GH_TEST_TOKEN:-}"
                       echo "API_OPEN_AI_API_KEY=${API_OPEN_AI_API_KEY:-}"
@@ -498,13 +526,77 @@ jobs:
         runs-on: ubuntu-latest
         needs: [plan, matrix]
         if: always()
+        outputs:
+            digest: ${{ steps.scoreboard.outputs.digest }}
+            status: ${{ steps.scoreboard.outputs.status }}
+            discord_color: ${{ steps.scoreboard.outputs.discord_color }}
+            gating_count: ${{ steps.scoreboard.outputs.gating_count }}
+            advisory_count: ${{ steps.scoreboard.outputs.advisory_count }}
+            setup_skipped: ${{ steps.scoreboard.outputs.setup_skipped }}
+            llm_note: ${{ steps.llm-note.outputs.llm_note }}
         steps:
+            # Before the artifact download — checkout cleans the workspace.
+            - name: Checkout monorepo (scoreboard script + composite action)
+              uses: actions/checkout@v6.0.2
+              with:
+                  sparse-checkout: |
+                      tests/e2e/cli/render-scoreboard.py
+                      tests/e2e/cli/llm-release-note.py
+                      .github/actions/discord-notify
+                      .github/actions/report-signal
+                  sparse-checkout-cone-mode: false
+
             - name: Download all evidence
               uses: actions/download-artifact@v4
               with:
                   pattern: e2e-self-hosted-*
                   merge-multiple: true
                   path: evidence
+
+            # Every cell job is green by design (advisory failures don't gate),
+            # so the run page reads "all passed" even when scenarios failed or
+            # coverage silently shrank. Render the evidence the runner already
+            # writes (notify.json / result.json / summary.md) into the run's
+            # Summary tab + ::warning:: annotations, and expose a digest for
+            # the caller's Discord notification. Never fails the job.
+            - name: Render scoreboard (step summary + annotations)
+              id: scoreboard
+              if: always()
+              env:
+                  MATRIX_FILE: ${{ inputs.matrix_file || 'matrix/fast.yml' }}
+              run: python3 tests/e2e/cli/render-scoreboard.py evidence
+
+            # Interpretation on top of the deterministic facts: a cheap LLM
+            # classifies each failure (infra/quota vs test-side vs product)
+            # and says what should block a promote approval. Numbers stay
+            # with the scoreboard; this is analysis, labeled as such. Skips
+            # silently when E2E_LLM_API_KEY isn't configured and never
+            # fails the job.
+            # Same secret/vars/defaults as the cell jobs' product LLM
+            # (DeepSeek V4 Flash on Fireworks) — one vendor, one key, one
+            # variable to debug. No extra secret to provision.
+            - name: LLM read of the evidence (advisory)
+              id: llm-note
+              if: always()
+              continue-on-error: true
+              env:
+                  E2E_LLM_API_KEY: ${{ secrets.E2E_LLM_API_KEY }}
+                  E2E_LLM_BASE_URL: ${{ vars.E2E_LLM_BASE_URL || 'https://api.fireworks.ai/inference/v1' }}
+                  E2E_LLM_MODEL: ${{ vars.E2E_LLM_MODEL || 'accounts/fireworks/models/deepseek-v4p1-flash' }}
+              run: python3 tests/e2e/cli/llm-release-note.py evidence
+
+            - name: Report quality signal
+              if: always()
+              uses: ./.github/actions/report-signal
+              with:
+                  name: e2e.selfhosted.matrix
+                  status: ${{ steps.scoreboard.outputs.status || 'infra' }}
+                  value: ${{ steps.scoreboard.outputs.gating_count }}
+                  unit: count
+                  meta: ${{ steps.scoreboard.outputs.meta }}
+                  gcp_wif_provider: ${{ vars.GCP_WIF_PROVIDER }}
+                  gcp_sa_email: ${{ vars.GCP_SA_EMAIL }}
+                  gcp_project: ${{ vars.GCP_PROJECT }}
 
             - name: Upload combined evidence
               uses: actions/upload-artifact@v4
@@ -561,24 +653,102 @@ jobs:
                   print('All {} planned cells reported evidence.'.format(len(planned)))
                   PYCHECK
 
-            - name: Checkout monorepo (for composite action)
-              if: needs.matrix.result == 'failure'
-              uses: actions/checkout@v6.0.2
-
             - name: Notify Discord on failure
               if: needs.matrix.result == 'failure'
               uses: ./.github/actions/discord-notify
               with:
                   # SH matrix runs as part of the release (gates promote) or
-                  # ad-hoc via dispatch. Either way, QA channel — the release
+                  # ad-hoc via dispatch. Either way, tests channel — the release
                   # workflow's own notify-discord-failure covers the release
                   # case with full context.
-                  webhook: ${{ secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
+                  webhook: ${{ secrets.DISCORD_WEBHOOK_TESTS || secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
                   status: failure
                   title: "❌ E2E self-hosted matrix failed"
                   description: |
                       `${{ inputs.matrix_file || 'matrix/fast.yml' }}` failed against image `${{ needs.plan.outputs.image_tag }}`.
                       Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+    # Root-cause investigation — only when the run carries failures. A
+    # read-only Claude Code agent follows each advisory/gating failure
+    # through the evidence (droplet logs + result.json) into the repo,
+    # classifies it (product / test-side / infra) and proposes a fix. The
+    # report lands on the run's Summary tab and in the `e2e-investigation`
+    # artifact — it deliberately opens no issues; triage is a human call.
+    #
+    # Auth is the Claude SUBSCRIPTION token (`claude setup-token` →
+    # secret CLAUDE_CODE_OAUTH_TOKEN) — no per-token API billing. The
+    # job skips silently without the secret and can never gate: it is
+    # continue-on-error and every step degrades to a notice.
+    investigate:
+        name: Investigate failures (agent, advisory)
+        runs-on: ubuntu-latest
+        needs: [aggregate]
+        if: >-
+            always() &&
+            ((needs.aggregate.outputs.gating_count != '' && needs.aggregate.outputs.gating_count != '0') ||
+             (needs.aggregate.outputs.advisory_count != '' && needs.aggregate.outputs.advisory_count != '0'))
+        continue-on-error: true
+        timeout-minutes: 25
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout monorepo
+              uses: actions/checkout@v6.0.2
+
+            - name: Download evidence
+              uses: actions/download-artifact@v4
+              with:
+                  name: e2e-self-hosted-matrix
+                  path: evidence
+
+            - name: Investigate with Claude Code (subscription auth)
+              env:
+                  CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+              run: |
+                  set -uo pipefail
+                  if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+                      echo "CLAUDE_CODE_OAUTH_TOKEN not configured — skipping investigation."
+                      echo "Generate one with 'claude setup-token' and add it as a repo secret."
+                      exit 0
+                  fi
+                  npm install -g @anthropic-ai/claude-code >/dev/null 2>&1
+                  # The evidence the agent reads (droplet logs, scenario
+                  # errors) is untrusted text, so the agent is STRICTLY
+                  # read-only: Bash/Write/Edit are denied (deny rules
+                  # take precedence over every allow, including any settings
+                  # file in the checkout). Its report arrives on stdout; the
+                  # trusted extractor below materializes the contract files.
+                  # --strict-mcp-config: never load MCP servers from any
+                  # config that lands in the checkout — MCP tools would be
+                  # an unvetted side door around the deny list.
+                  claude -p "$(cat tests/e2e/cli/investigate-prompt.md)" \
+                      --allowedTools "Read,Grep,Glob" \
+                      --disallowedTools "Bash,Write,Edit,MultiEdit,NotebookEdit,WebFetch,WebSearch,Task" \
+                      --strict-mcp-config \
+                      --max-turns 60 \
+                      --output-format text > investigation-agent.log 2>&1 || {
+                      echo "::warning title=E2E investigation failed (advisory)::agent run failed — see investigation-agent.log artifact"
+                  }
+                  python3 tests/e2e/cli/extract-investigation.py investigation-agent.log
+                  if [ -f investigation.md ]; then
+                      {
+                          echo "## 🔎 Failure investigation (agent — verify before acting)"
+                          echo ""
+                          cat investigation.md
+                      } >> "$GITHUB_STEP_SUMMARY" || true
+                  fi
+
+            - name: Upload investigation artifact
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: e2e-investigation
+                  path: |
+                      investigation.md
+                      investigation.json
+                      investigation-agent.log
+                  if-no-files-found: ignore
+                  retention-days: 30
 
     # Durable history — same rationale as the cloud workflow: a separate job
     # so `contents: write` never touches the job that holds provider tokens.

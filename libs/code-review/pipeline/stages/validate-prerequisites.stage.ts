@@ -1,4 +1,6 @@
 import { createLogger } from '@libs/core/log/logger';
+import { LLM_TASK } from '@libs/llm/byok-config';
+import type { NormalizedModel } from '@libs/llm/byok-config';
 import {
     AutomationMessage,
     AutomationStatus,
@@ -24,6 +26,7 @@ import { environment } from '@libs/ee/configs/environment';
 import {
     ILicenseService,
     LICENSE_SERVICE_TOKEN,
+    UserWithLicense,
 } from '@libs/ee/license/interfaces/license.interface';
 import { AutoAssignLicenseUseCase } from '@libs/ee/license/use-cases/auto-assign-license.use-case';
 import {
@@ -66,6 +69,7 @@ type NoActiveSubscriptionType =
     | 'general'
     | 'byok_required'
     | 'trial_credits_exhausted'
+    | 'credits_exhausted'
     | 'license_unavailable'
     | 'no_error';
 
@@ -77,6 +81,7 @@ const ERROR_TO_MESSAGE_TYPE: Record<
     [ValidationErrorType.USER_NOT_LICENSED]: 'user',
     [ValidationErrorType.BYOK_REQUIRED]: 'byok_required',
     [ValidationErrorType.PLAN_LIMIT_EXCEEDED]: 'general',
+    [ValidationErrorType.CREDITS_EXHAUSTED]: 'credits_exhausted',
     [ValidationErrorType.NOT_ERROR]: 'no_error',
 };
 
@@ -158,10 +163,8 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
         }
 
         // Check if user is ignored BEFORE validation
-        const isIgnored = await this.isUserIgnored(
-            organizationAndTeamData,
-            userGitId,
-        );
+        const { ignored: isIgnored, usersWithLicense } =
+            await this.resolveIgnoreState(organizationAndTeamData, userGitId);
 
         if (isIgnored) {
             this.logger.log({
@@ -250,6 +253,9 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
         // the same repo:pr usageKey, keeping it idempotent per PR.
         const validationOptions = {
             consumeTrialReviewCredit: false,
+            // Reuse the seat list already fetched to evaluate the ignore list
+            // rather than asking billing for the same answer twice.
+            usersWithLicense,
         };
 
         let validationResult =
@@ -267,9 +273,16 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
         // license yet its onboarding is complete, provision the trial now and
         // re-validate so this very review can proceed instead of posting a
         // "your trial has ended" comment.
+        // Only a MISSING license is healable: billing reports an existing one
+        // (canceled, expired…) with its subscriptionStatus, and answers 409 to
+        // a trial request for it.
+        const licenseExists = Boolean(
+            validationResult.metadata?.validation?.subscriptionStatus,
+        );
         if (
             !validationResult.allowed &&
             validationResult.errorType === ValidationErrorType.INVALID_LICENSE &&
+            !licenseExists &&
             (await this.tryHealMissingTrial(context))
         ) {
             validationResult =
@@ -292,8 +305,13 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
                     if (!draft.codeReviewConfig) {
                         draft.codeReviewConfig = {} as any;
                     }
-                    draft.codeReviewConfig.byokConfig =
-                        validationResult.byokConfig;
+                    const healedByok = validationResult.byokConfig;
+                    draft.codeReviewConfig.byokConfig = healedByok;
+                    // Thread the resolved slot the downstream stages read their
+                    // limit/telemetry metadata off. The permission service now
+                    // returns the bare model slot directly.
+                    draft.codeReviewConfig.resolvedModelSlot = (healedByok ??
+                        undefined) as unknown as NormalizedModel | undefined;
                 }
                 if (validationResult.subscriptionStatus) {
                     if (!draft.pipelineMetadata) {
@@ -418,6 +436,8 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
                         : PipelineReasons.PREREQUISITES.LICENSE_UNAVAILABLE;
                 }
                 return PipelineReasons.PREREQUISITES.PLAN_LIMIT;
+            case ValidationErrorType.CREDITS_EXHAUSTED:
+                return PipelineReasons.PREREQUISITES.CREDITS_EXHAUSTED;
             case ValidationErrorType.USER_NOT_LICENSED:
                 return PipelineReasons.PREREQUISITES.USER_NO_LICENSE;
             case ValidationErrorType.INVALID_LICENSE:
@@ -505,7 +525,7 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
                     : 'general';
 
             // PLAN_LIMIT_EXCEEDED on a trial is one of two things: the
-            // Kodus-paid reviews are genuinely used up (trial still active —
+            // piku-cat-paid reviews are genuinely used up (trial still active —
             // steer to BYOK, not "trial ended"), or the license service
             // couldn't confirm the credit (transient billing failure — say so
             // and ask to retry, never "used up" or "trial ended").
@@ -571,14 +591,21 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
                 return false;
             }
 
-            const byokConfig =
-                await this.permissionValidationService.getBYOKConfig(
+            // "Is BYOK configured?" = did the run resolve a non-managed slot
+            // for the codeReview task (v2 resolver). A null slot means the
+            // env/managed default — no client BYOK — so the trial is
+            // provisioned without one. resolveTaskSlot resolves without
+            // building the model (no decrypt / SDK client), so only the slot's
+            // presence is inspected here.
+            const carrier =
+                await this.permissionValidationService.resolveTaskSlot(
                     organizationAndTeamData,
+                    LLM_TASK.codeReview,
                 );
 
             const provisioned = await this.licenseService.startTrial(
                 organizationAndTeamData,
-                Boolean(byokConfig?.main),
+                Boolean(carrier),
             );
 
             if (provisioned) {
@@ -662,12 +689,12 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
         return true;
     }
 
-    private async isUserIgnored(
+    private async resolveIgnoreState(
         organizationAndTeamData: OrganizationAndTeamData,
         userGitId?: string,
-    ): Promise<boolean> {
+    ): Promise<{ ignored: boolean; usersWithLicense?: UserWithLicense[] }> {
         if (!userGitId) {
-            return false;
+            return { ignored: false };
         }
 
         const config = await this.organizationParametersService.findByKey(
@@ -678,22 +705,56 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
         const configValue =
             config?.configValue as OrganizationParametersAutoAssignConfig;
 
-        if (
+        const excludedByAllowList =
             Array.isArray(configValue?.allowedUsers) &&
             configValue.allowedUsers.length > 0 &&
-            !configValue.allowedUsers.includes(userGitId)
-        ) {
-            return true;
-        }
+            !configValue.allowedUsers.includes(userGitId);
 
-        if (
+        const onIgnoreList =
             configValue?.ignoredUsers?.length > 0 &&
-            configValue?.ignoredUsers.includes(userGitId)
-        ) {
-            return true;
+            configValue?.ignoredUsers.includes(userGitId);
+
+        if (!excludedByAllowList && !onIgnoreList) {
+            return { ignored: false };
         }
 
-        return false;
+        // Bots land on the ignore list automatically when an integration is
+        // created, which would leave an app that authors PRs unreviewable even
+        // after an admin deliberately spends a seat on it. Holding a seat is
+        // the clearest statement that this identity should be reviewed, so it
+        // overrides both filters. Checked only when a filter already matched,
+        // so the common path costs nothing.
+        const users = await this.fetchSeats(organizationAndTeamData, userGitId);
+        const holdsSeat = Boolean(
+            users?.some((user) => user?.git_id === userGitId),
+        );
+
+        return { ignored: !holdsSeat, usersWithLicense: users };
+    }
+
+    private async fetchSeats(
+        organizationAndTeamData: OrganizationAndTeamData,
+        userGitId: string,
+    ): Promise<UserWithLicense[] | undefined> {
+        try {
+            return await this.licenseService.getAllUsersWithLicense(
+                organizationAndTeamData,
+            );
+        } catch (error) {
+            // Fail closed: an unreadable seat list must not turn the ignore
+            // list off and start reviewing identities an admin excluded.
+            this.logger.warn({
+                message:
+                    'Could not confirm seat while checking the ignore list; keeping the user filtered',
+                context: this.stageName,
+                metadata: { organizationAndTeamData, userGitId },
+                error,
+            });
+
+            // Undefined, not []: an empty list would look like a confirmed
+            // "no seats" and let the permission check skip its own lookup.
+            return undefined;
+        }
     }
 
     private async isCentralizedConfigRepositoryReviewDisabled(
@@ -911,6 +972,8 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
             params.noActiveSubscriptionType === 'trial_credits_exhausted'
         ) {
             message = await this.trialCreditsExhaustedMessage();
+        } else if (params.noActiveSubscriptionType === 'credits_exhausted') {
+            message = await this.creditsExhaustedMessage();
         } else if (params.noActiveSubscriptionType === 'license_unavailable') {
             message = await this.licenseUnavailableMessage();
         }
@@ -944,13 +1007,26 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
 
     private async trialCreditsExhaustedMessage(): Promise<string> {
         return (
-            "## You've used all your free Kodus-paid PR reviews 🎁\n\n" +
+            "## You've used all your free piku-cat-paid PR reviews 🎁\n\n" +
             'Your trial is still active — this just means the PR reviews we ' +
             'cover during the trial are used up.\n\n' +
-            '**[Connect your own AI key](https://app.kodus.io/organization/byok)** ' +
+            '**[Connect your own AI key](https://app.kodus.io/byok)** ' +
             'to keep Piku reviewing — unlimited reviews, on any plan (Free included).\n\n' +
             'Want more trial reviews to finish evaluating before adding a key? ' +
             '[Talk to our founders](https://cal.com/gabrielmalinosqui/30min). 😎\n\n' +
+            '<!-- kody-codereview -->'
+        );
+    }
+
+    private async creditsExhaustedMessage(): Promise<string> {
+        return (
+            '## Your piku-cat credits are used up 💳\n\n' +
+            'This repository reviews with a model routed by piku-cat, and your ' +
+            "organization's prepaid credit balance is at zero.\n\n" +
+            '**[Top up credits](https://app.kodus.io/byok#kodus)** ' +
+            'and re-run the review (or push a new commit) — or ' +
+            '[connect your own AI key](https://app.kodus.io/byok) to review ' +
+            'on your provider account instead.\n\n' +
             '<!-- kody-codereview -->'
         );
     }
@@ -978,7 +1054,7 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
         return (
             '## BYOK Configuration Required! 🔑\n\n' +
             'Your plan requires a Bring Your Own Key (BYOK) configuration to perform code reviews.\n\n' +
-            'Please configure your API keys in [Settings > BYOK Configuration](https://app.kodus.io/organization/byok).\n\n' +
+            'Please configure your API keys in [AI Providers](https://app.kodus.io/byok).\n\n' +
             '<!-- kody-codereview -->'
         );
     }
@@ -1136,7 +1212,7 @@ export class ValidatePrerequisitesStage extends BasePipelineStage<CodeReviewPipe
                     organizationAndTeamData.organizationId,
                 );
 
-            // Notify the PR author when they're a Kodus user; otherwise fall
+            // Notify the PR author when they're a piku-cat user; otherwise fall
             // back to the org owners so an external-contributor / bot PR still
             // alerts someone. Rate-limit per recipient target (the author, or
             // a single "owners" bucket) so a burst of PRs sends one alert.

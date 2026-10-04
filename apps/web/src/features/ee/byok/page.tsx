@@ -1,8 +1,12 @@
 import {
     getBYOK,
     getLLMConfigStatus,
+    getLLMProviderModels,
 } from "@services/organizationParameters/fetch";
-import { resolveByokModelCost } from "@services/usage/byok-cost";
+import {
+    resolveByokModelCost,
+    type ByokModelCost,
+} from "@services/usage/byok-cost";
 import { getSummaryTokenUsage } from "@services/usage/fetch";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getSelectedDateRange } from "src/features/ee/cockpit/_helpers/get-selected-date-range";
@@ -34,14 +38,15 @@ export default async function ByokPage() {
         byok: isBYOK,
     }).catch(() => null);
 
-    const mainCost = resolveByokModelCost(
-        byokConfig?.main?.model,
-        summary?.byModel,
-    );
-    const fallbackCost = resolveByokModelCost(
-        byokConfig?.fallback?.model,
-        summary?.byModel,
-    );
+    // Per-model cost keyed by BYOKModelConfig.id — the v2 replacement for the
+    // removed main/fallback cost pair. Resolved per models[].model.
+    const costByModelId: Record<string, ByokModelCost> = {};
+    for (const model of byokConfig?.models ?? []) {
+        costByModelId[model.id] = resolveByokModelCost(
+            model.model,
+            summary?.byModel,
+        );
+    }
 
     // Human label for the window the cost covers (same range as Costs screen).
     const periodDays = Math.max(
@@ -60,15 +65,34 @@ export default async function ByokPage() {
     // wouldn't match.
     const costRangeQuery = `start=${dateRange.startDate}&end=${dateRange.endDate}`;
 
+    // The Kodus catalog carries the curated names and the list prices the org
+    // is billed at; the rows show both so the tariff is visible after saving,
+    // not only in the picker. Fetched only when a Kodus credential exists.
+    const hasKodus = (byokConfig?.credentials ?? []).some(
+        (c) => c.provider === "kodus",
+    );
+    const kodusCatalog = hasKodus
+        ? await getLLMProviderModels("kodus")
+              .then((models) =>
+                  Object.fromEntries(
+                      models.map((m) => [
+                          m.id,
+                          { name: m.name, pricing: m.pricing },
+                      ]),
+                  ),
+              )
+              .catch(() => undefined)
+        : undefined;
+
     return (
         <ByokPageClient
             config={byokConfig}
             llmConfigStatus={llmConfigStatus}
             teamId={teamId ?? undefined}
-            mainCost={mainCost}
-            fallbackCost={fallbackCost}
+            costByModelId={costByModelId}
             periodLabel={periodLabel}
             costRangeQuery={costRangeQuery}
+            kodusCatalog={kodusCatalog}
         />
     );
 }

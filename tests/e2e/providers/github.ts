@@ -6,6 +6,7 @@ import type {
     ProviderName,
     ProviderRepoRef,
     ReviewSignal,
+    ReviewThread,
     WebhookInfo,
 } from '../lib/types.js';
 import { randomUUID } from 'node:crypto';
@@ -18,7 +19,8 @@ import {
     resolveTargetRepo,
 } from './base.js';
 import { ensureOk, http } from '../lib/http.js';
-import { prepareBranch } from '../lib/git.js';
+import { isKodyFinding, isKodyReviewOutput } from '../lib/kody-markers.js';
+import { prepareBranch, pushFollowupCommit } from '../lib/git.js';
 import { logger } from '../lib/log.js';
 
 const log = logger('provider:github');
@@ -47,9 +49,8 @@ function classifyLicenseNotice(
 export function classifyKodyComment(
     body: string,
 ): 'started' | 'license-block' | 'review' {
-    if (!body.includes('<!-- kody-codereview')) return 'review';
-    if (body.includes('kody-codereview-completed'))
-        return 'review';
+    if (!isKodyReviewOutput(body)) return 'review';
+    if (body.includes('kody-codereview-completed')) return 'review';
     // A severity badge means this is a FINDING, whatever words
     // it happens to contain. License notices never carry one.
     //
@@ -67,7 +68,7 @@ export function classifyKodyComment(
     // your plan" / "BYOK" wording. Loose match so minor
     // copy edits don't silently flip the classification.
     if (
-        /trial.*ended|trial.*expired|byok|activate.*plan|talk.*to.*our.*founders/i.test(
+        /trial.*ended|trial.*expired|byok|activate.*plan|talk.*to.*our.*founders|kodus credits/i.test(
             body,
         )
     ) {
@@ -94,9 +95,8 @@ export class GitHubProvider extends BaseProvider {
         tokenOverride?: string;
     }) {
         super();
-        // tokenOverride is the round-robin token the matrix runner assigns
-        // from the bot-account pool (see lib/github-token-pool.ts). Falls back
-        // to the single GH_TEST_TOKEN when no pool is configured.
+        // tokenOverride is normally a freshly minted App installation token.
+        // GH_TEST_TOKEN remains the fallback for human-authored events.
         this.token = opts?.tokenOverride || requireEnv('GH_TEST_TOKEN');
         // Subclasses (notably GitHubAppProvider) need to target a
         // DIFFERENT repo than the PAT-driven default — the GitHub App
@@ -251,6 +251,63 @@ export class GitHubProvider extends BaseProvider {
         } finally {
             prepared.cleanup();
         }
+    }
+
+    async pushFollowupCommit(
+        pr: OpenedPR,
+        files: Record<string, string>,
+        commitMessage: string,
+    ): Promise<void> {
+        await pushFollowupCommit({
+            cloneUrl: this.cloneUrl(),
+            branch: pr.branch,
+            files,
+            commitMessage,
+        });
+    }
+
+    async listReviewCommentBodies(
+        pr: { number: number },
+        opts: { sinceIso: string; path?: string },
+    ): Promise<string[]> {
+        await this.refreshInstallationTokenIfNeeded();
+        const since = encodeURIComponent(opts.sinceIso);
+        const [reviewComments, issueComments] = await Promise.all([
+            this.conditionalGet<{ id: number; body: string; path?: string }[]>(
+                `${this.apiBase}/repos/${this.repoFullName}/pulls/${pr.number}/comments?since=${since}`,
+            ),
+            this.conditionalGet<{ id: number; body: string }[]>(
+                `${this.apiBase}/repos/${this.repoFullName}/issues/${pr.number}/comments?since=${since}`,
+            ),
+        ]);
+        const isRealReview = (body: string) =>
+            !body.toLowerCase().startsWith('@kody') &&
+            classifyKodyComment(body) === 'review';
+
+        const inline = this.listOrThrow(
+            reviewComments,
+            'github:listReviewCommentBodies:reviewComments',
+        ).filter(
+            (c) =>
+                (opts.path === undefined || c.path === opts.path) &&
+                isRealReview(c.body ?? ''),
+        );
+        // Issue/PR-level comments are never anchored to a file — when the
+        // caller scopes the query to a path, only inline comments can match
+        // it, so issue-level comments (things like the generic "Code Review
+        // Completed!" wrap-up, which classifyKodyComment reads as 'review')
+        // must be excluded entirely rather than always tagging along. Without
+        // this, a scenario asserting "no contradiction on file X" could be
+        // failed by an unrelated PR-level comment wrongly attributed to X.
+        const issueLevel =
+            opts.path === undefined
+                ? this.listOrThrow(
+                      issueComments,
+                      'github:listReviewCommentBodies:issueComments',
+                  ).filter((c) => isRealReview(c.body ?? ''))
+                : [];
+
+        return [...inline, ...issueLevel].map((c) => c.body ?? '');
     }
 
     async openPRFromBranches(args: OpenPRFromBranchesArgs): Promise<OpenedPR> {
@@ -453,9 +510,8 @@ export class GitHubProvider extends BaseProvider {
     private async refreshInstallationTokenIfNeeded(): Promise<void> {
         if (!this.token.startsWith('ghs_')) return;
         try {
-            const { githubAppToken } = await import(
-                '../lib/github-app-token.js'
-            );
+            const { githubAppToken } =
+                await import('../lib/github-app-token.js');
             const fresh = await githubAppToken();
             if (fresh) this.token = fresh;
         } catch {
@@ -603,10 +659,16 @@ export class GitHubProvider extends BaseProvider {
                     return { reviews, licenseNotice };
                 };
                 const rcRes = filterNonTrigger(
-                    this.listOrThrow(reviewComments, 'github:pollForReview:reviewComments'),
+                    this.listOrThrow(
+                        reviewComments,
+                        'github:pollForReview:reviewComments',
+                    ),
                 );
                 const icRes = filterNonTrigger(
-                    this.listOrThrow(issueComments, 'github:pollForReview:issueComments'),
+                    this.listOrThrow(
+                        issueComments,
+                        'github:pollForReview:issueComments',
+                    ),
                 );
                 const reviewsList = this.listOrThrow(
                     reviews,
@@ -847,7 +909,7 @@ export class GitHubProvider extends BaseProvider {
                     if (body.toLowerCase().startsWith('@piku')) continue;
                     // Skip code-review status/findings — conversation replies
                     // don't carry the review discriminator.
-                    if (body.includes('<!-- kody-codereview')) continue;
+                    if (isKodyReviewOutput(body)) continue;
                     if (!body.trim()) continue;
                     return { id: String(c.id), body: body.slice(0, 600) };
                 }
@@ -855,6 +917,66 @@ export class GitHubProvider extends BaseProvider {
             },
             { timeoutSec: opts.timeoutSec ?? 300, intervalSec: 10 },
         );
+    }
+
+    // Review threads Kody opened: root review comments carrying its marker,
+    // minus conversation answers. GitHub points every reply at the root.
+    async listKodyThreads(prNumber: number): Promise<ReviewThread[]> {
+        return (await this.reviewComments(prNumber))
+            .filter((c) => !c.in_reply_to_id && isKodyFinding(c.body ?? ''))
+            .map((c) => ({ id: String(c.id), body: c.body ?? '' }));
+    }
+
+    async replyInThread(
+        prNumber: number,
+        threadId: string,
+        body: string,
+        token: string,
+    ): Promise<{ id: string }> {
+        const resp = await http<{ id: number }>(
+            `${this.apiBase}/repos/${this.repoFullName}/pulls/${prNumber}/comments/${threadId}/replies`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28',
+                },
+                body: { body },
+            },
+        );
+        ensureOk(resp, 'github:replyInThread');
+        return { id: String(resp.body.id) };
+    }
+
+    async threadComments(
+        prNumber: number,
+        threadId: string,
+    ): Promise<ReviewThread[]> {
+        return (await this.reviewComments(prNumber))
+            .filter(
+                (c) =>
+                    String(c.id) === threadId ||
+                    String(c.in_reply_to_id) === threadId,
+            )
+            .sort((a, b) => a.created_at.localeCompare(b.created_at))
+            .map((c) => ({ id: String(c.id), body: c.body ?? '' }));
+    }
+
+    private async reviewComments(prNumber: number) {
+        const resp = await http<
+            {
+                id: number;
+                in_reply_to_id?: number;
+                body: string;
+                created_at: string;
+            }[]
+        >(
+            `${this.apiBase}/repos/${this.repoFullName}/pulls/${prNumber}/comments?per_page=100`,
+            { headers: this.headers() },
+        );
+        ensureOk(resp, 'github:reviewComments');
+        return resp.body ?? [];
     }
 
     // Merges a PR (kody-issues generation and rule-file sync fire off the
@@ -915,34 +1037,31 @@ export class GitHubProvider extends BaseProvider {
     // long-lived base PAT; the assigned token keeps serving the harness's
     // own API calls (clone, PRs, polling).
     //
-    // Prefer a DEDICATED integration account (GH_INTEGRATION_TOKEN) so the
+    // Use a DEDICATED integration account (GH_INTEGRATION_TOKEN) so the
     // product's own GitHub calls (read diff/files, post comments, resolve
     // threads) draw on a separate 5,000 req/hr budget from the harness
-    // driver pool. Without it, the product and the harness both hammer
+    // driver credential. Without it, the product and the harness both hammer
     // GH_TEST_TOKEN — that single account's quota was tripping mid-cell and
-    // cascading scenarios into rate-limit SKIPs. Falls back to GH_TEST_TOKEN
-    // when the dedicated secret is unset, so this is a no-op until wired.
+    // cascading scenarios into rate-limit SKIPs. There is intentionally no
+    // fallback: storing the harness credential caused opaque HTTP 400s when
+    // that credential had different scopes.
     authToken(): string {
         // Installation tokens are prefixed ghs_ and die in ~1h. NOTHING with
         // that prefix may become the stored integration credential — not the
         // runner-assigned token, and not a misconfigured secret either (a
         // silent 1h credential in CI config would fail mid-run).
-        const durable =
-            process.env.GH_INTEGRATION_TOKEN || process.env.GH_TEST_TOKEN;
-        if (durable) {
-            if (durable.startsWith('ghs_')) {
-                throw new Error(
-                    'The GitHub integration credential (GH_INTEGRATION_TOKEN / GH_TEST_TOKEN) is a GitHub App installation token (ghs_) — it must be a durable PAT',
-                );
-            }
-            return durable;
-        }
-        if (this.token.startsWith('ghs_')) {
+        const durable = process.env.GH_INTEGRATION_TOKEN;
+        if (!durable) {
             throw new Error(
-                'GH_TEST_TOKEN (durable PAT) is required when the harness runs on a GitHub App installation token — the integration credential must not expire',
+                'GH_INTEGRATION_TOKEN is required for provider=github; it is the durable PAT stored by the product',
             );
         }
-        return this.token;
+        if (durable.startsWith('ghs_')) {
+            throw new Error(
+                'GH_INTEGRATION_TOKEN is a GitHub App installation token (ghs_) — it must be a durable PAT',
+            );
+        }
+        return durable;
     }
 
     // Identity, not traffic — and the two need DIFFERENT credentials.

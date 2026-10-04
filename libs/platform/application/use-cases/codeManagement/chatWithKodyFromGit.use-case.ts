@@ -1,8 +1,9 @@
 import { createThreadId } from '@libs/common/utils/thread-id';
 import { createLogger } from '@libs/core/log/logger';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 
 import { BusinessRulesValidationAgentUseCase } from '@libs/agents/application/use-cases/business-rules-validation-agent.use-case';
+import { NO_TASK_MCP_SENTINEL } from '@libs/agents/infrastructure/services/agents/business-rules-validation/no-task-mcp-sentinel';
 import { ConversationAgentUseCase } from '@libs/agents/application/use-cases/conversation-agent.use-case';
 import { PlatformType } from '@libs/core/domain/enums/platform-type.enum';
 import { OrganizationAndTeamData } from '@libs/core/infrastructure/config/types/general/organizationAndTeamData';
@@ -17,36 +18,68 @@ import {
     SANDBOX_LEASE_MANAGER_TOKEN,
     buildPrKey,
 } from '@libs/sandbox/domain/contracts/sandbox-lease-manager.contract';
-import { CreateSandboxParams } from '@libs/sandbox/domain/contracts/sandbox.provider';
+import {
+    CreateSandboxParams,
+    SandboxInstance,
+} from '@libs/sandbox/domain/contracts/sandbox.provider';
+import { NULL_SANDBOX_INSTANCE } from '@libs/sandbox/infrastructure/providers/null-sandbox.service';
 // Shared with libs/code-review/.../commentAnalysis.service.ts so the
 // read-side filter that drops Piku's own past comments stays in sync
 // with what every provider emitter actually writes.
-import { KODY_IDENTIFIERS } from '@libs/common/utils/kody-identifiers';
+import {
+    isKodyAuthoredBody,
+    KODY_IDENTIFIERS,
+} from '@libs/common/utils/kody-identifiers';
+import {
+    IPullRequestsService,
+    PULL_REQUESTS_SERVICE_TOKEN,
+} from '@libs/platformData/domain/pullRequests/contracts/pullRequests.service.contracts';
+
+import { LLM_TASK } from '@libs/llm/byok-config';
+import { llmErrorLogLevel } from '@libs/llm/error-classifier';
 
 import { PlatformResponsePolicyFactory } from './policies/platform-response.policy';
+import {
+    classifyReplyAddressedToKody,
+    ImplicitReplySilence,
+    implicitReplyGate,
+    isBotAuthor,
+    ThreadMessage,
+} from './implicit-reply';
 
-// Constants
-const KODY_COMMANDS = {
-    BUSINESS_LOGIC_VALIDATION: '@piku -v business-logic',
-    KODY_MENTION: '@piku',
-    KODUS_MENTION: '@kodus',
-} as const;
+// Keep existing mentions working alongside the fork's short name and app login.
+const BOT_MENTION_PATTERN = /^\s*@(?:piku-cat|piku|kody|kodus)(?![\w-])/i;
 
 const ACKNOWLEDGMENT_MESSAGES = {
     DEFAULT: 'Analyzing your request...',
     MARKDOWN_SUFFIX: '<!-- kody-codereview -->\n&#8203;',
     BUSINESS_LOGIC_INVALID_CONTEXT:
         'The "@piku -v business-logic" command can only be used in the general PR conversation, not in code suggestions or inline comments. Please use it in the main PR discussion thread.',
+    // The agent returns NO_TASK_MCP_SENTINEL (an internal marker, never meant
+    // to reach a user) when no task-management MCP is connected. The
+    // AUTOMATIC pipeline path (BusinessLogicValidationStage) already checks
+    // for it and skips silently — this EXPLICIT command path has no silent
+    // option (an explicit ask deserves a visible reply, same reasoning as
+    // CONVERSATION_PLAN_GATE_MESSAGE below), so it must translate the
+    // sentinel into this message instead of ever posting it raw.
+    BUSINESS_LOGIC_NO_TASK_MCP:
+        'No task-management MCP (Jira, GitHub Issues, Linear, Notion, ' +
+        'ClickUp, etc.) is connected for this organization, so business ' +
+        'rules validation has nothing to compare the PR against. Connect ' +
+        'one in the piku-cat settings to use this command.',
 } as const;
 
+const KODY_CONVERSATION_MARKER =
+    '<!-- kody-codereview -->\n<!-- kody-conversation -->';
+
 /**
- * Posted instead of running the agent when the org may not use Kodus-funded
+ * Posted instead of running the agent when the org may not use piku-cat-funded
  * LLM calls (cloud, past trial, no BYOK). A visible pointer beats silence:
  * without it the dev reads the missing reply as Piku being broken.
  */
 const CONVERSATION_PLAN_GATE_MESSAGE =
     "I can't reply right now: your organization's trial has ended and no " +
-    'LLM API key (BYOK) is configured. Connect your key in the Kodus ' +
+    'LLM API key (BYOK) is configured. Connect your key in the piku-cat ' +
     'settings to keep chatting with Piku.';
 
 enum CommandType {
@@ -63,10 +96,14 @@ interface CommandHandler {
 
 class BusinessLogicValidationCommandHandler implements CommandHandler {
     canHandle(userQuestion: string): boolean {
+        const mention = BOT_MENTION_PATTERN.exec(userQuestion);
+        if (!mention) return false;
+
         return userQuestion
+            .slice(mention[0].length)
             .toLowerCase()
             .trim()
-            .startsWith(KODY_COMMANDS.BUSINESS_LOGIC_VALIDATION);
+            .startsWith('-v business-logic');
     }
 
     getCommandType(): CommandType {
@@ -78,9 +115,7 @@ class ConversationCommandHandler implements CommandHandler {
     canHandle(userQuestion: string): boolean {
         const trimmedQuestion = userQuestion.toLowerCase().trim();
 
-        const startsWithMention =
-            trimmedQuestion.startsWith(KODY_COMMANDS.KODY_MENTION) ||
-            trimmedQuestion.startsWith(KODY_COMMANDS.KODUS_MENTION);
+        const startsWithMention = BOT_MENTION_PATTERN.test(trimmedQuestion);
 
         if (!startsWithMention) {
             return false;
@@ -124,6 +159,8 @@ interface Repository {
     name: string;
     id: string;
     owner?: string;
+    /** Canonical provider path, e.g. GitLab's `namespace/project-slug`. */
+    fullName?: string;
 }
 
 interface Sender {
@@ -148,14 +185,18 @@ interface Comment {
     };
     path?: string;
     deleted?: boolean;
-    user?: { login?: string; display_name?: string };
+    user?: { login?: string; display_name?: string; type?: string };
     author?: {
         name?: string;
         username?: string;
         display_name?: string;
         id?: string;
+        bot?: boolean;
+        type?: string;
     };
     diff_hunk?: string;
+    /** Normalized provider discussion identifier (GitLab mapper output). */
+    discussionId?: string;
     discussion_id?: string;
     originalCommit?: any;
     subject_type?: string;
@@ -163,6 +204,15 @@ interface Comment {
     threadId?: number;
     thread?: any;
     commentType?: string;
+    system?: boolean;
+    createdAt?: string;
+    created_at?: string;
+}
+
+interface OriginatingSuggestion {
+    suggestionId?: string;
+    label?: string;
+    brokenKodyRulesIds?: string[];
 }
 
 @Injectable()
@@ -178,6 +228,12 @@ export class ChatWithKodyFromGitUseCase {
 
         @Inject(SANDBOX_LEASE_MANAGER_TOKEN)
         private readonly leaseManager: ISandboxLeaseManager,
+
+        // Resolves the stored suggestion behind a Piku comment. Optional so
+        // lean wirings and specs still construct the use case.
+        @Optional()
+        @Inject(PULL_REQUESTS_SERVICE_TOKEN)
+        private readonly pullRequestsService?: IPullRequestsService,
     ) {}
 
     async execute(params: WebhookParams): Promise<void> {
@@ -278,6 +334,23 @@ export class ChatWithKodyFromGitUseCase {
                     headRef,
                     baseRef,
                     defaultBranch,
+                );
+            }
+
+            // No command in the body: the handler forwarded it as a reply in
+            // an existing thread (#1946). Piku answers only when it started
+            // that thread and the reply is directed at it.
+            if (commandType === CommandType.UNKNOWN) {
+                await this.handleConversationFlow(
+                    params,
+                    repository,
+                    pullRequestNumber,
+                    pullRequestDescription,
+                    organizationAndTeamData,
+                    headRef,
+                    baseRef,
+                    defaultBranch,
+                    true,
                 );
             }
         } catch (error) {
@@ -649,6 +722,7 @@ export class ChatWithKodyFromGitUseCase {
         headRef?: string,
         baseRef?: string,
         defaultBranch?: string,
+        implicit = false,
     ): Promise<void> {
         const allComments =
             await this.codeManagementService.getPullRequestReviewComment({
@@ -699,10 +773,31 @@ export class ChatWithKodyFromGitUseCase {
             return;
         }
 
-        if (this.shouldIgnoreComment(comment, params.platformType)) {
+        const silenceContext = {
+            organizationAndTeamData,
+            repository: repository.name,
+            pullRequestNumber,
+            commentId: comment.id,
+            platformType: params.platformType,
+        };
+
+        let replyThread: ThreadMessage[] | undefined;
+
+        if (implicit) {
+            replyThread = this.buildReplyThread(
+                comment,
+                normalizedComments,
+                params.platformType,
+            );
+            const silence = implicitReplyGate(replyThread);
+            if (silence) {
+                this.logImplicitReplySilence(silence, silenceContext);
+                return;
+            }
+        } else if (this.shouldIgnoreComment(comment, params.platformType)) {
             this.logger.log({
                 message:
-                    'Comment made by Piku or does not mention Piku/Kodus. Ignoring.',
+                    'Comment made by Piku or does not mention Piku/piku-cat. Ignoring.',
                 context: ChatWithKodyFromGitUseCase.name,
                 metadata: {
                     repository: repository.name,
@@ -714,8 +809,8 @@ export class ChatWithKodyFromGitUseCase {
 
         // Who pays for this conversation — same policy as code review:
         // BYOK always allowed (any plan); managed trial and development mode
-        // run on the Kodus default model; cloud orgs past the trial without
-        // BYOK are not funded by Kodus — reply with a pointer to connect a
+        // run on the piku-cat default model; cloud orgs past the trial without
+        // BYOK are not funded by piku-cat — reply with a pointer to connect a
         // key instead of running the agent.
         //
         // userGitId is intentionally omitted: the gate is an ORG-level plan
@@ -736,6 +831,13 @@ export class ChatWithKodyFromGitUseCase {
         const permissionBlocked =
             !permission.allowed &&
             permission.errorType !== ValidationErrorType.NOT_ERROR;
+
+        // Nobody asked for Piku here, so the BYOK pointer would land on every
+        // reply of every thread. Stay quiet; the log carries the reason.
+        if (permissionBlocked && implicit) {
+            this.logImplicitReplySilence('plan_blocked', silenceContext);
+            return;
+        }
 
         if (permissionBlocked) {
             this.logger.warn({
@@ -758,10 +860,20 @@ export class ChatWithKodyFromGitUseCase {
                     params.payload?.object_attributes?.discussion_id ??
                     comment.discussionId,
                 threadId: comment.threadId,
-                body: CONVERSATION_PLAN_GATE_MESSAGE,
+                body: this.withKodyMarker(
+                    CONVERSATION_PLAN_GATE_MESSAGE,
+                    params.platformType,
+                ),
                 repository,
                 prNumber: pullRequestNumber,
             });
+            return;
+        }
+
+        if (
+            implicit &&
+            !(await this.isReplyAddressedToKody(replyThread, silenceContext))
+        ) {
             return;
         }
 
@@ -844,9 +956,17 @@ export class ChatWithKodyFromGitUseCase {
 
         const gitUser = this.getGitUser(params);
 
+        const originalSuggestion = await this.resolveOriginatingSuggestion({
+            organizationAndTeamData,
+            repositoryId: repository.id,
+            pullRequestNumber,
+            originalKodyCommentId: originalKodyComment?.id,
+        });
+
         const prepareContext = this.prepareContext({
             comment,
             originalKodyComment,
+            originalSuggestion,
             gitUser,
             othersReplies,
             pullRequestNumber,
@@ -904,7 +1024,7 @@ export class ChatWithKodyFromGitUseCase {
                         params.payload?.object_attributes?.discussion_id ??
                         comment.discussionId,
                     threadId: comment.threadId,
-                    body: response,
+                    body: this.withKodyMarker(response, params.platformType),
                     repository,
                     prNumber: pullRequestNumber,
                 });
@@ -958,7 +1078,7 @@ export class ChatWithKodyFromGitUseCase {
                     organizationAndTeamData,
                     parentId,
                     commentId: ackResponseId,
-                    body: response,
+                    body: this.withKodyMarker(response, params.platformType),
                     prNumber: pullRequestNumber,
                     repository,
                 });
@@ -1141,6 +1261,11 @@ export class ChatWithKodyFromGitUseCase {
                 return {
                     name: params.payload?.project?.name,
                     id: params.payload?.project?.id,
+                    // `namespace` is GitLab's display name (for example,
+                    // "Junior Sartori"), not necessarily its URL path. Keep
+                    // the canonical path so GitLab clones use the project
+                    // slug, rather than an encoded display name.
+                    fullName: params.payload?.project?.path_with_namespace,
                     owner:
                         params.payload?.project?.namespace ||
                         params.payload?.project?.path_with_namespace
@@ -1381,30 +1506,42 @@ export class ChatWithKodyFromGitUseCase {
             case PlatformType.GITHUB:
                 // Se for issue_comment, pegar description do issue
                 if (params.event === 'issue_comment') {
-                    description = params.payload?.issue?.body || '';
+                    description = this.normalizeDescription(
+                        params.payload?.issue?.body,
+                    );
                 } else {
                     // Caso normal (PR webhook)
                     description =
-                        params.payload?.pull_request?.body ||
-                        params.payload?.pull_request?.description ||
-                        '';
+                        this.normalizeDescription(
+                            params.payload?.pull_request?.body,
+                        ) ||
+                        this.normalizeDescription(
+                            params.payload?.pull_request?.description,
+                        );
                 }
                 break;
             case PlatformType.GITLAB:
                 description =
-                    params.payload?.merge_request?.description ||
-                    params.payload?.merge_request?.body ||
-                    '';
+                    this.normalizeDescription(
+                        params.payload?.merge_request?.description,
+                    ) ||
+                    this.normalizeDescription(
+                        params.payload?.merge_request?.body,
+                    );
                 break;
             case PlatformType.BITBUCKET:
                 description =
-                    params.payload?.pullrequest?.description ||
-                    params.payload?.pullrequest?.summary ||
-                    '';
+                    this.normalizeDescription(
+                        params.payload?.pullrequest?.description,
+                    ) ||
+                    this.normalizeDescription(
+                        params.payload?.pullrequest?.summary,
+                    );
                 break;
             case PlatformType.AZURE_REPOS:
-                description =
-                    params.payload?.resource?.pullRequest?.description || '';
+                description = this.normalizeDescription(
+                    params.payload?.resource?.pullRequest?.description,
+                );
                 break;
             default:
                 this.logger.warn({
@@ -1430,6 +1567,35 @@ export class ChatWithKodyFromGitUseCase {
         return description;
     }
 
+    /**
+     * Normalizes a PR description value into a plain string.
+     *
+     * Some platforms (notably Bitbucket Cloud and Bitbucket Data Center) send the
+     * description as an object with `raw`/`html`/`markup` fields instead of a bare
+     * string. This helper accepts both shapes so the downstream code never calls
+     * `.substring()` on an object.
+     */
+    private normalizeDescription(value: unknown): string {
+        if (typeof value === 'string') {
+            return value;
+        }
+
+        if (value && typeof value === 'object') {
+            const record = value as Record<string, unknown>;
+            if (typeof record.raw === 'string') {
+                return record.raw;
+            }
+            if (typeof record.text === 'string') {
+                return record.text;
+            }
+            if (typeof record.html === 'string') {
+                return record.html;
+            }
+        }
+
+        return '';
+    }
+
     private getReviewThreadByCommentId(
         commentId: number,
         reviewComments: any[],
@@ -1443,6 +1609,20 @@ export class ChatWithKodyFromGitUseCase {
                         (t) => t.threadId === threadId,
                     );
                     if (thread) {
+                        // getPullRequestReviewComment groups Azure comments
+                        // by thread and only puts comments AFTER the first
+                        // one into `.replies` — the thread's root comment is
+                        // kept on `thread` itself. A brand-new `@piku
+                        // <question>` (not a reply to an existing thread) IS
+                        // that root comment, so it must be matched here too;
+                        // searching only `.replies` silently drops it.
+                        if (thread.id === commentId) {
+                            return {
+                                ...thread,
+                                thread,
+                            };
+                        }
+
                         const targetComment = thread.replies?.find(
                             (c: any) => c.id === commentId,
                         );
@@ -1527,6 +1707,180 @@ export class ChatWithKodyFromGitUseCase {
             });
             return null;
         }
+    }
+
+    /**
+     * The reply's thread, oldest first, ending at the reply itself. Undefined
+     * when the comment is not a reply or its thread cannot be rebuilt from what
+     * the platform returned (Bitbucket Data Center carries no parent link).
+     */
+    private buildReplyThread(
+        comment: Comment,
+        allComments: Comment[],
+        platformType: PlatformType,
+    ): ThreadMessage[] | undefined {
+        const comments = allComments ?? [];
+        let members: Comment[];
+
+        switch (platformType) {
+            case PlatformType.GITHUB: {
+                // GitHub points every reply at the thread's first comment.
+                const rootId = comment.in_reply_to_id;
+                if (!rootId) return undefined;
+                members = comments.filter(
+                    (c) => c.id === rootId || c.in_reply_to_id === rootId,
+                );
+                break;
+            }
+            case PlatformType.GITLAB: {
+                const discussionId = comment.discussionId;
+                if (!discussionId) return undefined;
+                members = comments.filter(
+                    (c) =>
+                        (c.discussionId ?? c.discussion_id) === discussionId &&
+                        !c.system,
+                );
+                break;
+            }
+            case PlatformType.BITBUCKET: {
+                if (!comment.parent?.id) return undefined;
+                const byId = new Map(comments.map((c) => [c.id, c]));
+                const rootOf = (c: Comment) => {
+                    let current = c;
+                    const seen = new Set<number>();
+                    while (current?.parent?.id && !seen.has(current.id)) {
+                        seen.add(current.id);
+                        const parent = byId.get(current.parent.id);
+                        if (!parent) break;
+                        current = parent;
+                    }
+                    return current?.id;
+                };
+                const rootId = rootOf(comment);
+                members = comments.filter((c) => rootOf(c) === rootId);
+                break;
+            }
+            case PlatformType.AZURE_REPOS: {
+                const thread = comment.thread;
+                if (!thread) return undefined;
+                members = [thread, ...(thread.replies ?? [])];
+                break;
+            }
+            default:
+                return undefined;
+        }
+
+        const ordered = [...members].sort(
+            (a, b) =>
+                new Date(a.createdAt ?? a.created_at ?? 0).getTime() -
+                new Date(b.createdAt ?? b.created_at ?? 0).getTime(),
+        );
+        const replyIndex = ordered.findIndex((c) => c.id === comment.id);
+        if (replyIndex < 0) return undefined;
+
+        return ordered.slice(0, replyIndex + 1).map((c) => {
+            const login =
+                platformType === PlatformType.GITHUB
+                    ? c.user?.login
+                    : (c.author?.username ?? c.author?.name);
+
+            return {
+                id: c.id,
+                author:
+                    platformType === PlatformType.GITHUB
+                        ? c.user?.login
+                        : (c.author?.name ?? c.author?.username),
+                isKody: this.isKodyComment(
+                    { ...c, body: c.body ?? '' },
+                    platformType,
+                ),
+                isBot: isBotAuthor({
+                    login,
+                    type: c.user?.type ?? c.author?.type,
+                    bot: c.author?.bot,
+                }),
+                body: c.body ?? '',
+            };
+        });
+    }
+
+    /** Runs the classifier; any failure means silence (fail closed). */
+    private async isReplyAddressedToKody(
+        thread: ThreadMessage[],
+        silenceContext: {
+            organizationAndTeamData: OrganizationAndTeamData;
+            pullRequestNumber: number;
+            platformType: PlatformType;
+        } & Record<string, unknown>,
+    ): Promise<boolean> {
+        try {
+            const byokConfig =
+                (await this.permissionValidationService.resolveTaskSlot(
+                    silenceContext.organizationAndTeamData,
+                    LLM_TASK.conversation,
+                )) ?? undefined;
+
+            const addressed = await classifyReplyAddressedToKody({
+                thread,
+                byokConfig,
+                organizationAndTeamData: silenceContext.organizationAndTeamData,
+                prNumber: silenceContext.pullRequestNumber,
+                platformType: silenceContext.platformType,
+            });
+
+            if (!addressed) {
+                this.logImplicitReplySilence('classified_no', silenceContext);
+            }
+
+            return addressed;
+        } catch (error) {
+            this.logImplicitReplySilence(
+                'classifier_error',
+                silenceContext,
+                error,
+            );
+            return false;
+        }
+    }
+
+    /**
+     * One structured line per unanswered unmentioned reply, so a path that
+     * went quiet (classifier_error climbing for an org) can be queried.
+     */
+    private logImplicitReplySilence(
+        reason: ImplicitReplySilence,
+        silenceContext: Record<string, unknown>,
+        error?: unknown,
+    ): void {
+        const level =
+            reason === 'classifier_error' ? llmErrorLogLevel(error) : 'log';
+
+        this.logger[level]({
+            message: `Unmentioned reply left unanswered: ${reason}`,
+            context: ChatWithKodyFromGitUseCase.name,
+            metadata: { implicitReplySilence: reason, ...silenceContext },
+            error: error instanceof Error ? error : undefined,
+        });
+    }
+
+    /**
+     * Piku's answers carry the same hidden marker as its review comments, so
+     * the reply webhook they trigger is recognized as Piku's own without
+     * depending on the bot's login. The second marker tells an answer apart
+     * from a finding for anything reading the PR (the e2e harness does).
+     * Bitbucket renders raw HTML as text, so there the answer opens with the
+     * visible chip its findings already carry; without it, a later reply's
+     * thread would show Piku's earlier answer as written by the customer's
+     * account.
+     */
+    private withKodyMarker(body: string, platformType: PlatformType): string {
+        if (typeof body !== 'string' || isKodyAuthoredBody(body)) {
+            return body;
+        }
+        if (platformType === PlatformType.BITBUCKET) {
+            return `\`${KODY_IDENTIFIERS.MARKDOWN_IDENTIFIERS.BITBUCKET}\` ${body}`;
+        }
+        return `${body}\n\n${KODY_CONVERSATION_MARKER}`;
     }
 
     private shouldIgnoreComment(
@@ -1684,8 +2038,7 @@ export class ChatWithKodyFromGitUseCase {
                 return allComments.filter(
                     (reply) =>
                         ((reply.in_reply_to_id !== undefined &&
-                            reply.in_reply_to_id ===
-                                comment.in_reply_to_id) ||
+                            reply.in_reply_to_id === comment.in_reply_to_id) ||
                             reply.discussionId === comment.discussionId) &&
                         !this.isKodyComment(reply, platformType),
                 );
@@ -1734,9 +2087,78 @@ export class ChatWithKodyFromGitUseCase {
         }
     }
 
+    /**
+     * The stored suggestion the Piku comment came from — carries the rule ids a
+     * refinement needs, which the PR thread itself never exposes. Best-effort:
+     * a miss just means the agent works from the comment text alone.
+     */
+    private async resolveOriginatingSuggestion({
+        organizationAndTeamData,
+        repositoryId,
+        pullRequestNumber,
+        originalKodyCommentId,
+    }: {
+        organizationAndTeamData: OrganizationAndTeamData;
+        repositoryId?: string;
+        pullRequestNumber?: number;
+        originalKodyCommentId?: string | number;
+    }): Promise<OriginatingSuggestion | undefined> {
+        if (
+            !this.pullRequestsService ||
+            !repositoryId ||
+            pullRequestNumber == null ||
+            originalKodyCommentId == null
+        ) {
+            return undefined;
+        }
+
+        try {
+            const pullRequest =
+                await this.pullRequestsService.findByNumberAndRepositoryId(
+                    pullRequestNumber,
+                    repositoryId,
+                    organizationAndTeamData,
+                );
+
+            const commentId = String(originalKodyCommentId);
+            // Line-level findings hang off files[]; PR-level ones live in their
+            // own array. Both carry the rule ids, so search both.
+            const suggestion = [
+                ...(pullRequest?.files?.flatMap(
+                    (file) => file.suggestions ?? [],
+                ) ?? []),
+                ...(pullRequest?.prLevelSuggestions ?? []),
+            ].find((s) => String(s?.comment?.id) === commentId);
+
+            if (!suggestion) {
+                return undefined;
+            }
+
+            return {
+                suggestionId: suggestion.id,
+                label: suggestion.label,
+                brokenKodyRulesIds: suggestion.brokenKodyRulesIds,
+            };
+        } catch (error) {
+            this.logger.warn({
+                message:
+                    'Could not resolve the suggestion behind the Piku comment',
+                context: ChatWithKodyFromGitUseCase.name,
+                metadata: {
+                    organizationAndTeamData,
+                    pullRequestNumber,
+                    originalKodyCommentId,
+                },
+                error,
+            });
+            return undefined;
+        }
+    }
+
     private prepareContext({
         comment,
         originalKodyComment,
+        originalSuggestion,
         gitUser,
         othersReplies,
         pullRequestNumber,
@@ -1750,6 +2172,7 @@ export class ChatWithKodyFromGitUseCase {
     }: {
         comment?: Comment;
         originalKodyComment?: Comment;
+        originalSuggestion?: OriginatingSuggestion;
         gitUser?: { id: number; username: string };
         othersReplies?: Comment[];
         repository?: Repository;
@@ -1762,7 +2185,8 @@ export class ChatWithKodyFromGitUseCase {
         customInstructions?: string;
     }): any {
         const userQuestion =
-            comment.body.trim() === '@piku'
+            BOT_MENTION_PATTERN.test(comment.body) &&
+            comment.body.replace(BOT_MENTION_PATTERN, '').trim() === ''
                 ? 'The user did not ask any questions. Ask them what they would like to know about the codebase or suggestions for code changes.'
                 : comment.body;
 
@@ -1787,6 +2211,9 @@ export class ChatWithKodyFromGitUseCase {
                     suggestionFilePath: comment?.path,
                     suggestionText: originalKodyComment?.body,
                     diffHunk: originalKodyComment?.diff_hunk,
+                    suggestionId: originalSuggestion?.suggestionId,
+                    label: originalSuggestion?.label,
+                    brokenKodyRulesIds: originalSuggestion?.brokenKodyRulesIds,
                 },
                 othersReplies: othersReplies.map((reply) => ({
                     historyConversationText: reply.body,
@@ -1796,10 +2223,7 @@ export class ChatWithKodyFromGitUseCase {
     }
 
     private mentionsKody(comment: Comment): boolean {
-        const commentBody = comment.body.toLowerCase();
-        return [KODY_COMMANDS.KODY_MENTION, KODY_COMMANDS.KODUS_MENTION].some(
-            (keyword) => commentBody.startsWith(keyword),
-        );
+        return BOT_MENTION_PATTERN.test(comment.body);
     }
 
     private isKodyComment(
@@ -1819,7 +2243,23 @@ export class ChatWithKodyFromGitUseCase {
         return (
             KODY_IDENTIFIERS.LOGIN_KEYWORDS.some((keyword) =>
                 login?.includes(keyword),
-            ) || body.includes(bodyWithoutMarkdown)
+            ) ||
+            body.includes(bodyWithoutMarkdown) ||
+            this.isKodyFixedMessage(comment.body)
+        );
+    }
+
+    /**
+     * Texts Piku posts with no marker on Bitbucket, where raw HTML would show.
+     * There Piku often posts through the customer's own account, so without
+     * this its "Analyzing your request..." acknowledgment reads as a new human
+     * reply in its thread and gets answered.
+     */
+    private isKodyFixedMessage(body: string): boolean {
+        const text = (body ?? '').replace(/[\u200B\s]+$/u, '').trim();
+        return (
+            text === ACKNOWLEDGMENT_MESSAGES.DEFAULT ||
+            text === CONVERSATION_PLAN_GATE_MESSAGE
         );
     }
 
@@ -1933,7 +2373,20 @@ export class ChatWithKodyFromGitUseCase {
         organizationAndTeamData: OrganizationAndTeamData;
         thread: any;
     }): Promise<string> {
-        return await this.businessRulesValidationAgentUseCase.execute(context);
+        const result =
+            await this.businessRulesValidationAgentUseCase.execute(context);
+
+        // NO_TASK_MCP_SENTINEL is an internal marker, never meant to reach a
+        // PR comment — the pipeline path guards it, this explicit-command
+        // path did not (#leak: it was reaching users verbatim as literal
+        // "__NO_TASK_MCP__" text). Translate it into a readable message.
+        if (
+            result === NO_TASK_MCP_SENTINEL
+        ) {
+            return ACKNOWLEDGMENT_MESSAGES.BUSINESS_LOGIC_NO_TASK_MCP;
+        }
+
+        return result;
     }
 
     private async handleConversation(context: {
@@ -1965,12 +2418,31 @@ export class ChatWithKodyFromGitUseCase {
             organizationAndTeamData,
         );
 
-        const { sandbox, leaseId } = await this.leaseManager.acquire(
-            prKey,
-            'conversation',
-            5 * 60 * 1000,
-            cloneParams,
-        );
+        // A sandbox enriches the answer with repository-native tools, but it
+        // must not be a prerequisite for replying. For example, an inaccessible
+        // fork or a transient E2B/Git error should still result in a useful
+        // conversational response from the agent.
+        let sandbox: SandboxInstance = NULL_SANDBOX_INSTANCE;
+        let leaseId: string | undefined;
+
+        try {
+            const lease = await this.leaseManager.acquire(
+                prKey,
+                'conversation',
+                5 * 60 * 1000,
+                cloneParams,
+            );
+            sandbox = lease.sandbox;
+            leaseId = lease.leaseId;
+        } catch (error) {
+            this.logger.warn({
+                message:
+                    'Sandbox unavailable; conversation will continue without native repository tools',
+                context: ChatWithKodyFromGitUseCase.name,
+                error,
+                metadata: { prKey, organizationAndTeamData },
+            });
+        }
 
         try {
             return await this.conversationAgentUseCase.execute({
@@ -1981,7 +2453,9 @@ export class ChatWithKodyFromGitUseCase {
                 sandbox,
             });
         } finally {
-            await this.leaseManager.release(leaseId);
+            if (leaseId) {
+                await this.leaseManager.release(leaseId);
+            }
         }
     }
 
@@ -1991,8 +2465,7 @@ export class ChatWithKodyFromGitUseCase {
     ): Promise<CreateSandboxParams | undefined> {
         const repository = prepareContext.repository;
         const pr = prepareContext.pullRequest;
-        const platform: PlatformType | undefined =
-            prepareContext.platformType;
+        const platform: PlatformType | undefined = prepareContext.platformType;
 
         if (!repository || !pr || !platform) {
             this.logger.warn({
@@ -2013,16 +2486,15 @@ export class ChatWithKodyFromGitUseCase {
             // `issue_comment` give us { id, name, owner } but no `fullName`.
             // GitHub's getCloneParams builds the clone URL from `fullName`,
             // so we synthesize it here from owner/name when missing.
-            const enrichedRepository =
-                repository.fullName
-                    ? repository
-                    : {
-                          ...repository,
-                          fullName:
-                              repository.owner && repository.name
-                                  ? `${repository.owner}/${repository.name}`
-                                  : repository.name,
-                      };
+            const enrichedRepository = repository.fullName
+                ? repository
+                : {
+                      ...repository,
+                      fullName:
+                          repository.owner && repository.name
+                              ? `${repository.owner}/${repository.name}`
+                              : repository.name,
+                  };
 
             const cp = await this.codeManagementService.getCloneParams(
                 {

@@ -127,8 +127,14 @@ export type CodeReviewGlobalConfig = {
         };
     };
     enableCommittableSuggestions: boolean;
-    /** BYOK main-model override for code reviews. '' = inherit
-     *  (directory -> repository -> the main model set in BYOK settings). */
+    /** BYOK model-slot override for code reviews, addressed by the stable v2
+     *  model id. '' = inherit (directory -> repository -> the main model set in
+     *  BYOK settings). Preferred over the legacy `byokModel` name. */
+    byokModelId?: string;
+    /** Legacy BYOK main-model override addressed by model NAME. Retained for the
+     *  read compat window: reads prefer `byokModelId` and fall back to this name
+     *  when the id is absent (a repo still on the old override keeps resolving
+     *  until it re-saves). New writes target `byokModelId`. */
     byokModel?: string;
     /**
      * Cross-repo context (#1576): sibling repos the agent may grep/read
@@ -214,12 +220,32 @@ export interface FormattedGlobalCodeReviewConfig extends Omit<
     repositories: FormattedRepositoryCodeReviewConfig[];
 }
 
+/**
+ * Health of the kodus-config.yml overlay for one scope. The file is read live
+ * from the git provider, so it can be missing from a response whose stored
+ * configuration is perfectly fine — the UI has to say so rather than present
+ * partial configuration as complete.
+ */
+export enum KodusConfigFileOverlayStatus {
+    LOADED = "loaded",
+    NOT_FOUND = "not_found",
+    DISABLED = "disabled",
+    UNAVAILABLE = "unavailable",
+    SKIPPED = "skipped",
+}
+
+export type KodusConfigFileOverlay = {
+    status: KodusConfigFileOverlayStatus;
+    error?: string;
+};
+
 export type FormattedRepositoryCodeReviewConfig = Omit<
     CodeReviewRepositoryConfig,
     "configs" | "directories"
 > & {
     configs: FormattedCodeReviewConfig;
     directories: FormattedDirectoryCodeReviewConfig[];
+    kodusConfigFile?: KodusConfigFileOverlay;
 };
 
 export type FormattedDirectoryCodeReviewConfig = Omit<
@@ -227,6 +253,7 @@ export type FormattedDirectoryCodeReviewConfig = Omit<
     "configs"
 > & {
     configs: FormattedCodeReviewConfig;
+    kodusConfigFile?: KodusConfigFileOverlay;
 };
 
 export enum BehaviourForNewCommits {

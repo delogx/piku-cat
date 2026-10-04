@@ -1,4 +1,5 @@
 import { createLogger } from '@libs/core/log/logger';
+import { llmErrorLogLevel } from '@libs/llm/error-classifier';
 import { Injectable, Optional } from '@nestjs/common';
 
 import {
@@ -17,6 +18,7 @@ import {
 } from '@libs/code-review/infrastructure/agents/review-agent.contract';
 import {
     dedupReviewWarnings,
+    warningsFromError,
     type ReviewWarning,
 } from '@libs/code-review/infrastructure/agents/engine/review-warnings';
 
@@ -203,7 +205,10 @@ export class ReviewOrchestratorService {
                     ),
                 });
             } catch (error) {
-                this.logger.error({
+                // Terminal BYOK (suspended key / no credit) → warn, not error:
+                // the user's provider config, not a Kodus fault. A real fault
+                // stays error. (Consistent with the sub-services.)
+                this.logger[llmErrorLogLevel(error)]({
                     message: `[AGENT] ${task.name} agent failed for PR#${agentInput.prNumber}`,
                     context: ReviewOrchestratorService.name,
                     error,
@@ -222,6 +227,7 @@ export class ReviewOrchestratorService {
         );
 
         const agentResults: ReviewAgentOutput[] = [];
+        const rejectedWarnings: ReviewWarning[] = [];
         const allSuggestions: Partial<CodeSuggestion>[] = [];
         const failures: OrchestratorAgentFailure[] = [];
         const incomplete: OrchestratorAgentIncomplete[] = [];
@@ -274,7 +280,12 @@ export class ReviewOrchestratorService {
                     durationMs: 0,
                 });
 
-                this.logger.error({
+                // A thrown agent is dropped by allSettled, and with it anything
+                // it wanted the PR to say. Harvest the warnings it carried so a
+                // degrade that escalates still reports WHAT degraded.
+                rejectedWarnings.push(...warningsFromError(err));
+
+                this.logger[llmErrorLogLevel(err)]({
                     message: `[AGENT] ${agentName} failed: ${err.message || 'Unknown error'}`,
                     context: ReviewOrchestratorService.name,
                     error: err,
@@ -298,7 +309,9 @@ export class ReviewOrchestratorService {
         });
 
         const warnings = dedupReviewWarnings(
-            agentResults.flatMap((r) => r.warnings ?? []),
+            agentResults
+                .flatMap((r) => r.warnings ?? [])
+                .concat(rejectedWarnings),
         );
 
         return {

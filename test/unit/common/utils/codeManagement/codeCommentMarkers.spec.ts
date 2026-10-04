@@ -9,6 +9,22 @@ import {
 } from '@libs/common/utils/codeManagement/codeCommentMarkers';
 
 describe('codeCommentMarkers', () => {
+    describe.each(['piku-cat', 'piku', 'kody'])('bot alias %s', (alias) => {
+        it('parses review flags and directives without consuming part of the name', () => {
+            const command = `@${alias} review --force --heavy focus on auth`;
+            expect(isReviewCommand(command)).toBe(true);
+            expect(isForceReviewCommand(command)).toBe(true);
+            expect(isHeavyReviewCommand(command)).toBe(true);
+            expect(parseReviewDirective(command)).toBe('focus on auth');
+            expect(isKodyMentionNonReview(command)).toBe(false);
+        });
+
+        it('rejects longer names that merely share an alias prefix', () => {
+            expect(isReviewCommand(`@${alias}-extra review`)).toBe(false);
+            expect(isKodyMentionNonReview(`@${alias}-extra explain`)).toBe(false);
+        });
+    });
+
     describe('isReviewCommand', () => {
         it('should return true for "@piku review"', () => {
             expect(isReviewCommand('@piku review')).toBe(true);
@@ -76,7 +92,7 @@ describe('codeCommentMarkers', () => {
 
         it('should return true case-insensitive', () => {
             expect(hasReviewMarker('<!-- KODY-CODEREVIEW -->')).toBe(true);
-            expect(hasReviewMarker('<!-- Piku-CodeReview -->')).toBe(true);
+            expect(hasReviewMarker('<!-- Kody-CodeReview -->')).toBe(true);
         });
 
         it('should return false when marker is not present', () => {

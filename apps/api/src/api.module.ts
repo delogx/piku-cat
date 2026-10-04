@@ -1,8 +1,8 @@
-import { LLMModule } from '@kodus/kodus-common/llm';
 import { AgentsModule } from '@libs/agents/modules/agents.module';
 import { AIEngineModule } from '@libs/ai-engine/modules/ai-engine.module';
 import { AnalyticsModule } from '@libs/analytics/modules/analytics.module';
 import { SpendLimitModule } from '@libs/analytics/modules/spend-limit.module';
+import { KodusCreditsModule } from '@libs/analytics/modules/kodus-credits.module';
 import { FeatureGateModule } from '@libs/feature-gate/modules/feature-gate.module';
 import { TelemetryModule } from '@libs/telemetry/modules/telemetry.module';
 import { AnalyticsWarehouseModule } from '@libs/ee/analytics-warehouse';
@@ -88,12 +88,15 @@ import { TeamController } from './controllers/team.controller';
 import { TeamMembersController } from './controllers/teamMembers.controller';
 import { TokenUsageController } from './controllers/tokenUsage.controller';
 import { SpendLimitController } from './controllers/spendLimit.controller';
+import { KodusCreditsController } from './controllers/kodusCredits.controller';
+import { BillingEventsController } from './controllers/billingEvents.controller';
 import { UsersController } from './controllers/user.controller';
 import { CronModule } from './cron/cron.module';
 import { CentralizedConfigModule } from '@libs/centralized-config/modules/centralized-config.module';
 import { LangfuseShutdownProvider } from '@libs/core/log/langfuse-shutdown.provider';
 import { NotificationModule } from '@libs/notifications/modules/notification.module';
 import { NotificationController } from './controllers/notification.controller';
+import { SelfHostedDoctorModule } from './doctor/self-hosted-doctor.module';
 
 @Module({
     imports: [
@@ -116,9 +119,6 @@ import { NotificationController } from './controllers/notification.controller';
         SharedPostgresModule.forRoot({ poolSize: 25 }),
         SharedMongoModule.forRoot(),
         RabbitMQWrapperModule.register({ enableConsumers: false }),
-        LLMModule.forRoot({
-            logger: LoggerWrapperService,
-        }),
         AuthModule,
         UserModule,
         PermissionsModule,
@@ -140,6 +140,7 @@ import { NotificationController } from './controllers/notification.controller';
         IntegrationConfigModule,
         AnalyticsModule,
         SpendLimitModule,
+        KodusCreditsModule,
         AnalyticsWarehouseModule.forRoot(),
         TelemetryModule,
         FeatureGateModule,
@@ -160,6 +161,7 @@ import { NotificationController } from './controllers/notification.controller';
         GlobalCacheModule,
         CentralizedConfigModule,
         NotificationModule,
+        SelfHostedDoctorModule,
     ],
     controllers: [
         CodeManagementController,
@@ -180,6 +182,8 @@ import { NotificationController } from './controllers/notification.controller';
         AuthController,
         TokenUsageController,
         SpendLimitController,
+        KodusCreditsController,
+        BillingEventsController,
         PermissionsController,
         GithubController,
         IntegrationController,

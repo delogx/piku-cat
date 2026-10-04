@@ -26,8 +26,10 @@ import {
     scoreNormalizedContext,
 } from './task-context/scoring';
 import { extractTaskContextFromToolResult } from './task-context/result-normalization';
+import { matchesRequestedTask } from './task-context/task-identity';
 import { buildToolAliasKey } from './task-context/tool-aliases';
 import { buildTaskContextArgsCandidates } from './task-context/arg-building';
+import { resolveTaskContextSiteHints } from './task-context/site-resolution';
 import type {
     TaskContextHints,
     TaskContextReadParams,
@@ -87,6 +89,8 @@ interface AgentFallbackParams {
     params: TaskContextReadParams;
     providerType: string;
     candidateTools: string[];
+    /** Carries the resolved tenant, which params alone can't reproduce. */
+    hints: TaskContextHints;
     hooks?: TaskContextReadHooks;
     logger: ReturnType<typeof createLogger>;
 }
@@ -130,6 +134,22 @@ export async function fetchTaskContext(
         params.enableAgenticFallback !== false &&
         discovery.registeredTools.length > 0;
 
+    // Tenant-scoped tools (Atlassian's getJiraIssue et al) require a site id the
+    // PR text usually doesn't carry. Resolve it before args are built, otherwise
+    // those tools yield zero candidates and get skipped for the whole run.
+    const siteHints = await resolveTaskContextSiteHints({
+        toolCaller,
+        registeredTools: discovery.registeredTools,
+        organizationId: params.organizationId,
+        providerType,
+        logger,
+    });
+    // One representation per tenant: ids and urls from the resolver identify the
+    // same sites, so keeping both would probe every tenant twice.
+    hints.siteIds = siteHints.siteIds.length
+        ? siteHints.siteIds
+        : siteHints.siteUrls;
+
     const traces: CapabilityExecutionTrace[] = [];
 
     if (!discovery.orderedTools.length && !allowAgenticFallback) {
@@ -159,6 +179,7 @@ export async function fetchTaskContext(
             params,
             providerType,
             candidateTools: discovery.orderedTools,
+            hints,
             hooks,
             logger,
         });
@@ -173,7 +194,11 @@ export async function fetchTaskContext(
             discovery.cachedTools,
         );
 
-        if (agenticFirst.value) {
+        if (
+            agenticFirst.value &&
+            isUsableTaskContext(agenticFirst.value) &&
+            matchesRequestedTask(agenticFirst.value, hints)
+        ) {
             return {
                 normalized: agenticFirst.value,
                 raw: agenticFirst.value.description ?? '',
@@ -225,6 +250,7 @@ export async function fetchTaskContext(
         params,
         providerType,
         candidateTools: discovery.orderedTools,
+        hints,
         hooks,
         logger,
     });
@@ -239,9 +265,21 @@ export async function fetchTaskContext(
         discovery.cachedTools,
     );
 
+    // Last resort: surface whatever the agent produced, but only if it is a
+    // usable task context. Propagating an unusable value (a fetch failure
+    // string, serialized card metadata, blank description) would feed a
+    // bogus context to the downstream analyzer and generate a false
+    // 'Need Task Information' finding — treat it as empty instead.
+    const fallbackValue =
+        agenticFallback.value &&
+        isUsableTaskContext(agenticFallback.value) &&
+        matchesRequestedTask(agenticFallback.value, hints)
+            ? agenticFallback.value
+            : undefined;
+
     return {
-        normalized: agenticFallback.value,
-        raw: agenticFallback.value?.description ?? '',
+        normalized: fallbackValue,
+        raw: fallbackValue?.description ?? '',
         traces,
     };
 }
@@ -382,9 +420,16 @@ function resolveTaskContextHints(
         .filter((value): value is string => typeof value === 'string')
         .join('\n');
 
+    // `#993` arrives as a "ticket key" but is a number, not an identifier any
+    // tracker accepts. Left in, it is offered to key/query parameters where it
+    // resolves nothing, and its mere presence suppresses the free-text query
+    // fallback. The number reaches the hints via issueNumbers either way.
+    // A caller-supplied taskId is kept as-is — provider ids are free-form.
     const explicitTaskIds = uniqueNonEmpty([
         params.taskId ?? '',
-        ...(params.businessSignals?.ticketKeys ?? []),
+        ...(params.businessSignals?.ticketKeys ?? []).filter(
+            (key) => !key.trim().startsWith('#'),
+        ),
     ]);
     const explicitTaskLinks = uniqueNonEmpty([
         params.taskUrl ?? '',
@@ -436,6 +481,7 @@ function resolveTaskContextHints(
             .join('\n'),
         urlHosts: [...urlHosts],
         siteUrls: [...siteUrls],
+        siteIds: [],
         resourceIds,
     };
 }
@@ -574,6 +620,27 @@ async function resolveDeterministicTaskContext(input: {
 
             traces.push(...result.traces);
             if (!result.value) {
+                continue;
+            }
+
+            // A list/search tool answers with whatever it holds, and the richest
+            // entry wins the score — which is how an unrelated issue ends up
+            // being validated against the PR. Drop anything that is not the task
+            // the PR referenced instead of ranking it.
+            if (!matchesRequestedTask(result.value, input.hints)) {
+                input.logger.warn({
+                    message:
+                        '[task.context.read] discarded a task that does not match the PR reference',
+                    context: 'TaskContextReadCapability',
+                    metadata: {
+                        organizationId: input.params.organizationId,
+                        toolName,
+                        fetchedId: result.value.id,
+                        fetchedTitle: result.value.title,
+                        requestedKeys: input.hints.issueKeys,
+                        requestedNumbers: input.hints.issueNumbers,
+                    },
+                });
                 continue;
             }
 
@@ -738,7 +805,7 @@ async function fetchTaskContextWithAgentFallback(
         };
     }
 
-    const hints = resolveTaskContextHints(input.params);
+    const hints = input.hints;
     const userLanguage =
         typeof input.params.userLanguage === 'string' &&
         input.params.userLanguage.trim().length > 0
@@ -755,9 +822,22 @@ KNOWN_TOKENS: ${[...hints.issueKeys, ...hints.issueLinks].join(', ') || '(none)'
 KNOWN_ISSUE_NUMBERS: ${hints.issueNumbers.join(', ') || '(none)'}
 KNOWN_REPOSITORY_OWNER: ${input.params.repositoryOwner ?? '(unknown)'}
 KNOWN_REPOSITORY_NAME: ${input.params.repositoryName ?? '(unknown)'}
+KNOWN_SITE_IDS: ${hints.siteIds.join(', ') || '(none)'}
 USER_LANGUAGE: ${userLanguage}
 
 When calling tools that require repository data, prioritize KNOWN_REPOSITORY_OWNER and KNOWN_REPOSITORY_NAME.
+When a tool requires a tenant/site/cloud identifier, use a value from KNOWN_SITE_IDS. Never invent one; if it is (none), prefer a tool that does not require it.
+${
+    hints.issueNumbers.length > 0
+        ? 'MANDATORY: resolve ONLY the issue(s) listed in KNOWN_ISSUE_NUMBERS. ' +
+          'Use them directly as the issue ID/key argument of the fetch tool. ' +
+          'Do NOT call issue-list/search tools to "discover" an issue, and do ' +
+          'NOT return a different issue from the ones listed. If you cannot ' +
+          'fetch those exact numbers, return an empty taskContext.'
+        : 'When a tool lets you discover issues by query, prefer the issue ' +
+          'referenced by KNOWN_TOKENS / KNOWN_ISSUE_NUMBERS over an arbitrary ' +
+          'result from a list/search.'
+}
 
 Return ONLY JSON:
 {
@@ -897,6 +977,12 @@ function orderCandidateTools(params: {
         ordered.push(tool);
     };
 
+    // A seed is a curated precision order (getJiraIssue before the generic
+    // search); learning can only observe "returned something", so a broad tool
+    // that always answers would otherwise outrank the precise one forever.
+    if (params.seededTools.length) {
+        params.seededTools.forEach(pushIfCandidate);
+    }
     pushIfCandidate(params.preferredTool);
     params.cachedTools.forEach(pushIfCandidate);
     params.seededTools.forEach(pushIfCandidate);

@@ -72,6 +72,7 @@ jobs:
         # than leave it resting on precedence rules.
         permissions:
             contents: read
+            id-token: write # quality signal (report-signal action, WIF)
         # QA environment: where the QA-scoped secrets live (GH_REPO_ADMIN_TOKEN
         # for trial-managed-review's throwaway repos). Branch policy allows
         # `main` only — fine, every real trigger (qa-build workflow_call,
@@ -103,6 +104,10 @@ jobs:
             - name: Install e2e deps
               working-directory: tests/e2e
               run: npm install --no-audit --no-fund
+
+            - name: Install Playwright Chromium
+              working-directory: tests/e2e
+              run: npx playwright install --with-deps chromium
 
             # Seed the cloud tenant registry. The runner resolves each cloud
             # cell's tenant by (provider, license) from ~/.kodus-dev/cloud-
@@ -275,21 +280,23 @@ jobs:
                   # change (set it to matrix/midweek-smoke.yml to dial back).
                   MATRIX_FILE: ${{ inputs.matrix_file || (github.event_name == 'schedule' && (vars.E2E_CLOUD_NIGHTLY_MATRIX || 'matrix/fast.yml')) || 'matrix/fast.yml' }}
 
-                  # Provider tokens — cells without the right token are
-                  # skipped (target.sh passes --skip-missing-tokens).
+                  # One human PAT authors PRs/comments (the product ignores
+                  # bot-authored events) and exercises the legacy PAT canary.
                   GH_TEST_TOKEN: ${{ secrets.GH_TEST_TOKEN }}
-                  # Extra bot-account tokens for the round-robin pool (see
-                  # tests/e2e/lib/github-token-pool.ts). Optional — the pool
-                  # collapses to GH_TEST_TOKEN alone when these are unset.
-                  GH_TEST_TOKEN_2: ${{ secrets.GH_TEST_TOKEN_2 }}
-                  GH_TEST_TOKEN_3: ${{ secrets.GH_TEST_TOKEN_3 }}
-                  # GitHub App installation token (opt-in, preferred over the
-                  # PAT pool for cloud cells): 5000/h of its own budget,
-                  # immune to the bot-account abuse flags. All three unset →
-                  # PAT pool behavior unchanged. See lib/github-app-token.ts.
+                  # The product stores this only in provider=github cells.
+                  # No fallback: a missing credential must fail in preflight.
+                  # This existing PAT has org-wide repository and webhook
+                  # access. Expose it under the canonical runtime name.
+                  GH_INTEGRATION_TOKEN: ${{ secrets.GH_INTEGRATION_TOKEN_PAID }}
+                  # GitHub App installation used by provider=github-app and
+                  # for high-volume reads/polls in the compatibility cell.
                   GH_APP_ID: ${{ secrets.GH_APP_ID }}
                   GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
                   GH_APP_INSTALLATION_ID: ${{ secrets.GH_APP_INSTALLATION_ID }}
+                  # Installation of the App configured in the QA backend,
+                  # deliberately distinct from the harness App above.
+                  GH_PRODUCT_APP_INSTALLATION_ID: ${{ vars.GH_PRODUCT_APP_INSTALLATION_ID }}
+                  GH_APP_TEST_REPO: ${{ vars.GH_APP_TEST_REPO }}
                   GH_TEST_REPO: ${{ secrets.GH_TEST_REPO }}
                   GH_TEST_REPO_CLOUD: ${{ secrets.GH_TEST_REPO_CLOUD }}
                   GH_TEST_PR_NUMBER: ${{ secrets.GH_TEST_PR_NUMBER }}
@@ -311,7 +318,7 @@ jobs:
                   # provider is stated, never inferred from the model name.
                   API_LLM_PROVIDER: ${{ vars.E2E_LLM_PROVIDER || 'openai_compatible' }}
                   API_OPENAI_FORCE_BASE_URL: ${{ vars.E2E_LLM_BASE_URL || 'https://api.fireworks.ai/inference/v1' }}
-                  API_LLM_PROVIDER_MODEL: ${{ vars.E2E_LLM_MODEL || 'accounts/fireworks/models/deepseek-v4-flash-0731' }}
+                  API_LLM_PROVIDER_MODEL: ${{ vars.E2E_LLM_MODEL || 'accounts/fireworks/models/deepseek-v4p1-flash' }}
                   # Org-Administration token (QA environment secret) used ONLY
                   # by trial-managed-review to create/delete its throwaway repo
                   # per run. Absent → that scenario is SKIPPED, not failed
@@ -404,6 +411,9 @@ jobs:
                   if (n.advisoryFailures.length) body.push(`**Advisory (non-gating):**\n${fmt(n.advisoryFailures)}`);
                   if (n.setupSkipped) body.push(`Skipped for missing setup (coverage gap): ${n.setupSkipped}`);
                   if (n.retriedCells.length) body.push(`Passed only on retry (flaky): ${n.retriedCells.map((c) => `\`${c}\``).join(", ")}`);
+                  // One JSON line for the quality signal: the failing cells by name.
+                  const cap = (l) => (l ?? []).slice(0, 15).map((x) => ({ cell: x.cell, error: String(x.error ?? x.reason ?? "").slice(0, 200) }));
+                  out.push(`meta=${JSON.stringify({ headline: `${n.passed}/${executed} passed · verified ${executed}/${applicable} applicable`, gating_count: n.gatingFailures.length, advisory_count: n.advisoryFailures.length, unverified_count: (n.unverified ?? []).length, retried_count: n.retriedCells.length, gating: cap(n.gatingFailures), advisory: cap(n.advisoryFailures), unverified: cap(n.unverified), flaky: n.retriedCells.slice(0, 15), setup_skipped: n.setupSkipped ?? 0 })}`);
                   // GITHUB_OUTPUT multiline
                   out.push("details<<__EOF__");
                   out.push(body.join("\n") || "—");
@@ -430,11 +440,24 @@ jobs:
 
             # Case 1 — infra: QA never became reachable; the matrix NEVER RAN.
             # Distinct wording so nobody reads it as "the tests broke".
+            - name: Report quality signal
+              if: always()
+              uses: ./.github/actions/report-signal
+              with:
+                  name: e2e.cloud
+                  status: ${{ steps.digest.outputs.found != 'true' && 'infra' || steps.digest.outputs.verdict == 'inconclusive' && 'infra' || steps.digest.outputs.verdict }}
+                  value: ${{ steps.digest.outputs.gating_count }}
+                  unit: count
+                  meta: ${{ steps.digest.outputs.meta }}
+                  gcp_wif_provider: ${{ vars.GCP_WIF_PROVIDER }}
+                  gcp_sa_email: ${{ vars.GCP_SA_EMAIL }}
+                  gcp_project: ${{ vars.GCP_PROJECT }}
+
             - name: Notify Discord — QA unreachable (infra, matrix did not run)
               if: failure() && steps.readiness.outcome == 'failure'
               uses: ./.github/actions/discord-notify
               with:
-                  webhook: ${{ secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
+                  webhook: ${{ secrets.DISCORD_WEBHOOK_TESTS || secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
                   status: failure
                   title: "🔌 E2E: QA unreachable — matrix did NOT run"
                   description: |
@@ -463,7 +486,7 @@ jobs:
                   steps.digest.outputs.verdict != 'inconclusive'
               uses: ./.github/actions/discord-notify
               with:
-                  webhook: ${{ secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
+                  webhook: ${{ secrets.DISCORD_WEBHOOK_TESTS || secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
                   status: failure
                   title: "❌ E2E cloud matrix: ${{ steps.digest.outputs.headline || 'failed (no digest)' }}"
                   description: |
@@ -484,7 +507,7 @@ jobs:
                   steps.digest.outputs.verdict == 'inconclusive'
               uses: ./.github/actions/discord-notify
               with:
-                  webhook: ${{ secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
+                  webhook: ${{ secrets.DISCORD_WEBHOOK_TESTS || secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
                   status: cancelled
                   title: "🚧 E2E cloud matrix INCONCLUSIVE: ${{ steps.digest.outputs.headline }}"
                   description: |
@@ -511,7 +534,7 @@ jobs:
                   steps.digest.outputs.found != 'true'
               uses: ./.github/actions/discord-notify
               with:
-                  webhook: ${{ secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
+                  webhook: ${{ secrets.DISCORD_WEBHOOK_TESTS || secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
                   status: failure
                   title: '⏱️ E2E cloud matrix: ended with no result'
                   description: |
@@ -526,7 +549,7 @@ jobs:
               if: success() && steps.digest.outputs.advisory_count != '0' && steps.digest.outputs.advisory_count != ''
               uses: ./.github/actions/discord-notify
               with:
-                  webhook: ${{ secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
+                  webhook: ${{ secrets.DISCORD_WEBHOOK_TESTS || secrets.DISCORD_WEBHOOK_INTERNAL || secrets.DISCORD_WEBHOOK }}
                   status: cancelled
                   title: "⚠️ E2E cloud matrix GREEN with advisories: ${{ steps.digest.outputs.headline }}"
                   description: |

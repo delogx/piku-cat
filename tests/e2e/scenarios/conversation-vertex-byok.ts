@@ -1,31 +1,43 @@
 import { ensureLicenseSeat } from '../lib/onboarding.js';
 import { readVertexByokEnv, setVertexByok } from '../lib/vertex-byok.js';
+import { resolveConversationUserToken } from '../lib/conversation-user-token.js';
 import type { RunContext, Scenario } from '../lib/types.js';
 
 // Standing-branch fixture (same repo as code-review-vertex-byok). The PR
 // content is irrelevant here — we only need an open PR to talk to Piku on.
-const FIXTURE = { head: 'bug/missing-null-check', base: 'main' };
+// `bug/missing-null-check` is only confirmed mirrored on GitHub (see
+// code-review-basic.ts's own placeholder comment for the other providers);
+// `refactor/use-map-storage` is the shared branch already confirmed working
+// across all 5 providers via command-review.ts.
+const FIXTURE_BRANCHES: Record<string, { head: string; base: string }> = {
+    github: { head: 'bug/missing-null-check', base: 'main' },
+    gitlab: { head: 'refactor/use-map-storage', base: 'main' },
+    bitbucket: { head: 'refactor/use-map-storage', base: 'main' },
+    'azure-devops': { head: 'refactor/use-map-storage', base: 'main' },
+};
 
-// `@piku <question>` (NOT `@piku review`) is what the webhook handlers match
+// `@piku-cat <question>` (NOT `@piku-cat review`) is what the webhook handlers match
 // with KODY_MENTION_NON_REVIEW_PATTERN to route the comment to the
 // adapter). A review command would take the v5 agent path instead.
 const QUESTION =
-    '@piku in one short sentence, what does this pull request change?';
+    '@piku-cat in one short sentence, what does this pull request change?';
 
 /**
  * Proves Piku's CONVERSATION path honors a Claude-on-Vertex BYOK key. The
- * conversation agent runs on the legacy v2 langchain engine
- * (BaseAgentProvider builds `new BYOKPromptRunnerService(byokConfig)`), so a
- * broken Vertex routing there means Piku silently never answers an `@piku`
- * mention — distinct from the code-review path (which is v5/Vercel SDK).
+ * conversation agent (`BaseAgentProvider`) resolves its model through
+ * `resolveTaskSlot` → `LLM.run`, the same AI SDK stack the code-review path
+ * uses — there is no separate engine here anymore, so this scenario is about
+ * routing (does the conversation task pick up the org's Vertex BYOK slot),
+ * not about a distinct execution path. A broken Vertex routing here means
+ * Piku silently never answers an `@piku-cat` mention.
  */
 export const conversationVertexByok: Scenario = {
     id: 'conversation-vertex-byok',
-    title: 'Piku answers an @piku mention using a Claude-on-Vertex BYOK key (v2 path)',
+    title: 'Piku answers an @piku-cat mention using a Claude-on-Vertex BYOK key',
     priority: 'P2',
     appliesTo: {
         target: ['self-hosted'],
-        provider: ['github'],
+        provider: ['github', 'gitlab', 'bitbucket', 'azure-devops'],
         license: ['paid', 'license-paid'],
     },
     timeoutSec: 1200,
@@ -44,14 +56,15 @@ export const conversationVertexByok: Scenario = {
             );
         }
 
-        // Piku ignores any comment whose author login contains "kody"/"kodus"
-        // (isKodyComment, LOGIN_KEYWORDS=['kody','kodus']) — and the e2e bots
-        // are all `kodus-e2e-bot-N`. So the `@piku` mention MUST be posted by a
-        // separate, non-Piku GitHub account.
-        const userToken = process.env.CONVERSATION_USER_TOKEN;
+        // Piku ignores any comment whose author login/name contains
+        // "kody"/"kodus" (isKodyComment, LOGIN_KEYWORDS=['kody','kodus']) —
+        // and every provider's own e2e bot account is named like that. So
+        // the `@piku-cat` mention MUST be posted by a separate, non-Piku account.
+        const { token: userToken, missingEnvHint } =
+            resolveConversationUserToken(ctx.provider.name);
         if (!userToken) {
             ctx.skip(
-                "CONVERSATION_USER_TOKEN not set — needs a GitHub token for an account whose login does NOT contain 'kody'/'kodus' (the integration bot's own comments are ignored by Piku) with Pull requests R/W on the fixture repo",
+                `${missingEnvHint} not set — needs a token for an account whose login/name does NOT contain 'kody'/'kodus' (the integration bot's own comments are ignored by Piku) with PR write access on the fixture repo`,
             );
         }
 
@@ -73,15 +86,21 @@ export const conversationVertexByok: Scenario = {
 
         await setVertexByok(ctx.target.apiBaseUrl, session, vertex!);
 
+        const fixture = FIXTURE_BRANCHES[ctx.provider.name];
+        ctx.assert(
+            fixture,
+            `No FIXTURE_BRANCHES entry for provider ${ctx.provider.name}`,
+        );
+
         const pr = await ctx.provider.openPRFromBranches({
-            head: FIXTURE.head,
-            base: FIXTURE.base,
+            head: fixture!.head,
+            base: fixture!.base,
             title: `[e2e] conversation-vertex-byok ${ctx.runId.slice(0, 8)}`,
-            body: `Automated PR opened by Kodus E2E run ${ctx.runId} (Claude-on-Vertex conversation: ${vertex!.model} @ ${vertex!.region}). Auto-closed by the scenario.`,
+            body: `Automated PR opened by piku-cat E2E run ${ctx.runId} (Claude-on-Vertex conversation: ${vertex!.model} @ ${vertex!.region}). Auto-closed by the scenario.`,
         });
 
         try {
-            // Post the @piku mention AFTER the PR exists, as an inline review
+            // Post the @piku-cat mention AFTER the PR exists, as an inline review
             // comment (Piku only answers review comments, not issue comments).
             // sinceIso brackets the poll so we only see replies after it.
             const sinceIso = new Date().toISOString();
@@ -98,7 +117,7 @@ export const conversationVertexByok: Scenario = {
 
             ctx.assert(
                 reply && reply.body.trim().length > 0,
-                `Piku never answered the @piku mention on PR #${pr.number} within 600s (model=${vertex!.model}, region=${vertex!.region}). The conversation agent runs on the v2 langchain engine — suspect Vertex routing on that path, the model not enabled in Model Garden, or the conversation feature disabled for the tenant.`,
+                `Piku never answered the @piku-cat mention on PR #${pr.number} within 600s (model=${vertex!.model}, region=${vertex!.region}). The conversation agent runs on the v2 langchain engine — suspect Vertex routing on that path, the model not enabled in Model Garden, or the conversation feature disabled for the tenant.`,
             );
 
             // A non-empty reply is NOT enough: when thought generation fails
@@ -117,7 +136,7 @@ export const conversationVertexByok: Scenario = {
             );
             ctx.assert(
                 !isFallback,
-                `Piku replied on PR #${pr.number} with the GENERIC ERROR FALLBACK instead of a real answer: "${reply!.body.slice(0, 200)}". This is the @piku conversation thought-generation/parse failure (model=${vertex!.model}, region=${vertex!.region}), not a successful response.`,
+                `Piku replied on PR #${pr.number} with the GENERIC ERROR FALLBACK instead of a real answer: "${reply!.body.slice(0, 200)}". This is the @piku-cat conversation thought-generation/parse failure (model=${vertex!.model}, region=${vertex!.region}), not a successful response.`,
             );
 
             return {

@@ -58,6 +58,9 @@ function providerFor(model) {
     if (/^claude/i.test(m)) return 'anthropic';
     if (/^gemini/i.test(m)) return 'google';
     if (/^(gpt|o\d)/i.test(m)) return 'openai';
+    // JUDGE_BASE_URL names an OpenAI-compatible endpoint (Fireworks, the local
+    // scripted model): its model ids follow no vendor prefix.
+    if (process.env.JUDGE_BASE_URL) return 'openai';
     throw new Error(`judge: cannot route unknown model '${model}' to a provider`);
 }
 
@@ -80,6 +83,11 @@ function findKeyInText(text, envNames) {
 // Resolve the API key for a given model's provider: process.env → .env files →
 // ~/.kodus-dev/config, in env-name priority order.
 function loadKeyForModel(model) {
+    // JUDGE_API_KEY wins: the finder's model setup overwrites API_OPEN_AI_API_KEY
+    // with the key of whatever openai-compatible model it runs (Fireworks for the
+    // nightly), so an OpenAI judge resolving by name would send that key to OpenAI.
+    if (process.env.JUDGE_API_KEY) return process.env.JUDGE_API_KEY;
+
     const envNames = PROVIDER_KEY_ENVS[providerFor(model)];
 
     for (const name of envNames) {
@@ -108,6 +116,24 @@ function loadJudgeKey() {
     return loadKeyForModel(JUDGE_MODEL);
 }
 
+// Token OAuth (`ant auth login`) expira em horas — em runs longos ele vence no
+// MEIO da rodada e derruba os ultimos casos. Antes isso virava INFRA silencioso.
+// Aqui relemos a credencial do CLI sob 401 e tentamos de novo; so vale para
+// tokens OAuth (API key nao expira, entao 401 nela e erro real de config).
+let refreshedToken = null;
+function refreshOAuthToken() {
+    try {
+        const { execFileSync } = require('child_process');
+        const t = execFileSync('ant', ['auth', 'print-credentials', '--access-token'], {
+            encoding: 'utf8',
+            timeout: 15000,
+        }).trim();
+        return /^sk-ant-oat/.test(t) ? t : null;
+    } catch {
+        return null;
+    }
+}
+
 function isHardError(status) {
     return status === 400 || status === 401 || status === 403 || status === 404;
 }
@@ -125,8 +151,15 @@ async function judgeCall(model, apiKey, prompt) {
             let body;
             if (provider === 'anthropic') {
                 url = 'https://api.anthropic.com/v1/messages';
+                // Credencial OAuth (`ant auth login` → sk-ant-oat…) vai em
+                // Authorization: Bearer + header beta; API key vai em x-api-key.
+                // Trocar isso devolve 401 "invalid x-api-key", que engana.
+                if (refreshedToken) apiKey = refreshedToken;
+                const isOAuth = /^sk-ant-oat/.test(String(apiKey || ''));
                 headers = {
-                    'x-api-key': apiKey,
+                    ...(isOAuth
+                        ? { authorization: `Bearer ${apiKey}`, 'anthropic-beta': 'oauth-2025-04-20' }
+                        : { 'x-api-key': apiKey }),
                     'anthropic-version': '2023-06-01',
                     'content-type': 'application/json',
                 };
@@ -136,7 +169,9 @@ async function judgeCall(model, apiKey, prompt) {
                     messages: [{ role: 'user', content: prompt }],
                 };
             } else if (provider === 'openai') {
-                url = 'https://api.openai.com/v1/chat/completions';
+                // JUDGE_BASE_URL: any OpenAI-compatible endpoint. The wiring smoke
+                // points it at the local scripted model so scoring runs keyless.
+                url = `${(process.env.JUDGE_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '')}/chat/completions`;
                 headers = { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' };
                 // gpt-5.x uses max_completion_tokens; no temperature override
                 // (some minis only accept the default), and reasoning eats
@@ -145,6 +180,9 @@ async function judgeCall(model, apiKey, prompt) {
                     model,
                     max_completion_tokens: 2048,
                     messages: [{ role: 'user', content: prompt }],
+                    // JUDGE_REASONING_EFFORT (e.g. low): part of the judge's
+                    // identity — floors are calibrated under a model AND effort.
+                    ...(process.env.JUDGE_REASONING_EFFORT ? { reasoning_effort: process.env.JUDGE_REASONING_EFFORT } : {}),
                 };
             } else {
                 url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
@@ -166,6 +204,21 @@ async function judgeCall(model, apiKey, prompt) {
                 return extractText(provider, data);
             }
             const errBody = await resp.text();
+            // 401 por token OAuth vencido nao e erro de config: renova e retenta.
+            if (
+                resp.status === 401 &&
+                provider === 'anthropic' &&
+                /expired/i.test(errBody) &&
+                /^sk-ant-oat/.test(String(apiKey || ''))
+            ) {
+                const fresh = refreshOAuthToken();
+                if (fresh && fresh !== apiKey) {
+                    refreshedToken = fresh;
+                    apiKey = fresh;
+                    lastErr = new Error('judge 401: token renovado, retentando');
+                    continue;
+                }
+            }
             if (isHardError(resp.status)) {
                 throw new Error(`judge HTTP ${resp.status} ${errBody.slice(0, 150)}`);
             }

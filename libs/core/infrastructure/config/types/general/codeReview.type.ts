@@ -1,5 +1,5 @@
 import type { ContextLayer, ContextPack } from '@libs/ai-engine/infrastructure/adapters/services/context/context-pack';
-import { BYOKConfig, LLMModelProvider } from '@kodus/kodus-common/llm';
+import type { NormalizedModel } from '@libs/llm/byok-config';
 import { IPullRequestMessages } from '@libs/code-review/domain/pullRequestMessages/interfaces/pullRequestMessages.interface';
 import { DeliveryStatus } from '@libs/platformData/domain/pullRequests/enums/deliveryStatus.enum';
 import { ImplementationStatus } from '@libs/platformData/domain/pullRequests/enums/implementationStatus.enum';
@@ -177,6 +177,14 @@ export type CodeSuggestion = {
     updatedAt?: string;
     action?: string;
 
+    /**
+     * The finding is about the whole file, not a line inside the diff: it comes
+     * from a Kody Rule that declared it needs context beyond the hunk, and its
+     * cited lines fall outside every changed hunk (issue #1826). Delivered as a
+     * PR-level comment citing `file:line` instead of an inline one, which is
+     * where a rule like "this function is too long" has always died silently.
+     */
+    fileAnchored?: boolean;
     isCommittable?: boolean;
     validatedData?: {
         code: string;
@@ -318,7 +326,6 @@ export type CodeReviewConfig = {
     reviewCadence: ReviewCadence;
     summary: SummaryConfig;
     languageResultPrompt: string;
-    llmProvider?: LLMModelProvider;
     kodyRules?: Partial<IKodyRule>[];
     kodyMemoryRules?: Partial<IKodyRule>[];
     suggestionControl?: SuggestionControlConfig;
@@ -339,18 +346,42 @@ export type CodeReviewConfig = {
     directoryFolders?: Array<{ id: string; name: string; path: string }>;
     runOnDraft?: boolean;
     codeReviewVersion?: CodeReviewVersion;
-    byokConfig?: BYOKConfig;
+    byokConfig?: NormalizedModel;
+    /**
+     * The single model slot the run resolved for the `codeReview` task via the
+     * v2 resolver (`resolveTaskModel` / `StaticTaskStrategy`). This is the
+     * native replacement for the internal `byokConfig.main` intermediate:
+     * downstream pipeline stages read their telemetry/limit metadata
+     * (`provider`, `maxInputTokens`, `maxConcurrentRequests`) off this resolved
+     * slot instead of the `{main,fallback}` shape. `null`/absent means the run
+     * resolved the env/managed default (no BYOK). Carries CIPHERTEXT apiKey —
+     * decryption happens only inside `buildModelFromSlot`.
+     */
+    resolvedModelSlot?: NormalizedModel;
     /**
      * Optional override for the BYOK *main* model used to run code reviews.
      * Empty string '' means "inherit": directory -> repository -> the main
      * model defined in the BYOK settings page.
+     *
+     * Legacy NAME-based override, kept during the transition window (D-05).
+     * Superseded by `byokModelId` going forward; the routing resolver reads
+     * `byokModelId` first and only falls back to this NAME when it is absent.
      */
     byokModel?: string;
+    /**
+     * Id-based BYOK model override (Phase 4). References a v2 `models[]` entry
+     * by its stable `id` (BYOKConfig.models[].id), so the routing resolver
+     * addresses the exact model regardless of a later rename. This is the top
+     * of the routing precedence chain (folder/repo override > task override >
+     * default). Empty/absent means "inherit"; when both `byokModelId` and the
+     * legacy `byokModel` are set, the id wins.
+     */
+    byokModelId?: string;
     /** @deprecated Reflection/verify was removed — it hurt recall more than it helped precision. */
     enableReflection?: boolean;
     /**
      * Optional overrides for v2 prompts (categories and severity guidance only).
-     * These influence only the v2 system prompt used during suggestion generation.
+     * These influence only the system prompt used during suggestion generation.
      */
     v2PromptOverrides?: {
         categories?: {
@@ -425,12 +456,12 @@ export type LinkedRepositoryConfig = {
 
 export type CodeReviewConfigWithoutLLMProvider = Omit<
     CodeReviewConfig,
-    'llmProvider' | 'languageResultPrompt'
+    'languageResultPrompt'
 >;
 
 export type CodeReviewConfigWithRepositoryInfo = Omit<
     CodeReviewConfig,
-    'llmProvider' | 'languageResultPrompt'
+    'languageResultPrompt'
 > & {
     id: string;
     name: string;
@@ -439,7 +470,7 @@ export type CodeReviewConfigWithRepositoryInfo = Omit<
 
 // Omit every configuration that isn't present on the kodus configuration file.
 export type KodusConfigFile = DeepPartial<
-    Omit<CodeReviewConfig, 'llmProvider' | 'languageResultPrompt' | 'kodyRules'>
+    Omit<CodeReviewConfig, 'languageResultPrompt' | 'kodyRules'>
 > & {
     version: string;
     customMessages?: Pick<

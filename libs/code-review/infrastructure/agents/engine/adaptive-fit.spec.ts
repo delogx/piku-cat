@@ -1,4 +1,5 @@
 import {
+    escalateAdaptiveProfileForDemand,
     resolveAdaptiveProfile,
     type AdaptiveProfile,
     type AdaptiveProfileKind,
@@ -105,6 +106,47 @@ describe('resolveAdaptiveProfile', () => {
             expect(p.kind).toBe('unviable');
             expect(p.compactPrompt).toBe(false);
             expect(p.dropCallGraph).toBe(false);
+        });
+    });
+
+    describe('demand-based fitting', () => {
+        it('keeps the supplied profile when the prompt fits', () => {
+            const profile = resolveAdaptiveProfile(400_000);
+            expect(
+                escalateAdaptiveProfileForDemand(profile, {
+                    estimatedPromptTokens: 100_000,
+                    promptBudgetRatio: 0.8,
+                }),
+            ).toBe(profile);
+        });
+
+        it('drops an oversized call graph without shrinking the context window', () => {
+            const profile = escalateAdaptiveProfileForDemand(
+                resolveAdaptiveProfile(400_000),
+                {
+                    estimatedPromptTokens: 500_000,
+                    promptBudgetRatio: 0.8,
+                    callGraphTokens: 250_000,
+                },
+            );
+            expect(profile.kind).toBe('light');
+            expect(profile.dropCallGraph).toBe(true);
+            expect(profile.contextWindowTokens).toBe(400_000);
+        });
+
+        it('retains the small-window profile when no demand is supplied', () => {
+            const profile = resolveAdaptiveProfile(16_000);
+            expect(escalateAdaptiveProfileForDemand(profile)).toBe(profile);
+        });
+
+        it('does not make an unviable window appear usable', () => {
+            const profile = resolveAdaptiveProfile(4_000);
+            expect(
+                escalateAdaptiveProfileForDemand(profile, {
+                    estimatedPromptTokens: 500_000,
+                    promptBudgetRatio: 0.8,
+                }),
+            ).toBe(profile);
         });
     });
 

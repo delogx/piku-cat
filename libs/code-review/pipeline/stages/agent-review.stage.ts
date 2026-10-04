@@ -1,9 +1,9 @@
 import * as crypto from 'crypto';
 
 import { createLogger } from '@libs/core/log/logger';
-import { Output, jsonSchema } from 'ai';
+import { jsonSchema, type EmbeddingModel } from 'ai';
+import { tracedEmbed as embed } from '@libs/llm/llm-call';
 import { Inject, Injectable, Optional } from '@nestjs/common';
-import { tracedGenerateText } from '@libs/llm/llm-call';
 import { resolveAdaptiveProfile } from '@libs/code-review/infrastructure/agents/engine/adaptive-fit';
 import { resolveContextWindow } from '@libs/llm/model-context-window';
 import {
@@ -18,22 +18,20 @@ import {
     cosineSimilarity,
     dedupEmbeddingText,
 } from '@libs/code-review/infrastructure/agents/engine/dedup-prompt';
-import { OpenAIEmbeddings } from '@langchain/openai';
+import { buildPlatformEmbedder } from '@libs/common/utils/document';
 import {
     dedupReviewWarnings,
+    buildBadFixDowngradedWarning,
     type ReviewWarning,
 } from '@libs/code-review/infrastructure/agents/engine/review-warnings';
 import {
-    withStructuredOutputFallback,
-    NoStructuredFallbackModelError,
-    getModelName,
-} from '@libs/llm/byok-to-vercel';
+    checkFix,
+    type BadFixReason,
+} from '@libs/code-review/infrastructure/agents/engine/is-usable-fix';
+import { getModelName } from '@libs/llm/byok-to-vercel';
+import type { NormalizedModel } from '@libs/llm/byok-config';
 import { buildKodyRuleLink } from '@libs/code-review/utils/build-kody-rule-link';
-import {
-    buildLangfuseTelemetry,
-    toAiSdkTelemetryArgs,
-    type LangfuseTelemetryMetadata,
-} from '@libs/core/log/langfuse';
+import { type LangfuseTelemetryMetadata } from '@libs/core/log/langfuse';
 
 import { BasePipelineStage } from '@libs/core/infrastructure/pipeline/abstracts/base-stage.abstract';
 import { StageVisibility } from '@libs/core/infrastructure/pipeline/enums/stage-visibility.enum';
@@ -86,6 +84,8 @@ import {
 import { KodyRuleSummaryService } from '@libs/kodyRules/infrastructure/adapters/services/kody-rule-summary.service';
 import {
     CodeReviewPipelineContext,
+    resolvedModel,
+    resolvedProvider,
     DedupTraceGroupSummary,
     DedupTraceSuggestionSummary,
     DedupTraceSummary,
@@ -95,12 +95,14 @@ import {
     LlmErrorCategory,
     classifyLLMError,
     getClassification,
+    llmErrorLogLevel,
 } from '@libs/llm/error-classifier';
+import { hasManagedModelKey } from '@libs/llm/managed-slot';
+import { LLM } from '@libs/llm/llm';
 import {
-    isSecondaryByok,
-    resolveSecondaryPassModel,
-    SECONDARY_PASS_MODEL_ID,
-} from '@libs/code-review/infrastructure/agents/engine/secondary-pass-model';
+    normalizeEnvelope,
+    LLM_ENVELOPE_TAG,
+} from '@libs/llm/structured-output-repair';
 
 /**
  * Extract valid line ranges from a unified diff patch.
@@ -427,25 +429,31 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
         // Per-repo/directory model override (byokModel) takes priority over
         // the org-level main.model when present — same resolution the agent
         // uses internally (`base-code-review-agent.provider.ts:541-551`).
-        const mainByok = context.codeReviewConfig?.byokConfig?.main;
-        const overrideModel = context.codeReviewConfig?.byokModel?.trim();
-        const byokWithOverride =
-            overrideModel && mainByok
-                ? {
-                      ...context.codeReviewConfig?.byokConfig,
-                      main: { ...mainByok, model: overrideModel },
-                  }
-                : context.codeReviewConfig?.byokConfig;
+        const resolvedSlot = context.codeReviewConfig?.resolvedModelSlot;
+        // byokModelId (id) wins over the legacy byokModel NAME (D-05). When a
+        // byokModelId is set, ValidateConfigStage has already routed the
+        // codeReview task to that id-addressed model into the resolved slot
+        // (same routing the model factory runs), so the legacy NAME re-apply
+        // is skipped here — the id-routed model stands. Only when no id is set
+        // does the legacy NAME window still apply the override onto the slot.
+        const overrideModel = context.codeReviewConfig?.byokModelId?.trim()
+            ? undefined
+            : context.codeReviewConfig?.byokModel?.trim();
+        const effectiveSlot =
+            overrideModel && resolvedSlot
+                ? { ...resolvedSlot, model: overrideModel }
+                : resolvedSlot;
         // Use the same model-name formatter the agent uses (provider:model)
         // so stage-emitted warnings and agent-emitted warnings share a
         // dedup key. Otherwise dedupReviewWarnings sees them as distinct
         // and the user sees duplicate bullets (PROMPT_COMPACTED listed
         // twice — once with "gemini-2.5-flash" and once with
-        // "google_gemini:gemini-2.5-flash").
-        const effectiveModelName = getModelName(byokWithOverride);
+        // "google_gemini:gemini-2.5-flash"). getModelName is native: it
+        // takes the resolved slot directly (no `{main}` wrapping).
+        const effectiveModelName = getModelName(effectiveSlot ?? undefined);
         const effectiveContextWindow = resolveContextWindow({
-            byokMaxInputTokens: mainByok?.maxInputTokens,
-            modelName: overrideModel || mainByok?.model || '',
+            byokMaxInputTokens: resolvedSlot?.maxInputTokens,
+            modelName: overrideModel || resolvedSlot?.model || '',
         });
         const adaptiveProfile = resolveAdaptiveProfile(effectiveContextWindow);
         const stageWarnings: ReviewWarning[] = [];
@@ -515,10 +523,16 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
         }
 
         try {
-            // Build progress callback for real-time agent traces in PR timeline
+            // Build progress callback for real-time agent traces in PR timeline.
+            // `context.correlationId` is a `corr_<random>_<timestamp>` tracing
+            // id (id-generator.ts), never a real UUID — it must NOT be used
+            // here as a fallback. `writeAgentTrace` already falls back to a
+            // {pullRequestNumber, repositoryId} filter when this is undefined
+            // (prod incident, 2026-09-14: "invalid input syntax for type
+            // uuid" writing automation_execution whenever lastExecution.uuid
+            // was absent and the old `||` fallback poisoned the query).
             const executionUuid =
-                context.pipelineMetadata?.lastExecution?.uuid ||
-                context.correlationId;
+                context.pipelineMetadata?.lastExecution?.uuid;
             const repositoryId = context.repository?.id;
 
             // Shared telemetry metadata for all Langfuse-traced calls in this pipeline run
@@ -785,15 +799,20 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             const failures = result.failures ?? [];
 
             if (failures.length > 0) {
-                const reviewProvider =
-                    typeof context.codeReviewConfig?.byokConfig?.main
-                        ?.provider === 'string'
-                        ? (context.codeReviewConfig.byokConfig.main
-                              .provider as string)
-                        : undefined;
+                // Classify against the provider that ANSWERED, not the one
+                // resolved before the run. The friendly sentence names the
+                // provider inline ("the key (openai) appears invalid"), so
+                // classifying with the pre-run slot after a cascade puts one
+                // provider in the prose and another in the facts line — the
+                // same never-co-occurred pair, split across two fields.
+                // A classification already attached by byok-model-wrapper is
+                // anchored to the attempt that raised it, so it is preferred.
                 const classifyFailure = (f: (typeof failures)[number]) =>
                     getClassification(f.error) ??
-                    classifyLLMError(f.error, reviewProvider);
+                    classifyLLMError(
+                        f.error,
+                        resolvedProvider(context, f.error),
+                    );
                 const criticalFailures = failures.filter((f) =>
                     CRITICAL_AGENTS.has(f.agentName),
                 );
@@ -816,8 +835,13 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                 context = this.updateContext(context, (draft) => {
                     draft.lastReviewError = {
                         category: classification.category,
-                        provider: classification.provider,
+                        provider:
+                            classification.provider ??
+                            resolvedProvider(context, chosen.error),
                         friendlyMessage: classification.friendlyMessage,
+                        httpStatus: classification.httpStatus,
+                        providerMessage: classification.providerMessage,
+                        model: resolvedModel(context, chosen.error),
                         agentName: chosen.agentName,
                         occurredAt: new Date(),
                     };
@@ -877,6 +901,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                             ...s,
                             priorityStatus:
                                 PriorityStatus.DISCARDED_BY_SEVERITY,
+                            deliveryStatus: DeliveryStatus.NOT_SENT,
                         });
                     }
                 }
@@ -886,6 +911,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                             ...s,
                             priorityStatus:
                                 PriorityStatus.DISCARDED_BY_SAFEGUARD,
+                            deliveryStatus: DeliveryStatus.NOT_SENT,
                         });
                     }
                 }
@@ -900,6 +926,29 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             const changedFilesByName = new Map(
                 changedFiles.map((f) => [f.filename, f]),
             );
+            // Rules that declared they need more than the diff (issue #1826).
+            // Only such a rule has earned the right to point at a line this PR
+            // did not change: "this function is too long" is true of the whole
+            // function, most of which is unchanged. Every other out-of-hunk
+            // finding is still dropped, exactly as before — nothing else in the
+            // pipeline can tell the two apart, which is why the snap drops both
+            // today.
+            const contextNeedingRuleUuids = new Set(
+                (context.codeReviewConfig?.kodyRules ?? [])
+                    .filter(
+                        (rule) =>
+                            !!rule.uuid &&
+                            !!(rule as Partial<IKodyRule>).contextNeed?.need &&
+                            (rule as Partial<IKodyRule>).contextNeed!.need !==
+                                'diff-only',
+                    )
+                    .map((rule) => rule.uuid!),
+            );
+            const isFileAnchored = (s: Partial<CodeSuggestion>): boolean =>
+                s.label === 'kody_rules' &&
+                (s.brokenKodyRulesIds ?? []).some((uuid) =>
+                    contextNeedingRuleUuids.has(uuid),
+                );
             const validatedSuggestions = result.suggestions
                 .map((s) => {
                     const file = changedFilesByName.get(s.relevantFile);
@@ -907,6 +956,13 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                     const validRanges = extractValidDiffLines(file.patch);
                     const snapped = snapLinesToDiff(s, validRanges);
                     if (snapped === null) {
+                        if (isFileAnchored(s)) {
+                            this.logger.log({
+                                message: `[AGENT] File-anchored finding for ${s.relevantFile}: lines ${s.relevantLinesStart}-${s.relevantLinesEnd} sit outside every hunk, but the rule declared it needs context beyond the diff — delivering it as a PR-level comment`,
+                                context: this.stageName,
+                            });
+                            return { ...s, fileAnchored: true };
+                        }
                         this.logger.log({
                             message: `[AGENT] Dropped out-of-diff suggestion for ${s.relevantFile}: lines ${s.relevantLinesStart}-${s.relevantLinesEnd} do not overlap any changed hunk`,
                             context: this.stageName,
@@ -915,6 +971,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                             ...s,
                             priorityStatus:
                                 PriorityStatus.DISCARDED_BY_CODE_DIFF,
+                            deliveryStatus: DeliveryStatus.NOT_SENT,
                         });
                         return null;
                     }
@@ -1023,7 +1080,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                 const dedupResult = await this.deduplicateSuggestions(
                     nonKodyRulesForDedup,
                     prNumber,
-                    context.codeReviewConfig?.byokConfig,
+                    context.codeReviewConfig?.resolvedModelSlot,
                     telemetryMeta,
                 );
                 dedupedNonRules = dedupResult.suggestions;
@@ -1100,6 +1157,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                     })),
                     context.codeReviewConfig?.v2PromptOverrides,
                     context.codeReviewConfig?.byokConfig,
+                    context.organizationAndTeamData?.organizationId,
                 );
                 for (let i = 0; i < deduped.length; i++) {
                     const classified = severityMap.get(i);
@@ -1168,6 +1226,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                     allDiscarded.push({
                         ...s,
                         priorityStatus: PriorityStatus.DISCARDED_BY_SEVERITY,
+                        deliveryStatus: DeliveryStatus.NOT_SENT,
                     });
                 }
                 if (deduped.length < before) {
@@ -1198,6 +1257,8 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                         byokConfig: context.codeReviewConfig?.byokConfig,
                         languageResultPrompt:
                             context.codeReviewConfig?.languageResultPrompt,
+                        organizationId:
+                            context.organizationAndTeamData?.organizationId,
                     },
                 );
                 for (const [i, fmt] of formatted) {
@@ -1221,6 +1282,65 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                     message: `[AGENT] Content formatting failed, keeping original text: ${err instanceof Error ? err.message : String(err)}`,
                     context: this.stageName,
                 });
+            }
+
+            // Publication gate (issue #1833): four weeks of production
+            // thumbs-down showed 38% had no usable fix — empty, identical to
+            // existingCode, or syntactically truncated. A correct diagnosis
+            // with a broken "fix" reads as OUR mistake, not a miss. (Prose-
+            // only detection was tried and removed — see is-usable-fix.ts's
+            // header: no regex reliably tells English apart from code.)
+            // Rather than dropping the whole finding, strip the unusable
+            // improvedCode and publish as a plain comment: the renderer
+            // already omits the code block when improvedCode is empty
+            // (github.service.ts's `codeBlock = improvedCode ? ... : ''`),
+            // the same path PR-level Piku Rule findings with no existingCode
+            // already use. Runs AFTER the content formatter (which never
+            // touches improvedCode, only suggestionContent/llmPrompt) and
+            // BEFORE the Piku Rule link enrichment.
+            {
+                const badFixCounts: Partial<Record<BadFixReason, number>> = {};
+                for (const s of deduped) {
+                    const reason = checkFix(
+                        s.existingCode,
+                        s.improvedCode,
+                        s.language,
+                    );
+                    if (!reason) {
+                        continue;
+                    }
+                    badFixCounts[reason] = (badFixCounts[reason] ?? 0) + 1;
+                    s.improvedCode = '';
+                }
+                const totalBadFix = Object.values(badFixCounts).reduce(
+                    (sum: number, n) => sum + (n ?? 0),
+                    0,
+                );
+                if (totalBadFix > 0) {
+                    this.logger.log({
+                        message: `[AGENT] Downgraded ${totalBadFix} suggestion(s) with unusable improvedCode to plain comments`,
+                        context: this.stageName,
+                        metadata: {
+                            prNumber,
+                            organizationId:
+                                context.organizationAndTeamData
+                                    ?.organizationId,
+                            ...badFixCounts,
+                        },
+                    });
+                    context = this.updateContext(context, (draft) => {
+                        draft.reviewWarnings = dedupReviewWarnings([
+                            ...(draft.reviewWarnings ?? []),
+                            buildBadFixDowngradedWarning({
+                                count: totalBadFix,
+                                modelName: getModelName(
+                                    context.codeReviewConfig?.byokConfig,
+                                ),
+                                agentName: 'agent-review',
+                            }),
+                        ]);
+                    });
+                }
             }
 
             // Enrich kody_rules suggestions with markdown links to the rule
@@ -1269,21 +1389,39 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                 s.suggestionContent = content;
             }
 
-            // Separate PR-level kody rules (no file/lines) from file-level suggestions.
+            // Separate PR-level kody rules (no anchor) from file-level suggestions.
             // PR-level suggestions go to validSuggestionsByPR → CreatePrLevelCommentsStage.
-            const prLevelSuggestions = deduped.filter(
-                (s) =>
-                    s.label === 'kody_rules' &&
-                    !s.relevantFile &&
-                    !s.relevantLinesStart,
-            );
+            // A file-anchored finding takes the same route: it is about the
+            // file, so there is no line in the diff to hang it on.
+            // A missing relevantFile alone already means it can't be anchored
+            // to a diff position — a lone relevantLinesStart with no
+            // relevantFile used to fall through to file-level grouping keyed
+            // on '', which never matches a real changed file and silently
+            // dropped the finding as DISCARDED_BY_CODE_DIFF.
+            //
+            // A relevantFile that names a file THIS PR TOUCHES but carries no
+            // line also can't be anchored: calculateCommentStartLine (in
+            // comment-builder.utils.ts) returns undefined for a missing
+            // relevantLinesStart, and create-file-comments.stage.ts posts the
+            // comment anyway with start_line/line both undefined — a broken
+            // inline comment, not a discard. Route it PR-level instead, same
+            // as the no-file case.
+            //
+            // A relevantFile naming a file OUTSIDE this PR must NOT take this
+            // branch even with no line citation: it still needs to go through
+            // the file-level branch below so the `changedFiles` guard discards
+            // it (KRC-20) instead of leaking out as an unanchored PR-level
+            // comment. `changedFilesByName` (built above for the diff-snap
+            // step) tells the two cases apart.
+            const isPrLevelSuggestion = (s: Partial<CodeSuggestion>): boolean =>
+                s.label === 'kody_rules' &&
+                (!s.relevantFile ||
+                    s.fileAnchored === true ||
+                    (!s.relevantLinesStart &&
+                        changedFilesByName.has(s.relevantFile)));
+            const prLevelSuggestions = deduped.filter(isPrLevelSuggestion);
             const fileLevelSuggestions = deduped.filter(
-                (s) =>
-                    !(
-                        s.label === 'kody_rules' &&
-                        !s.relevantFile &&
-                        !s.relevantLinesStart
-                    ),
+                (s) => !isPrLevelSuggestion(s),
             );
 
             // Sort file-level suggestions: kody_rules first, then by severity
@@ -1383,6 +1521,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                                 ...s,
                                 priorityStatus:
                                     PriorityStatus.DISCARDED_BY_CODE_DIFF,
+                                deliveryStatus: DeliveryStatus.NOT_SENT,
                             });
                         }
                     }
@@ -1401,7 +1540,21 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                             id:
                                 s.brokenKodyRulesIds?.[0] ||
                                 crypto.randomUUID(),
-                            suggestionContent: s.suggestionContent || '',
+                            // Any finding that named a file has to say WHERE,
+                            // since a PR-level comment carries no anchor of
+                            // its own — true whether it's fileAnchored
+                            // (explicitly out-of-hunk) or just missing a
+                            // line. Cite a line only when one is real
+                            // (`!s.relevantLinesStart`, same falsy check
+                            // `isPrLevelSuggestion` uses above): fabricating
+                            // `:1` for a finding that has no line — the
+                            // empty/unparseable-patch case — would point at
+                            // a line that need not exist in the diff at all.
+                            suggestionContent: s.relevantFile
+                                ? s.relevantLinesStart
+                                    ? `\`${s.relevantFile}:${s.relevantLinesStart}\` — ${s.suggestionContent || ''}`
+                                    : `\`${s.relevantFile}\` — ${s.suggestionContent || ''}`
+                                : s.suggestionContent || '',
                             oneSentenceSummary: s.oneSentenceSummary || '',
                             label: (s.label as any) || 'kody_rules',
                             severity: this.normalizeSeverity(
@@ -1414,12 +1567,17 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                 }
 
                 draft.dedupTrace = dedupTrace;
-                draft.validSuggestions = deduped;
+                // File-level only: CreateFileCommentsStage posts every entry as
+                // a line comment, and the PR-level ones are already delivered
+                // through validSuggestionsByPR above.
+                draft.validSuggestions = fileLevelSuggestions;
                 draft.discardedSuggestions = allDiscarded;
             });
         } catch (error) {
             const durationMs = Date.now() - startTime;
-            this.logger.error({
+            // Terminal BYOK (suspended key / no credit) → warn: user's provider
+            // config, not a piku-cat fault. Real fault stays error.
+            this.logger[llmErrorLogLevel(error)]({
                 message: `[AGENT] Agent review failed for PR#${prNumber} after ${durationMs}ms, continuing with empty results`,
                 context: this.stageName,
                 error,
@@ -1436,10 +1594,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                 getClassification(stageError) ??
                 classifyLLMError(
                     stageError,
-                    typeof context.codeReviewConfig?.byokConfig?.main
-                        ?.provider === 'string'
-                        ? context.codeReviewConfig.byokConfig.main.provider
-                        : undefined,
+                    resolvedProvider(context, stageError),
                 );
 
             // Keep going so the end-review comment still gets posted and the
@@ -1465,8 +1620,13 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                 if (!draft.lastReviewError) {
                     draft.lastReviewError = {
                         category: classification.category,
-                        provider: classification.provider,
+                        provider:
+                            classification.provider ??
+                            resolvedProvider(context, stageError),
                         friendlyMessage: classification.friendlyMessage,
+                        httpStatus: classification.httpStatus,
+                        providerMessage: classification.providerMessage,
+                        model: resolvedModel(context, stageError),
                         occurredAt: new Date(),
                     };
                 }
@@ -1586,19 +1746,14 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
      * base URL is pinned explicitly; only the platform key comes from the env.
      * (The tiebreak LLM that runs AFTER the embedding still uses BYOK.)
      */
-    private dedupEmbedder: OpenAIEmbeddings | null | undefined;
-    private getDedupEmbedder(): OpenAIEmbeddings | null {
+    private dedupEmbedder: EmbeddingModel | null | undefined;
+    private getDedupEmbedder(): EmbeddingModel | null {
         if (this.dedupEmbedder !== undefined) {
             return this.dedupEmbedder;
         }
-        const apiKey = process.env.API_OPEN_AI_API_KEY;
-        this.dedupEmbedder = apiKey
-            ? new OpenAIEmbeddings({
-                  apiKey,
-                  model: 'text-embedding-3-small',
-                  configuration: { baseURL: 'https://api.openai.com/v1' },
-              })
-            : null;
+        // Single platform-embedder seam (libs/common/utils/document): pinned to
+        // OpenAI text-embedding, never BYOK, null when no platform key.
+        this.dedupEmbedder = buildPlatformEmbedder();
         return this.dedupEmbedder;
     }
 
@@ -1615,7 +1770,11 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             const text = dedupEmbeddingText(suggestion as any);
             const embedder = this.getDedupEmbedder();
             if (text && embedder) {
-                vector = await embedder.embedQuery(text);
+                const { embedding } = await embed({
+                    model: embedder,
+                    value: text,
+                });
+                vector = embedding;
             }
         } catch (err) {
             this.logger.warn({
@@ -1715,44 +1874,26 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
      * null so the caller vetoes (keeps both).
      */
     private buildDedupTiebreak(
-        byokConfig: any,
+        byokConfig: NormalizedModel | undefined,
         telemetryMeta: LangfuseTelemetryMetadata | undefined,
         prNumber: number,
     ): (
         a: Partial<CodeSuggestion>,
         b: Partial<CodeSuggestion>,
     ) => Promise<boolean | null> {
-        const secondaryByok = isSecondaryByok(byokConfig);
         return async (a, b) => {
             try {
-                const call = (model: any) =>
-                    tracedGenerateText({
-                        model: model as any,
-                        ...toAiSdkTelemetryArgs(
-                            buildLangfuseTelemetry(
-                                'dedup-tiebreak',
-                                telemetryMeta,
-                            ),
-                        ),
-                        output: Output.object({
-                            schema: jsonSchema(DEDUP_TIEBREAK_SCHEMA as any),
-                        }) as any,
-                        prompt: buildTiebreakPrompt(a as any, b as any),
-                    });
-                const tiebreakByok = secondaryByok
-                    ? byokConfig?.main
-                        ? { main: byokConfig.main }
-                        : byokConfig
-                    : byokConfig;
-                const res = await withStructuredOutputFallback(
-                    {
-                        byokConfig: tiebreakByok,
-                        organizationId: telemetryMeta?.organizationId,
-                        label: 'dedup-tiebreak',
-                    },
-                    call,
-                );
-                const out = (res as any).object ?? (res as any).output;
+                // ONE primitive: LLM.run resolves the slot (or managed default),
+                // owns the span + json_schema→json_object fallback, and returns the
+                // parsed object. `runName` reproduces the 'dedup-tiebreak' trace.
+                const out = (await LLM.run({
+                    byokConfig,
+                    schema: jsonSchema(DEDUP_TIEBREAK_SCHEMA as any),
+                    user: buildTiebreakPrompt(a as any, b as any),
+                    runName: 'dedup-tiebreak',
+                    organizationId: telemetryMeta?.organizationId,
+                    telemetryMetadata: telemetryMeta,
+                })) as any;
                 return typeof out?.sameBug === 'boolean' ? out.sameBug : null;
             } catch (err) {
                 this.logger.warn({
@@ -1779,7 +1920,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
         suggestions: Partial<CodeSuggestion>[],
         kodyRules: Partial<CodeSuggestion>[],
         prNumber: number,
-        byokConfig?: any,
+        byokConfig?: NormalizedModel,
         telemetryMeta?: LangfuseTelemetryMetadata,
     ): Promise<Partial<CodeSuggestion>[]> {
         const fileScopedRules = kodyRules.filter((r) => !!r.relevantFile);
@@ -1797,8 +1938,11 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
         const kept: Partial<CodeSuggestion>[] = [];
         for (let si = 0; si < suggestions.length; si++) {
             const s = suggestions[si];
-            let absorbedBy: { ri: number; reason: string; score: number } | null =
-                null;
+            let absorbedBy: {
+                ri: number;
+                reason: string;
+                score: number;
+            } | null = null;
             for (let ri = 0; ri < fileScopedRules.length; ri++) {
                 const rule = fileScopedRules[ri];
                 // A suggestion can only duplicate a rule on the SAME file.
@@ -1842,12 +1986,15 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
     private async deduplicateSuggestions(
         suggestions: Partial<CodeSuggestion>[],
         prNumber: number,
-        byokConfig?: any,
+        resolvedSlot?: NormalizedModel,
         telemetryMeta?: LangfuseTelemetryMetadata,
     ): Promise<{
         suggestions: Partial<CodeSuggestion>[];
         trace: DedupTraceSummary;
     }> {
+        // The dedup pass runs on the bare resolved model slot (or the managed
+        // default, resolved inside LLM.run).
+        const dedupSlot = resolvedSlot ?? undefined;
         if (suggestions.length <= 1) {
             return {
                 suggestions,
@@ -1868,122 +2015,92 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             };
         }
 
-        // Model resolution (same policy as severity/format):
-        //   BYOK main → withStructuredOutputFallback (client key + schema retry)
-        //   else platform gpt-5.4-mini / getInternalModel (trial / no BYOK)
-        const secondaryByok = isSecondaryByok(byokConfig);
-
         try {
-            const runDedup = (model: any) =>
-                tracedGenerateText({
-                    model: model as any,
-                    ...toAiSdkTelemetryArgs(
-                        buildLangfuseTelemetry(
-                            'dedup-suggestions',
-                            telemetryMeta,
+            // Graceful no-model (self-hosted, no key): skip dedup and keep all,
+            // the same everywhere — so dev/CI doesn't fail-loud on a missing key
+            // (LLM.run no longer throws the old NoStructuredFallbackModelError the
+            // catch below keyed off). A model resolves when there's a BYOK slot OR
+            // a managed/env default key is configured — the exact condition the
+            // removed `resolveSecondaryPassModel` (→ getInternalModel) checked.
+            if (!dedupSlot && !hasManagedModelKey()) {
+                this.logger.warn({
+                    message: `[DEDUP] PR#${prNumber}: no secondary model available, keeping all suggestions`,
+                    context: this.stageName,
+                });
+                return {
+                    suggestions,
+                    trace: {
+                        status: 'skipped',
+                        totalClassifiedCount: suggestions.length,
+                        kodyRulesSkippedCount: 0,
+                        nonKodyInputCount: suggestions.length,
+                        nonKodyOutputCount: suggestions.length,
+                        finalOutputCount: suggestions.length,
+                        uniqueCount: suggestions.length,
+                        groupsCount: 0,
+                        removedCount: 0,
+                        unique: suggestions.map((suggestion) =>
+                            this.summarizeDedupSuggestion(suggestion),
                         ),
-                    ),
-                    output: Output.object({
-                        schema: jsonSchema(DEDUP_SCHEMA as any),
-                    }) as any,
-                    prompt: buildDedupPrompt(suggestions, (sev) =>
-                        this.normalizeSeverity(sev),
-                    ),
-                });
-
-            let dedupResult: any;
-            if (secondaryByok) {
-                // Prefer main for secondary (getInternalModel would pick
-                // fallback first when both are set — not what we want here).
-                const structuredByok = byokConfig?.main
-                    ? { main: byokConfig.main }
-                    : byokConfig;
-                dedupResult = await withStructuredOutputFallback(
-                    {
-                        byokConfig: structuredByok,
-                        organizationId: telemetryMeta?.organizationId,
-                        label: 'dedup-suggestions',
                     },
-                    runDedup,
-                );
-            } else {
-                // Trial / no-BYOK / self-hosted env path. Still wrap with
-                // withStructuredOutputFallback so models that reject
-                // response_format=json_schema (Gemini, some proxies) retry
-                // with json_object instead of failing open into keep-all
-                // after a thrown error further up — or worse, partial
-                // structured output that leaves true dups on the PR.
-                if (!resolveSecondaryPassModel(byokConfig)) {
-                    this.logger.warn({
-                        message: `[DEDUP] PR#${prNumber}: no secondary model available, keeping all suggestions`,
-                        context: this.stageName,
-                    });
-                    return {
-                        suggestions,
-                        trace: {
-                            status: 'skipped',
-                            totalClassifiedCount: suggestions.length,
-                            kodyRulesSkippedCount: 0,
-                            nonKodyInputCount: suggestions.length,
-                            nonKodyOutputCount: suggestions.length,
-                            finalOutputCount: suggestions.length,
-                            uniqueCount: suggestions.length,
-                            groupsCount: 0,
-                            removedCount: 0,
-                            unique: suggestions.map((suggestion) =>
-                                this.summarizeDedupSuggestion(suggestion),
-                            ),
-                        },
-                    };
-                }
-                dedupResult = await withStructuredOutputFallback(
-                    {
-                        byokConfig,
-                        organizationId: telemetryMeta?.organizationId,
-                        label: 'dedup-suggestions',
-                    },
-                    runDedup,
-                );
+                };
             }
 
-            // Track token usage — via the canonical emitter so the dedup pass'
-            // cost lands in `observability_telemetry` with the SAME schema
-            // (agentName/phase/type/gen_ai.usage.*) as the review agents.
-            const dedupUsage = dedupResult.usage ?? dedupResult.totalUsage;
-            if (dedupUsage) {
-                await this.observabilityService.recordAgentRunUsage({
-                    agentName: 'code-review',
-                    phase: 'dedup',
-                    spanName: 'dedup-suggestions',
-                    runName: 'code-review-dedup',
-                    model: secondaryByok
-                        ? (byokConfig?.main?.model ??
-                          byokConfig?.fallback?.model ??
-                          'byok-dedup')
-                        : SECONDARY_PASS_MODEL_ID,
-                    isByok: secondaryByok,
-                    usage: {
-                        inputTokens: dedupUsage.inputTokens,
-                        outputTokens: dedupUsage.outputTokens,
-                        totalTokens: dedupUsage.totalTokens,
-                    },
+            // ONE primitive: LLM.run resolves the slot (or the managed default),
+            // owns the json_schema→json_object fallback, and records the dedup
+            // usage span ITSELF — agent.name/phase derived from the 'code-review::
+            // dedup' spanName — so the manual recordAgentRunUsage is gone. Returns
+            // the parsed dedup object directly.
+            const dedupOutput = (await LLM.run({
+                byokConfig: resolvedSlot,
+                schema: jsonSchema(DEDUP_SCHEMA as any),
+                user: buildDedupPrompt(suggestions, (sev) =>
+                    this.normalizeSeverity(sev),
+                ),
+                runName: 'code-review-dedup',
+                spanName: 'code-review::dedup',
+                organizationId: telemetryMeta?.organizationId,
+                telemetryMetadata: telemetryMeta,
+                // Parity with the old recordAgentRunUsage: the dedup span keeps
+                // its type + per-PR/team attribution (the model/credential keys
+                // are derived from the slot inside LLM.run).
+                attrs: {
+                    type: dedupSlot ? 'byok' : 'system',
                     prNumber,
-                });
-            }
-
-            const dedupOutput =
-                (dedupResult as any).object ?? (dedupResult as any).output;
+                    ...(telemetryMeta?.teamId
+                        ? { teamId: telemetryMeta.teamId }
+                        : {}),
+                },
+            })) as any;
 
             this.logger.log({
                 message: `[DEDUP-DEBUG] PR#${prNumber}: input=${suggestions.length}, groups=${dedupOutput?.groups?.length ?? 0}, unique=${dedupOutput?.unique?.length ?? 0}`,
                 context: this.stageName,
             });
 
+            // SHAPE recovery (#1786): a non-strict model may wrap
+            // ({result:{groups,unique}}), rename, stringify, or bare-array the
+            // dedup output — recover the canonical shape before reading, so an
+            // off-schema envelope does not fold into 'keep-all' and ship
+            // duplicate comments.
+            const normalizedDedup = normalizeEnvelope(
+                dedupOutput,
+                'groups',
+                ['duplicateGroups', 'duplicates'],
+                {
+                    onRecover: (reason) =>
+                        this.logger.warn({
+                            message: `${LLM_ENVELOPE_TAG} recovered off-schema dedup output (${reason}) for PR#${prNumber}`,
+                            context: this.stageName,
+                        }),
+                },
+            ) as any;
+
             const groups: Array<{
                 keep: number;
                 duplicates: number[];
-            }> = dedupOutput?.groups || [];
-            const unique: number[] = dedupOutput?.unique || [];
+            }> = normalizedDedup?.groups || [];
+            const unique: number[] = normalizedDedup?.unique || [];
 
             // Semantic tier of the content guard (PR #1527): when lexical overlap
             // is inconclusive we compare description embeddings, and only escalate
@@ -1991,7 +2108,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             // per suggestion for this dedup run.
             const embedCache = new Map<string, number[] | null>();
             const runTiebreak = this.buildDedupTiebreak(
-                byokConfig,
+                dedupSlot,
                 telemetryMeta,
                 prNumber,
             );
@@ -2239,31 +2356,24 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                 },
             };
         } catch (error) {
-            const noModel = error instanceof NoStructuredFallbackModelError;
             // Fail loud outside production. An unexpected error here (e.g. the
             // `googleKey` ReferenceError that shipped on a feature branch) is a
             // programming bug — left to the graceful 'failed-keep-all' path it
-            // ships silently as duplicate comments. In dev/CI/test we re-throw
-            // so it surfaces at PR time; the operational "no model available"
-            // case (noModel) stays graceful everywhere.
+            // ships silently as duplicate comments. In dev/CI/test we re-throw so
+            // it surfaces at PR time. The operational "no model available" case is
+            // handled BEFORE LLM.run by the `dedupSlot`/managed-key guard above,
+            // so it never reaches this catch.
             const isProduction =
                 (process.env.API_NODE_ENV || process.env.NODE_ENV) ===
                 'production';
-            if (!noModel && !isProduction) {
+            if (!isProduction) {
                 throw error;
             }
-            if (noModel) {
-                this.logger.warn({
-                    message: `[DEDUP] PR#${prNumber}: No model available for dedup (no Google key and no BYOK), keeping all ${suggestions.length} suggestions`,
-                    context: this.stageName,
-                });
-            } else {
-                this.logger.error({
-                    message: `[DEDUP] PR#${prNumber}: Failed, keeping all ${suggestions.length} suggestions`,
-                    context: this.stageName,
-                    error,
-                });
-            }
+            this.logger.error({
+                message: `[DEDUP] PR#${prNumber}: Failed, keeping all ${suggestions.length} suggestions`,
+                context: this.stageName,
+                error,
+            });
             return {
                 suggestions,
                 trace: {
@@ -2276,11 +2386,8 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                     uniqueCount: suggestions.length,
                     groupsCount: 0,
                     removedCount: 0,
-                    errorMessage: noModel
-                        ? 'No model available for dedup (no Google key and no BYOK)'
-                        : error instanceof Error
-                          ? error.message
-                          : String(error),
+                    errorMessage:
+                        error instanceof Error ? error.message : String(error),
                     unique: suggestions.map((suggestion) =>
                         this.summarizeDedupSuggestion(suggestion),
                     ),
@@ -2831,8 +2938,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                             );
                         });
                         if (match) {
-                            const prNumber =
-                                match.number || match.pull_number;
+                            const prNumber = match.number || match.pull_number;
                             if (prNumber) {
                                 openPrOnHeadBranch.set(
                                     repo.fullName.toLowerCase(),

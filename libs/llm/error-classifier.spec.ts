@@ -4,6 +4,7 @@ import {
     classifyLLMError,
     getClassification,
     isTerminalCategory,
+    llmErrorLogLevel,
 } from './error-classifier';
 import {
     AgentContextWindowTooSmallError,
@@ -89,6 +90,20 @@ describe('classifyLLMError', () => {
             );
         });
 
+        // Read off production: Z.AI/GLM returns this exact prose with a 429.
+        // "balance" matched none of the quota vocabulary, so it landed on
+        // RATE_LIMIT -- retry-worthy -- and we kept retrying accounts that
+        // could only be fixed by paying. Four GLM scopes were stuck this way.
+        it.each([
+            'Insufficient balance or no resource package. Please recharge.',
+            'insufficient balance',
+            'Please recharge your account',
+        ])('reads a spent balance as quota, not rate limit: %s', (msg) => {
+            expect(classifyLLMError(errorWithStatus(msg, 429)).category).toBe(
+                LlmErrorCategory.QUOTA_EXCEEDED,
+            );
+        });
+
         it('treats plain 429 → RATE_LIMIT', () => {
             const err = errorWithStatus('too many requests', 429);
             expect(classifyLLMError(err).category).toBe(
@@ -135,6 +150,24 @@ describe('classifyLLMError', () => {
         it('Anthropic credit_balance_too_low → QUOTA_EXCEEDED', () => {
             const err = new Error(
                 'Your credit balance is too low (code: credit_balance_too_low)',
+            );
+            expect(classifyLLMError(err).category).toBe(
+                LlmErrorCategory.QUOTA_EXCEEDED,
+            );
+        });
+
+        it('Moonshot account-suspended prose (no status) → QUOTA_EXCEEDED', () => {
+            const err = new Error(
+                'Account gabriel-xxx is suspended, possibly due to reaching the monthly spending limit or failure to pay past invoices.',
+            );
+            expect(classifyLLMError(err).category).toBe(
+                LlmErrorCategory.QUOTA_EXCEEDED,
+            );
+        });
+
+        it('"account is suspended due to insufficient credit" → QUOTA_EXCEEDED', () => {
+            const err = new Error(
+                'Your account org-abc is suspended due to insufficient credit balance.',
             );
             expect(classifyLLMError(err).category).toBe(
                 LlmErrorCategory.QUOTA_EXCEEDED,
@@ -246,7 +279,7 @@ describe('classifyLLMError', () => {
             // All three action options.
             expect(msg).toContain('Switch to a recommended model');
             expect(msg).toContain('Split the PR');
-            expect(msg).toContain('byokConfig.main.maxInputTokens');
+            expect(msg).toContain("Raise the model's Max input tokens");
             // Names of curated models (the ones shown as cards in BYOK
             // settings — admins should recognize these).
             expect(msg).toContain('Claude Sonnet 4.6');
@@ -277,7 +310,7 @@ describe('classifyLLMError', () => {
             expect(msg).toContain('Switch to a recommended model');
             expect(msg).toContain('Split the PR');
             // BYOK-limit option is omitted (no specific window to compare).
-            expect(msg).not.toContain('byokConfig.main.maxInputTokens');
+            expect(msg).not.toContain("Raise the model's Max input tokens");
         });
 
         it('renders as GitHub-flavored Markdown (bold + bullets) so the PR comment formats correctly', () => {
@@ -310,6 +343,21 @@ describe('isTerminalCategory', () => {
         LlmErrorCategory.UNKNOWN,
     ])('%s is not terminal', (cat) => {
         expect(isTerminalCategory(cat)).toBe(false);
+    });
+});
+
+describe('llmErrorLogLevel', () => {
+    it('terminal BYOK billing (suspended account) → warn', () => {
+        const err = new Error('Account xxx is suspended, spending limit reached');
+        expect(llmErrorLogLevel(err)).toBe('warn');
+    });
+    it('auth-invalid → warn', () => {
+        expect(llmErrorLogLevel(errorWithStatus('nope', 401))).toBe('warn');
+    });
+    it('unknown / genuine fault → error', () => {
+        expect(llmErrorLogLevel(new Error('TypeError: x is not a function'))).toBe(
+            'error',
+        );
     });
 });
 

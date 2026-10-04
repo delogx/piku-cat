@@ -627,6 +627,17 @@
     }
   },
   {
+    "key": "kodusCredits.controller.ts#charges",
+    "httpMethod": "GET",
+    "urlPath": "/credits/charges",
+    "expected": {
+      "owner": "allow",
+      "billing_manager": "allow",
+      "repo_admin": "deny",
+      "contributor": "deny"
+    }
+  },
+  {
     "key": "kodyRules.controller.ts#addLibraryKodyRules",
     "httpMethod": "POST",
     "urlPath": "/kody-rules/add-library-kody-rules",
@@ -1111,6 +1122,17 @@
     }
   },
   {
+    "key": "organizationParameters.controller.ts#getByokProviders",
+    "httpMethod": "GET",
+    "urlPath": "/organization-parameters/byok/providers",
+    "expected": {
+      "owner": "allow",
+      "billing_manager": "allow",
+      "repo_admin": "allow",
+      "contributor": "allow"
+    }
+  },
+  {
     "key": "organizationParameters.controller.ts#getCockpitMetricsVisibility",
     "httpMethod": "GET",
     "urlPath": "/organization-parameters/cockpit-metrics-visibility",
@@ -1147,6 +1169,28 @@
     "key": "organizationParameters.controller.ts#listModelOverrides",
     "httpMethod": "GET",
     "urlPath": "/organization-parameters/model-overrides",
+    "expected": {
+      "owner": "allow",
+      "billing_manager": "deny",
+      "repo_admin": "deny",
+      "contributor": "deny"
+    }
+  },
+  {
+    "key": "organizationParameters.controller.ts#listModelsWithKey",
+    "httpMethod": "POST",
+    "urlPath": "/organization-parameters/list-models",
+    "expected": {
+      "owner": "allow",
+      "billing_manager": "deny",
+      "repo_admin": "deny",
+      "contributor": "deny"
+    }
+  },
+  {
+    "key": "organizationParameters.controller.ts#modelCapabilities",
+    "httpMethod": "GET",
+    "urlPath": "/organization-parameters/model-capabilities",
     "expected": {
       "owner": "allow",
       "billing_manager": "deny",

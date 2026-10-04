@@ -20,11 +20,13 @@ import {
     FileChange,
 } from '@libs/core/infrastructure/config/types/general/codeReview.type';
 import { RemoteCommands } from '@libs/code-review/infrastructure/adapters/services/collectCrossFileContexts.service';
+import type { RepoLookup } from '@libs/code-review/infrastructure/agents/collaborators/repo-lookup';
 import { IKodyRule } from '@libs/kodyRules/domain/interfaces/kodyRules.interface';
 import type { TraceContextDecision } from '@libs/cli-review/domain/types/trace-context.types';
+import type { PrDecisionRecord } from '@libs/code-review/domain/contracts/pr-decision-store.contract';
 
-import type { LanguageModel } from 'ai';
-import { BYOKProvider, BYOKConfig } from '@kodus/kodus-common/llm';
+import { BYOKProvider } from '@libs/llm/model-providers';
+import type { NormalizedModel } from '@libs/llm/byok-config';
 import type { LangfuseTelemetryMetadata } from '@libs/core/log/langfuse';
 import type { ReasoningEffort } from '@libs/llm/reasoning-options';
 
@@ -34,6 +36,7 @@ import type { ReviewWarning } from '@libs/code-review/infrastructure/agents/engi
 import type { DocumentationSearchAdapter } from '@libs/code-review/infrastructure/agents/engine/agent-tools.factory';
 import type { FindingsOutput } from '@libs/code-review/infrastructure/agents/core/findings-schema';
 import type { LinkedRepoAccess } from '@libs/ee/linked-repositories';
+import type { VerdictParseMode } from '@libs/agent-harness/domain/contracts/verifier.contract';
 
 export type { FindingsOutput } from '@libs/code-review/infrastructure/agents/core/findings-schema';
 
@@ -124,6 +127,20 @@ export interface ToolingContext {
      * is no sandbox available.
      */
     remoteCommands: RemoteCommands | undefined;
+    /**
+     * Repository lookup WITH an explicit capability signal (issue #1826).
+     *
+     * `remoteCommands` cannot answer "can I look?": the null sandbox implements
+     * it and returns '' successfully, so a consumer reads silence as evidence.
+     * `repoLookup.available` is that missing signal, derived from the sandbox
+     * handle's own `type`, and every accessor throws rather than answering
+     * empty when it is false.
+     *
+     * Absent means the same thing as unavailable — a consumer must fail closed,
+     * never assume a lookup it was not given. `buildOrchestratorInput` always
+     * populates it, including for a null sandbox.
+     */
+    repoLookup?: RepoLookup;
     gitHubToken?: string;
     /** Pre-computed call graph for changed functions. Generated once, shared across agents. */
     callGraph?: string;
@@ -145,11 +162,15 @@ export interface ReviewRuleConfig {
     languageResultPrompt: string;
     memoryRules?: Partial<IKodyRule>[];
     /**
-     * Historical implementation decisions selected from Kodus Trace for the
+     * Historical implementation decisions selected from piku-cat Trace for the
      * paths in this review. They explain intent, but are not evidence that the
      * current implementation is correct.
      */
     traceDecisions?: TraceContextDecision[];
+    /** Suggestions already posted on THIS PR in a previous review round, scoped
+     *  to the changed files (issue #1313). Historical evidence, never proof the
+     *  current code is correct — same discipline as `traceDecisions`. */
+    previousDecisions?: PrDecisionRecord[];
     /** Piku rules passed through so findings tagged with ruleUuid can be cross-referenced. */
     kodyRules?: Partial<IKodyRule>[];
     v2PromptOverrides?: CodeReviewConfig['v2PromptOverrides'];
@@ -165,7 +186,7 @@ export interface ModelConfig {
     /**
      * When the caller has no BYOK config (e.g. the public-demo / trial
      * flow with `organizationId='trial'`), this overrides the hardcoded
-     * gemini-3.1-pro default that `byokToVercelModel` falls back to.
+     * gemini-3.1-pro default that `buildModelFromSlot` falls back to.
      * Used by the trial pipeline to force a cheaper, faster model
      * (`gemini-2.5-flash`) so anonymous reviews don't take 5 minutes.
      */
@@ -175,8 +196,18 @@ export interface ModelConfig {
      * settings) from `codeReviewConfig.byokModel`. When set, it replaces
      * `byokConfig.main.model` for this run so the agent uses the same model
      * the rest of the pipeline does. Empty/undefined means "inherit".
+     *
+     * Legacy NAME-based override, kept for the transition window (D-05).
      */
     byokModel?: string;
+    /**
+     * Id-based BYOK model override (Phase 4) from `codeReviewConfig.byokModelId`.
+     * References a v2 `models[]` entry by its stable id. When set, the model
+     * factory routes the `codeReview` task to this exact model (top of the
+     * routing precedence) via `StaticTaskStrategy`. Takes precedence over the
+     * legacy `byokModel` NAME. Empty/undefined means "inherit".
+     */
+    byokModelId?: string;
     /** Optional per-agent step budget for the main investigation loop. */
     maxSteps?: number;
 }
@@ -252,12 +283,15 @@ export interface ReviewAgentInput
      *  The pipeline/experiment sets it; everything below threads it down. */
     outlineFirst?: boolean;
     /**
-     * Commits that make up this PR (SHA + subject line), oldest→newest. Threaded
-     * so commit-hygiene rules ("don't mix mechanical and behavioral changes")
-     * are judged against real commit boundaries instead of the aggregated diff.
-     * (PR #1412.)
+     * Commits that make up this PR (SHA + subject line + author date),
+     * oldest→newest. Threaded so commit-hygiene rules ("don't mix mechanical
+     * and behavioral changes") are judged against real commit boundaries
+     * instead of the aggregated diff (PR #1412), and so the finder/verifier
+     * can correlate a `<PreviousReviewDecision>`'s `DecidedAt` against what
+     * actually landed since (issue #1313 follow-up: a decision has no
+     * anchor to which round/commit produced it, only a timestamp).
      */
-    commits?: Array<{ sha: string; message: string }>;
+    commits?: Array<{ sha: string; message: string; date?: string }>;
     /**
      * Optional per-review steering directive supplied by the user at trigger
      * time (e.g. `@piku review focus on the auth logic`). Free text. When set,
@@ -309,10 +343,19 @@ export interface ReviewAgentOutput {
 // now commented out.
 
 export interface AgentLoopInput {
-    model: LanguageModel;
+    // No built model here — LLM.run resolves it from the slot (in AgentLoopSecrets.
+    // byokConfig). The finder reads the slot's model id for the strict-tools
+    // decision; nothing downstream needs a pre-built LanguageModel.
     systemPrompt: string;
     userPrompt: string;
     agentName?: string; // e.g. 'kodus-bug-review-agent' — used as Langfuse observation name
+    /** Cost-span run name base for THIS review category (e.g. `code-review-bug`).
+     *  Threaded onto every leaf model call the review makes (finder + verify +
+     *  resample + prose-recovery) so `deriveArea` buckets them all under
+     *  `review`. LLM.run records the ONE usage span per call — there is no
+     *  separate aggregate recording. Absent → the finder default (`code-review`),
+     *  which still buckets to `review`. */
+    usageRunName?: string;
     telemetryMetadata?: LangfuseTelemetryMetadata;
     maxSteps?: number;
     onStepFinish?: (event: any) => void;
@@ -348,6 +391,13 @@ export interface AgentLoopInput {
      *  agents where rules are explicit and synthesis just re-words the
      *  same findings, leading to dedup churn and duplicate comments. */
     skipSynthesisRescue?: boolean;
+    /** Suggestions already posted on THIS PR in a previous review round
+     *  (issue #1313). Threaded down to the verifier so it can refute a
+     *  finding that contradicts a decision already applied — the finder's
+     *  own system/user prompts already have their copy baked into
+     *  `systemPrompt`/`userPrompt` above (see `formatPreviousDecisions` in
+     *  prompt-builder.ts), so this field exists ONLY for the verifier hop. */
+    previousDecisions?: PrDecisionRecord[];
     /** Reasoning effort level from BYOK config. Mapped to provider-specific
      *  providerOptions (anthropic.thinking, google.thinkingConfig, etc). */
     reasoningEffort?: ReasoningEffort;
@@ -391,7 +441,7 @@ export interface AgentLoopSecrets {
      * is no sandbox available.
      */
     remoteCommands: RemoteCommands | undefined;
-    byokConfig?: BYOKConfig;
+    byokConfig?: NormalizedModel;
     gitHubToken?: string;
     /** Cross-repo linked-repo access for agent tools (#1576). */
     linkedRepoAccess?: LinkedRepoAccess;
@@ -500,7 +550,10 @@ export interface VerificationDecisionTrace {
     index: number;
     relevantFile: string;
     action: 'keep' | 'drop' | 'refine';
-    parseMode: 'direct' | 'fallback-llm' | 'default-keep';
+    /** How the verifier's verdict was read: `tool` = it called submitVerdict,
+     *  `text` = it answered in prose and the deterministic parser recovered the
+     *  verdict, `default-keep` = nothing parseable, fail-open (issue #1937). */
+    parseMode: VerdictParseMode;
     rationale: string;
     confidence?: 'high' | 'medium' | 'low';
     verifierEvidence: ToolEvidenceSummary;

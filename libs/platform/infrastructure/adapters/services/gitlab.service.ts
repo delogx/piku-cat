@@ -8,6 +8,7 @@ import {
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import pLimit from 'p-limit';
 import { v4 as uuidv4 } from 'uuid';
 
 import { INTEGRATION_REQUEST_TIMEOUT_MS } from '@libs/core/infrastructure/http/integration-timeouts';
@@ -85,6 +86,12 @@ import {
     PullRequestReviewState,
     PullRequestWithFiles,
 } from '@libs/platform/domain/platformIntegrations/types/codeManagement/pullRequests.type';
+import {
+    isDeniedStatus,
+    RepositoryAccessDiagnosis,
+    summarizeProviderError,
+    UNKNOWN_REPOSITORY_ACCESS,
+} from '@libs/platform/domain/platformIntegrations/types/codeManagement/repositoryAccessDiagnosis.type';
 import { Repositories } from '@libs/platform/domain/platformIntegrations/types/codeManagement/repositories.type';
 import { RepositoryFile } from '@libs/platform/domain/platformIntegrations/types/codeManagement/repositoryFile.type';
 import {
@@ -96,6 +103,27 @@ import {
     EMPTY_REPO_SEED_CONTENT,
     EMPTY_REPO_SEED_PATH,
 } from './code-management-defaults.constants';
+import {
+    isGitlabRateLimitError,
+    toGitlabRateLimitError,
+} from './gitlab-rate-limit.util';
+
+/**
+ * Award emojis are the one reaction source that costs a request per comment —
+ * GitLab has no inline count, unlike GitHub. A merge request with 40 Kody
+ * comments used to fire 40 simultaneous requests, and the reactions cron does
+ * that for every PR at once. Capped here so the per-PR burst is bounded
+ * regardless of how many comments Kody left.
+ */
+const AWARD_EMOJI_CONCURRENCY = 5;
+
+/**
+ * gitbeaker's `.all()` follows the `link` header until the collection is
+ * exhausted, and without `perPage` that walks GitLab's default of 20 per page
+ * — a merge request with 200 discussions costs 10 sequential round trips
+ * instead of 2. 100 is the ceiling GitLab accepts.
+ */
+const GITLAB_MAX_PER_PAGE = 100;
 
 @Injectable()
 @IntegrationServiceDecorator(PlatformType.GITLAB, 'codeManagement')
@@ -312,9 +340,7 @@ export class GitlabService implements Omit<
         });
     }
 
-    async listIssues(
-        params: ListIssuesParams,
-    ): Promise<CodeManagementIssue[]> {
+    async listIssues(params: ListIssuesParams): Promise<CodeManagementIssue[]> {
         const { organizationAndTeamData, repository, filters = {} } = params;
 
         const authDetail = await this.getAuthDetails(organizationAndTeamData);
@@ -336,9 +362,7 @@ export class GitlabService implements Omit<
             labels: filters.labels?.length
                 ? filters.labels.join(',')
                 : undefined,
-            assigneeUsername: filters.assignee
-                ? [filters.assignee]
-                : undefined,
+            assigneeUsername: filters.assignee ? [filters.assignee] : undefined,
             updatedAfter: filters.since,
             page: filters.page,
             perPage: Math.min(Math.max(1, filters.perPage ?? 30), 100),
@@ -880,9 +904,16 @@ export class GitlabService implements Omit<
             // API process (observed on the Bitbucket twin of this call). The
             // failure still gets a loud error log from the method's own
             // catch; this catch only stops the crash.
-            void this.createMergeRequestWebhook({
-                organizationAndTeamData: params.organizationAndTeamData,
-            }).catch(() => undefined);
+            // Skipped for an intermediate chunk of a chunked save: the
+            // selection persisted so far is partial, and reconciling webhooks
+            // against a partial selection removes the hooks of everything not
+            // in it. The last chunk arrives with the complete selection and
+            // runs this once.
+            if (!params.deferWebhooks) {
+                void this.createMergeRequestWebhook({
+                    organizationAndTeamData: params.organizationAndTeamData,
+                }).catch(() => undefined);
+            }
         } catch (err) {
             throw new BadRequestException(err);
         }
@@ -2494,8 +2525,7 @@ export class GitlabService implements Omit<
                         },
                     };
                 } catch (attemptError: any) {
-                    const status = attemptError?.response?.status;
-                    const isNotFound = status === 404;
+                    const isNotFound = this.isGitlabNotFoundError(attemptError);
 
                     const logPayload = {
                         message: isNotFound
@@ -2546,9 +2576,8 @@ export class GitlabService implements Omit<
                                 },
                             };
                         } catch (defaultAttemptError: any) {
-                            const status =
-                                defaultAttemptError?.response?.status;
-                            const isNotFound = status === 404;
+                            const isNotFound =
+                                this.isGitlabNotFoundError(defaultAttemptError);
 
                             const logPayload = {
                                 message: isNotFound
@@ -2867,6 +2896,7 @@ export class GitlabService implements Omit<
             const comments = await gitlabAPI.MergeRequestDiscussions.all(
                 filters.repository.id,
                 filters.pullRequestNumber,
+                { perPage: GITLAB_MAX_PER_PAGE },
             );
 
             const originalCommit = comments?.find(
@@ -2914,6 +2944,15 @@ export class GitlabService implements Omit<
                     ...params,
                 },
             });
+
+            // Listing discussions is one call per PR, so a rate limit here is
+            // just as much a "back off" signal as one on the award emojis.
+            // Rethrowing it raw would leave the caller's breaker blind to it
+            // and it would count as an ordinary per-PR failure.
+            if (isGitlabRateLimitError(error)) {
+                throw toGitlabRateLimitError(error, organizationAndTeamData);
+            }
+
             throw error;
         }
     }
@@ -3000,42 +3039,97 @@ export class GitlabService implements Omit<
         );
         const gitlabAPI = this.instanceGitlabApi(gitlabAuthDetail);
 
+        const limit = pLimit(AWARD_EMOJI_CONCURRENCY);
+        let rateLimited = false;
+
         const commentsWithReactions = await Promise.all(
             comments
                 .filter((comment) => comment.notes?.length > 0)
-                .map(async (comment) => {
-                    try {
-                        const awards =
-                            await gitlabAPI.MergeRequestNoteAwardEmojis.all(
-                                comment.notes[0].project_id,
-                                comment.notes[0].noteable_iid,
-                                comment.notes[0].id,
-                            );
+                .map((comment) =>
+                    limit(async () => {
+                        // Whatever is still queued when the first rate-limit
+                        // lands would hit the same exhausted bucket, so it
+                        // drains without issuing a request.
+                        if (rateLimited) {
+                            return comment;
+                        }
 
-                        const thumbsUp = awards.filter((a) =>
-                            a.name.startsWith('thumbsup'),
-                        ).length;
-                        const thumbsDown = awards.filter((a) =>
-                            a.name.startsWith('thumbsdown'),
-                        ).length;
+                        try {
+                            const awards =
+                                await gitlabAPI.MergeRequestNoteAwardEmojis.all(
+                                    comment.notes[0].project_id,
+                                    comment.notes[0].noteable_iid,
+                                    comment.notes[0].id,
+                                );
 
-                        return {
-                            ...comment,
-                            notes: [
-                                {
-                                    ...comment.notes[0],
-                                    reactions: {
-                                        thumbsUp: thumbsUp,
-                                        thumbsDown: thumbsDown,
+                            const thumbsUp = awards.filter((a) =>
+                                a.name.startsWith('thumbsup'),
+                            ).length;
+                            const thumbsDown = awards.filter((a) =>
+                                a.name.startsWith('thumbsdown'),
+                            ).length;
+
+                            return {
+                                ...comment,
+                                notes: [
+                                    {
+                                        ...comment.notes[0],
+                                        reactions: {
+                                            thumbsUp: thumbsUp,
+                                            thumbsDown: thumbsDown,
+                                        },
                                     },
+                                ],
+                            };
+                        } catch (error) {
+                            // A rate limit is about the instance, not this
+                            // note — swallowing it here is what let the cron
+                            // keep hammering a GitLab that was already
+                            // refusing requests. Everything else stays
+                            // isolated to its own comment, as before.
+                            if (isGitlabRateLimitError(error)) {
+                                rateLimited = true;
+
+                                // The use case only knows the PR. The note and
+                                // project below are the last identifiers before
+                                // the error is translated and loses them.
+                                this.logger.warn({
+                                    message:
+                                        'GitLab refused the award emoji request rate',
+                                    context: GitlabService.name,
+                                    error,
+                                    metadata: {
+                                        organizationId:
+                                            organizationAndTeamData?.organizationId,
+                                        teamId: organizationAndTeamData?.teamId,
+                                        projectId: comment.notes[0]?.project_id,
+                                        noteId: comment.notes[0]?.id,
+                                        prNumber: pr?.pull_number,
+                                    },
+                                });
+
+                                throw toGitlabRateLimitError(
+                                    error,
+                                    organizationAndTeamData,
+                                );
+                            }
+
+                            this.logger.warn({
+                                message:
+                                    'Failed to fetch award emojis for note',
+                                context: GitlabService.name,
+                                error,
+                                metadata: {
+                                    organizationId:
+                                        organizationAndTeamData?.organizationId,
+                                    noteId: comment.notes[0]?.id,
+                                    prNumber: pr?.pull_number,
                                 },
-                            ],
-                        };
-                    } catch (error) {
-                        console.error('Error fetching awards:', error);
-                        return comment;
-                    }
-                }),
+                            });
+                            return comment;
+                        }
+                    }),
+                ),
         );
 
         return commentsWithReactions
@@ -3337,6 +3431,142 @@ export class GitlabService implements Omit<
         }
     }
 
+    /**
+     * The current `path_with_namespace` for a project, looked up by its numeric
+     * id.
+     *
+     * `repository.fullName` is whatever was persisted when the repository was
+     * first selected, and it is not reliably the URL slug: it can hold the
+     * display form (`My Group/My Project` rather than `my-group/my-project`)
+     * and it goes stale when a project is renamed or moved between groups, which
+     * also drops any subgroup added along the way (`group/project` where the
+     * project now lives at `parent/group/project`). Cloning such a URL fails
+     * with a 302 to `/users/sign_in` — git reports it as
+     * `unable to update url base from redirection`, which reads like an auth
+     * problem but is really a path that GitLab won't resolve.
+     *
+     * The numeric id survives renames and moves, which is why every REST call in
+     * this service keeps working while only the clone breaks. Falls back to the
+     * stored `fullName` so a lookup failure is no worse than the old behaviour.
+     *
+     * Callers without a real project id are expected to skip this entirely —
+     * see `hasResolvableProjectId`.
+     *
+     * The result is cached for 30 minutes per
+     * `(organizationId, repository.id)`: every clone otherwise pays this
+     * round-trip on its critical path, including repeated clones of the same
+     * repository across reviews. The slug only changes on a rename or group
+     * move, so a short TTL is enough to pick that up without keeping the
+     * common case on the network. A failed lookup is not cached — that falls
+     * back to `fullName` for this call only, and retries the API next time.
+     */
+    private async resolveProjectPathWithNamespace(
+        gitlabAuthDetail: GitlabAuthDetail,
+        repository: Pick<Repository, 'id' | 'fullName'>,
+        organizationAndTeamData: OrganizationAndTeamData,
+    ): Promise<string> {
+        // The GitLab integration (and therefore the numeric project id) is
+        // resolved per team, not per organization — two teams in the same
+        // org can point to different GitLab instances and share a numeric
+        // project id, so the key must include teamId and the instance host
+        // or one team can serve another's cached path_with_namespace.
+        // Normalized through the same getGitlabWebBaseUrl used to build the
+        // clone URL and the API client host, so equivalent raw values
+        // (`gitlab.example.com`, `https://gitlab.example.com/`, ...) share
+        // one cache entry instead of missing on every representation.
+        const normalizedHost = this.getGitlabWebBaseUrl(gitlabAuthDetail?.host);
+        const cacheKey = `gitlab-project-path-${organizationAndTeamData?.organizationId}-${organizationAndTeamData?.teamId}-${normalizedHost}-${repository?.id}`;
+
+        try {
+            const cachedPath =
+                await this.cacheService.getFromCache<string>(cacheKey);
+            if (cachedPath) {
+                return cachedPath;
+            }
+        } catch (cacheError) {
+            this.logger.warn({
+                message:
+                    'Error reading project path from cache, continuing with API call',
+                context: GitlabService.name,
+                serviceName: 'GitlabService resolveProjectPathWithNamespace',
+                error: cacheError,
+                metadata: {
+                    organizationAndTeamData,
+                    repositoryId: repository?.id,
+                },
+            });
+        }
+
+        try {
+            const gitlabAPI = this.instanceGitlabApi(gitlabAuthDetail);
+            const project = await gitlabAPI.Projects.show(repository.id);
+
+            if (project?.path_with_namespace) {
+                const path = project.path_with_namespace as string;
+
+                try {
+                    await this.cacheService.addToCache(
+                        cacheKey,
+                        path,
+                        1800000, // 30 minutos
+                    );
+                } catch (cacheError) {
+                    this.logger.warn({
+                        message: 'Error caching project path',
+                        context: GitlabService.name,
+                        serviceName:
+                            'GitlabService resolveProjectPathWithNamespace',
+                        error: cacheError,
+                        metadata: {
+                            organizationAndTeamData,
+                            repositoryId: repository?.id,
+                        },
+                    });
+                }
+
+                return path;
+            }
+
+            this.logger.warn({
+                message: `Project ${repository?.id} returned no path_with_namespace; falling back to the stored fullName`,
+                context: GitlabService.name,
+                metadata: {
+                    organizationAndTeamData,
+                    repositoryId: repository?.id,
+                    fullName: repository?.fullName,
+                },
+            });
+        } catch (error) {
+            this.logger.warn({
+                message: `Could not resolve path_with_namespace for project ${repository?.id}; falling back to the stored fullName`,
+                context: GitlabService.name,
+                error,
+                metadata: {
+                    organizationAndTeamData,
+                    repositoryId: repository?.id,
+                    fullName: repository?.fullName,
+                },
+            });
+        }
+
+        return repository?.fullName || '';
+    }
+
+    /**
+     * Whether `repository.id` is a real GitLab project id worth a lookup.
+     *
+     * CLI mode has no project id to give — it builds its params straight from
+     * the local git remote and passes the placeholder `'0'` with a `fullName`
+     * parsed from that remote, which is already the authoritative slug. Note
+     * `'0'` is a truthy string, so a plain truthiness check does not catch it
+     * and every CLI clone would spend a guaranteed-failing round-trip.
+     */
+    private hasResolvableProjectId(id?: string | number): boolean {
+        const normalized = String(id ?? '').trim();
+
+        return normalized !== '' && normalized !== '0';
+    }
+
     async getCloneParams(params: {
         repository: Pick<
             Repository,
@@ -3359,7 +3589,21 @@ export class GitlabService implements Omit<
                 throw new Error('GitLab authentication details not found');
             }
 
-            const encodedPath = (params?.repository?.fullName || '')
+            // Resolve the slug from the numeric project id instead of trusting
+            // the stored `fullName`. See resolveProjectPathWithNamespace. With
+            // no real id (CLI mode) `fullName` came straight from the local
+            // remote and is already authoritative, so skip the round-trip.
+            const projectPath = this.hasResolvableProjectId(
+                params.repository?.id,
+            )
+                ? await this.resolveProjectPathWithNamespace(
+                      gitlabAuthDetail,
+                      params.repository,
+                      params.organizationAndTeamData,
+                  )
+                : params.repository?.fullName || '';
+
+            const encodedPath = projectPath
                 .split('/')
                 .map(encodeURIComponent)
                 .join('/');
@@ -3575,9 +3819,8 @@ export class GitlabService implements Omit<
                 });
             }
 
-            const listOfCriticalIssues = this.getListOfCriticalIssues(
-                criticalComments,
-            );
+            const listOfCriticalIssues =
+                this.getListOfCriticalIssues(criticalComments);
 
             const requestChangeBodyTitle =
                 '# Found critical issues please review the requested changes';
@@ -3609,9 +3852,7 @@ export class GitlabService implements Omit<
         }
     }
 
-    private getListOfCriticalIssues(
-        criticalComments: CommentResult[],
-    ): string {
+    private getListOfCriticalIssues(criticalComments: CommentResult[]): string {
         return criticalComments
             .map((comment) => {
                 const summary =
@@ -3638,6 +3879,7 @@ export class GitlabService implements Omit<
             const discussions = await gitlabAPI.MergeRequestDiscussions.all(
                 repository.id,
                 prNumber,
+                { perPage: GITLAB_MAX_PER_PAGE },
             );
 
             return discussions.flatMap((discussion) => discussion.notes);
@@ -3664,13 +3906,32 @@ export class GitlabService implements Omit<
     ): Promise<any | null> {
         const { userName, email } = params;
 
-        // Chave de cache única para este usuário
-        const cacheKey = `gitlab-user-${email || 'no-email'}-${userName}`;
+        // Scoped by organization: each org resolves against its own GitLab
+        // (and credentials), so a user found for one must never answer another.
+        // The entry wraps the result so "not found" is cacheable too.
+        const cacheKey = `gitlab-user-${params.organizationAndTeamData?.organizationId}-${email || 'no-email'}-${userName}`;
+        const remember = async (user: any, ttl: number) => {
+            try {
+                await this.cacheService.addToCache(cacheKey, { user }, ttl);
+            } catch (cacheError) {
+                this.logger.warn({
+                    message: 'Error saving to cache',
+                    context: GitlabService.name,
+                    serviceName: 'GitlabService getUserByEmailOrNameWithRetry',
+                    error: cacheError,
+                    metadata: {
+                        organizationAndTeamData: params.organizationAndTeamData,
+                    },
+                });
+            }
+        };
 
         try {
-            const cachedUser = await this.cacheService.getFromCache(cacheKey);
-            if (cachedUser) {
-                return cachedUser;
+            const cached = await this.cacheService.getFromCache<{
+                user: any;
+            }>(cacheKey);
+            if (cached) {
+                return cached.user ?? null;
             }
         } catch (cacheError) {
             this.logger.warn({
@@ -3690,7 +3951,7 @@ export class GitlabService implements Omit<
                     );
                 });
 
-                const userPromise = this.getUserByEmailOrName({
+                const userPromise = this.findUserByEmailOrName({
                     organizationAndTeamData: params.organizationAndTeamData,
                     email: params.email || '',
                     userName: params.userName,
@@ -3698,23 +3959,9 @@ export class GitlabService implements Omit<
 
                 const user = await Promise.race([userPromise, timeoutPromise]);
 
-                if (user) {
-                    try {
-                        await this.cacheService.addToCache(
-                            cacheKey,
-                            user,
-                            1800000,
-                        ); // 30 minutos
-                    } catch (cacheError) {
-                        this.logger.warn({
-                            message: 'Error saving to cache',
-                            context: GitlabService.name,
-                            serviceName:
-                                'GitlabService getUserByEmailOrNameWithRetry',
-                            error: cacheError,
-                        });
-                    }
-                }
+                // 30 min either way: an author missing from GitLab stays
+                // missing for the next review of the same PR.
+                await remember(user ?? null, 1800000);
 
                 return user;
             } catch (error) {
@@ -3735,6 +3982,9 @@ export class GitlabService implements Omit<
                         error: error,
                         metadata: params,
                     });
+                    // Shorter than a hit: the flow tolerates a null author, and
+                    // re-paying every timeout on each review is what it cost.
+                    await remember(null, 600000);
                     return null;
                 }
 
@@ -3753,43 +4003,7 @@ export class GitlabService implements Omit<
         userName: string;
     }): Promise<any | null> {
         try {
-            const { userName, email, organizationAndTeamData } = params;
-
-            if (!email && !userName) {
-                return null;
-            }
-
-            const gitlabAuthDetail = await this.getAuthDetails(
-                organizationAndTeamData,
-            );
-
-            if (!gitlabAuthDetail) {
-                return null;
-            }
-
-            const gitlabAPI = this.instanceGitlabApi(gitlabAuthDetail);
-
-            if (email) {
-                const usersByEmail = await gitlabAPI.Users.all({
-                    search: email,
-                });
-                const exactMatchUserByEmail = usersByEmail.find(
-                    (user) => user.email === email,
-                );
-                if (exactMatchUserByEmail) {
-                    return exactMatchUserByEmail;
-                }
-            }
-
-            if (userName) {
-                const users = await gitlabAPI.Users.all({ search: userName });
-
-                const exactMatchUser = users.find(
-                    (user) => user.name === userName,
-                );
-
-                return exactMatchUser || null;
-            }
+            return await this.findUserByEmailOrName(params);
         } catch (error) {
             this.logger.error({
                 message: `Error retrieving user by email or name: ${params.email || params.userName}`,
@@ -3800,6 +4014,54 @@ export class GitlabService implements Omit<
             });
             return null;
         }
+    }
+
+    /**
+     * null only means "no such user"; a failed search throws, so a caller that
+     * caches the answer can tell the two apart.
+     */
+    private async findUserByEmailOrName(params: {
+        organizationAndTeamData: OrganizationAndTeamData;
+        email: string;
+        userName: string;
+    }): Promise<any | null> {
+        const { userName, email, organizationAndTeamData } = params;
+
+        if (!email && !userName) {
+            return null;
+        }
+
+        const gitlabAuthDetail = await this.getAuthDetails(
+            organizationAndTeamData,
+        );
+
+        if (!gitlabAuthDetail) {
+            return null;
+        }
+
+        const gitlabAPI = this.instanceGitlabApi(gitlabAuthDetail);
+
+        if (email) {
+            const usersByEmail = await gitlabAPI.Users.all({
+                search: email,
+            });
+            const exactMatchUserByEmail = usersByEmail.find(
+                (user) => user.email === email,
+            );
+            if (exactMatchUserByEmail) {
+                return exactMatchUserByEmail;
+            }
+        }
+
+        if (userName) {
+            const users = await gitlabAPI.Users.all({ search: userName });
+
+            const exactMatchUser = users.find((user) => user.name === userName);
+
+            return exactMatchUser || null;
+        }
+
+        return null;
     }
 
     async getUserByUsername(params: {
@@ -3830,7 +4092,7 @@ export class GitlabService implements Omit<
 
             return exactMatchUser || null;
         } catch (error) {
-            if (error?.response?.status === 404) {
+            if (this.isGitlabNotFoundError(error)) {
                 this.logger.warn({
                     message: `Gitlab user not found: ${username}`,
                     context: GitlabService.name,
@@ -3875,6 +4137,16 @@ export class GitlabService implements Omit<
 
             return user || null;
         } catch (error) {
+            // A deleted/blocked author is a normal answer, not a failure.
+            if (this.isGitlabNotFoundError(error)) {
+                this.logger.warn({
+                    message: `Gitlab user not found by ID: ${params.userId}`,
+                    context: GitlabService.name,
+                    metadata: params,
+                });
+                return null;
+            }
+
             this.logger.error({
                 message: `Error retrieving user by ID: ${params.userId}`,
                 context: GitlabService.name,
@@ -4022,6 +4294,14 @@ export class GitlabService implements Omit<
                             : pr.state === GitlabPullRequestState.CLOSED
                               ? PullRequestState.CLOSED
                               : PullRequestState.ALL,
+                    // GitLab's `iid` is the number a person sees on the merge
+                    // request. Emitted under BOTH keys because consumers are
+                    // split: `pull_number` is the legacy name this provider has
+                    // always used, `number` is what the GitHub adapter emits and
+                    // what shared code reads. Sending only `pull_number` made
+                    // every GitLab merge request arrive as `#undefined` in
+                    // anything written against the GitHub shape.
+                    number: pr.iid,
                     pull_number: pr.iid,
                     project_id: pr.project_id,
                     prURL: pr.web_url,
@@ -4069,6 +4349,7 @@ export class GitlabService implements Omit<
             const discussions = await gitlabAPI.MergeRequestDiscussions.all(
                 projectId,
                 mergeRequestIid,
+                { perPage: GITLAB_MAX_PER_PAGE },
             );
 
             const validRequestReviews = discussions
@@ -4217,6 +4498,117 @@ export class GitlabService implements Omit<
 
             return false;
         }
+    }
+
+    async diagnoseRepositoryAccess(params: {
+        organizationAndTeamData: OrganizationAndTeamData;
+        repository: { id: string; name: string; fullName?: string };
+    }): Promise<RepositoryAccessDiagnosis> {
+        const result: RepositoryAccessDiagnosis = {
+            ...UNKNOWN_REPOSITORY_ACCESS,
+        };
+
+        try {
+            const authDetails = await this.getAuthDetails(
+                params.organizationAndTeamData,
+            );
+
+            if (!authDetails) {
+                result.error = 'GitLab auth details not found';
+                return result;
+            }
+
+            const gitlabAPI = this.instanceGitlabApi(authDetails);
+
+            const repositoryId = params.repository.id;
+            const projectId =
+                typeof repositoryId === 'string' && /^\d+$/.test(repositoryId)
+                    ? Number(repositoryId)
+                    : repositoryId;
+
+            try {
+                await gitlabAPI.Commits.all(projectId, {
+                    perPage: 1,
+                    maxPages: 1,
+                });
+                result.read = 'ok';
+            } catch (error) {
+                result.read = isDeniedStatus(error) ? 'denied' : 'unknown';
+                result.error = summarizeProviderError(error);
+            }
+
+            try {
+                const project = await gitlabAPI.Projects.show(projectId);
+                // Posting MR notes needs Reporter (20); creating the webhook
+                // needs Maintainer (40). Access may come from the project or
+                // from its group, so the higher of the two applies.
+                const projectAccess =
+                    project?.permissions?.project_access?.access_level;
+                const groupAccess =
+                    project?.permissions?.group_access?.access_level;
+                const levels = [projectAccess, groupAccess].filter(
+                    (level): level is number => typeof level === 'number',
+                );
+                const maxLevel = levels.length ? Math.max(...levels) : null;
+
+                if (maxLevel !== null && maxLevel >= 20) {
+                    result.write = 'ok';
+                } else if (levels.length === 2) {
+                    result.write = 'denied';
+                }
+
+                // The role allows it, but a `read_api` token still cannot
+                // post. Personal/project/group access tokens report their
+                // scopes; an OAuth token cannot call this, so the role stands.
+                if (result.write === 'ok') {
+                    try {
+                        const token: any =
+                            await gitlabAPI.PersonalAccessTokens.show();
+                        if (
+                            Array.isArray(token?.scopes) &&
+                            !token.scopes.includes('api')
+                        ) {
+                            result.write = 'denied';
+                        }
+                    } catch {
+                        // not an access token: keep the role-based answer
+                    }
+                }
+            } catch (error) {
+                result.error ??= summarizeProviderError(error);
+            }
+
+            const webhookUrl =
+                this.configService.get<string>(
+                    'API_GITLAB_CODE_MANAGEMENT_WEBHOOK',
+                ) ?? process.env.API_GITLAB_CODE_MANAGEMENT_WEBHOOK;
+
+            // Unset URL: nothing to match, so the hook stays unknown (the
+            // doctor reports the missing URL itself).
+            if (webhookUrl) {
+                try {
+                    const hooks = await gitlabAPI.ProjectHooks.all(projectId);
+                    result.hook = hooks.some(
+                        (hook) => hook?.url === webhookUrl,
+                    )
+                        ? 'present'
+                        : 'missing';
+                } catch (error) {
+                    // Listing hooks needs Maintainer on the project; without it
+                    // we cannot tell whether the hook exists.
+                    result.error ??= summarizeProviderError(error);
+                }
+            }
+        } catch (error) {
+            // A 401/403/404 before any repository call (resolving the owner,
+            // building the client) still means the token cannot read.
+            if (isDeniedStatus(error)) {
+                result.read = 'denied';
+            }
+            result.error = summarizeProviderError(error);
+        }
+
+        return result;
     }
 
     async deleteWebhook(params: {
@@ -5015,9 +5407,7 @@ ${copyPrompt}
         return null;
     }
 
-    async getUsersByUsername(
-        _params: any,
-    ): Promise<Map<string, any> | null> {
+    async getUsersByUsername(_params: any): Promise<Map<string, any> | null> {
         // Not implemented for GitLab — callers fall back to per-user
         // `getUserByUsername`.
         return null;

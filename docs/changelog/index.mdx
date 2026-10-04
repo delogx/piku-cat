@@ -67,6 +67,297 @@ rss: true
 
     <div className="kodus-changelog-release">
         <div className="kodus-changelog-meta">
+            <span className="kodus-changelog-date">September 8, 2026</span>
+        </div>
+
+        <div className="kodus-changelog-content">
+            <div className="kodus-changelog-section">
+                <div role="heading" aria-level="2" className="kodus-changelog-section-label">Improvements</div>
+
+                <div className="kodus-changelog-item kodus-changelog-filterable filter-ai-engine filter-kody-rules">
+                    <div role="heading" aria-level="3" className="kodus-changelog-title">Turn conversations with Piku into lasting context</div>
+                    <p className="kodus-changelog-copy">Piku now takes a more proactive role when you talk to her in a PR. When you explain a team convention, clarify why a suggestion doesn’t apply, or share context worth keeping, she can suggest creating a memory or creating or updating a Piku Rule, without waiting for you to ask.</p>
+                    <p className="kodus-changelog-copy">This helps turn everyday feedback into knowledge that can guide future reviews. Piku proposes the action and asks for your confirmation before saving changes.</p>
+                </div>
+
+                <div className="kodus-changelog-item kodus-changelog-filterable filter-byok filter-ai-engine">
+                    <div role="heading" aria-level="3" className="kodus-changelog-title">More flexible BYOK configuration</div>
+                    <p className="kodus-changelog-copy">You’re no longer tied to a single AI provider. You can now mix providers and models across repositories and specific agents, choosing the setup that best fits each task. This gives your team more flexibility to balance review quality and cost, using more capable models where they matter most and more economical options elsewhere.</p>
+                    <p className="kodus-changelog-copy">We also rebuilt the configuration experience around that flexibility. Setup adapts to each provider’s credentials and advanced settings, and supported integrations fetch available models directly from the provider’s API. You can configure primary and fallback models and fine-tune their settings from the updated flow.</p>
+                    <video autoPlay loop muted playsInline preload="auto" className="kodus-changelog-video">
+                        <source src="https://kodus.io/wp-content/uploads/2026/09/byok-conf-final.mp4" type="video/mp4" />
+                    </video>
+                </div>
+            </div>
+
+            <div className="kodus-changelog-section">
+                <div role="heading" aria-level="2" className="kodus-changelog-section-label">Bug Fixes</div>
+
+                <div className="kodus-changelog-fix-list">
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-byok filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Reasoning settings now respect the selected model:</strong> We fixed how the configured reasoning level is applied across different providers and model families, including compatibility with temperature settings.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-byok filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Review sizing now respects model capacity:</strong> We improved context-window handling so reviews are split according to the available capacity of the selected model.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-byok filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">OpenRouter provider preferences:</strong> You can now enter multiple providers without commas disappearing as you type. Saved preferences also remain intact when you reopen and edit the configuration.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-byok">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Existing BYOK configurations remain intact:</strong> We fixed migration cases that could remove Bedrock configurations, setups containing only fallback models, or OpenRouter options. We also restored fallback model references affected by the migration.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-byok filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">More reliable model fallback:</strong> Tool compatibility now takes both the primary and fallback models into account. Reviews also correctly switch to the fallback model when rate-limit retries are exhausted.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ai-engine filter-performance">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Stalled model calls no longer wait indefinitely:</strong> We added timeouts to operations that could previously get stuck, including review processing and BYOK connection checks.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-byok filter-ai-engine filter-notifications">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Clearer handling of unavailable models:</strong> Reviews that cannot obtain an available BYOK model are now reported as failed instead of appearing to complete successfully. We also prevent duplicate notifications for the same model-exhaustion failure.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-byok filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Fewer unnecessary retries after provider billing errors:</strong> Errors that require changes to the provider account or payment setup no longer trigger repeated retries that cannot resolve the issue.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Better recovery from unexpected model responses:</strong> We improved how reviews handle responses that contain useful content in an unexpected format, reducing failures caused by response structure.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">More complete suggestion formatting:</strong> We fixed cases where the formatting step could leave suggestions out of the final review.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Cleaner review comments:</strong> Internal labels used during generation and auxiliary numbered structures are now removed more consistently before suggestions are published, without rewriting normal explanatory text.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Manual review requests are preserved:</strong> When you request a review while the PR is already being processed, the request is deferred to a new attempt instead of being silently dropped.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-git-provider filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Correct branch selection for reviews:</strong> Reviews now consistently take the repository’s default branch, configured branch patterns, and explicit exclusions into account when deciding whether a PR should be reviewed.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-git-provider">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Bitbucket repository configuration:</strong> We fixed how piku-cat reads configuration files from Bitbucket repositories, ensuring repository settings are loaded during reviews.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-mcp filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">More reliable task context retrieval:</strong> We fixed cases where issue identifiers were sent to integration fields that only accept predefined options, causing task-context requests to fail.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-git-provider filter-performance">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">More reliable reaction counts:</strong> We fixed reaction synchronization to prevent stale counts and reduced the number of simultaneous requests sent to Git providers.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-cockpit">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Cache write costs are easier to identify:</strong> Usage related to cache writes now appears separately in token charts and cost breakdowns.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-cockpit">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Token usage is recorded even when operations fail:</strong> We fixed cases where an error could prevent token usage from being saved, leaving consumption reports incomplete.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-notifications">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Notifications follow the selected organization:</strong> The notification feed, unread count, and mark-as-read actions now consistently apply to the organization you are currently viewing.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-cockpit">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Dashboard pagination no longer skips records:</strong> We fixed how subsequent pages resume loading results, preventing records from being missed between pages.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-cockpit">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Cockpit cards respect the selected date range:</strong> We fixed analytics cards that were using their own date ranges instead of the dashboard’s shared filter.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-cockpit filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Date filters remain accurate after midnight:</strong> Date-picker presets and the current-day selection now remain correct when the page stays open across midnight.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Faster access to review findings:</strong> Clicking the suggestion count in the PR list now takes you directly to the first finding.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Easier workspace selection:</strong> The workspace selection screen now supports scrolling through longer lists and uses less space at the top of the screen.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-git-provider filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Clearer Git integration errors:</strong> Repository connection and selection flows now show more useful error messages, making it easier to understand why an integration could not be completed.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Better keyboard navigation:</strong> We improved focus visibility and made interactive table rows accessible using Enter and Space.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Reduced-motion preferences are respected:</strong> Interface animations now reduce motion when that preference is enabled on your device.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-self-hosted">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">More reliable self-hosted startup:</strong> We updated the MongoDB versions used in Docker Compose to avoid an identified kernel compatibility issue. Dependent services now wait for the database to become healthy before starting.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <p className="kodus-changelog-empty">No changelog entries for this filter yet.</p>
+        </div>
+    </div>
+
+    <div className="kodus-changelog-release">
+        <div className="kodus-changelog-meta">
+            <span className="kodus-changelog-date">August 24, 2026</span>
+        </div>
+
+        <div className="kodus-changelog-content">
+            <div className="kodus-changelog-section">
+                <div role="heading" aria-level="2" className="kodus-changelog-section-label">Improvements</div>
+
+                <div className="kodus-changelog-item kodus-changelog-filterable filter-self-hosted filter-ai-engine">
+                    <div role="heading" aria-level="3" className="kodus-changelog-title">Vertex AI without static keys</div>
+                    <p className="kodus-changelog-copy">Self-hosted installations can now authenticate with Vertex AI using the identity already provided by the cloud infrastructure. This reduces the need to store sensitive credentials and simplifies setup in environments such as GKE, EKS, and Cloud Run.</p>
+                </div>
+            </div>
+
+            <div className="kodus-changelog-section">
+                <div role="heading" aria-level="2" className="kodus-changelog-section-label">Bug fixes</div>
+
+                <div className="kodus-changelog-fix-list">
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Jira task context:</strong> Piku now correctly identifies the Atlassian environment when fetching Jira issues used as review context. This allows it to access the right task information and use it when evaluating the pull request.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-git-provider filter-performance">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">More reliable GitLab clones:</strong> we fixed clone failures that could occur when a project was renamed or moved to another GitLab group. We now also cache this information for a period of time, reducing API calls and speeding up the start of reviews.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-git-provider filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Conversations with Piku in Azure DevOps:</strong> questions asked with <code className="kodus-changelog-code">@piku</code> directly in a new Azure DevOps thread now receive a response as expected. Previously, Piku could only find comments that were already replies within an existing conversation.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-billing-licenses">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Safer license management:</strong> we improved seat management to prevent licenses from being removed incorrectly and make assignment based on Git identity more reliable. Bot accounts are now handled correctly in this flow as well.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Clearer reviewer selection:</strong> we refined the loading states and buttons in the reviewer selection step. The flow now makes it clearer when an action is being processed and prevents inconsistent clicks or navigation.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-kody-rules">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Centralized Piku Rules sync:</strong> rules being changed through a configuration PR no longer disappear during synchronization. They remain visible while waiting for the PR to be merged and return to the correct state once the change is complete.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-mcp filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">More resilient business rule validation:</strong> we improved the handling of MCP integration failures and parameters with predefined options. This prevents integration errors or valid argument formats from incorrectly interrupting a validation.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-kody-rules">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Piku Rules in the organization’s language:</strong> comments generated from Piku Rules now respect the organization’s configured language. Teams configured to use Portuguese, for example, will receive rule explanations and guidance in the expected language.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-kody-rules filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Safer interpretation of Piku Rules:</strong> we added a validation step to make sure examples used internally by Piku do not reverse the intended meaning of a rule. This reduces the risk of suggesting a change that conflicts with the policy defined by the team.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">More predictable selection lists:</strong> selection menus now use the browser’s native scrolling behavior. This makes interactions more stable, especially in longer lists.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-git-provider filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Conversations with Piku in GitLab and Bitbucket:</strong> we fixed Piku’s reply flow in pull request conversations on GitLab and Bitbucket, ensuring that questions posted in comments receive the expected response.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-git-provider">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Bitbucket Data Center webhooks:</strong> pull requests from Bitbucket Data Center and Server are now correctly recognized when a webhook is received. Previously, some of these events could be ignored and fail to trigger an automatic review.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p className="kodus-changelog-empty">No changelog entries for this filter yet.</p>
+        </div>
+    </div>
+
+    <div className="kodus-changelog-release">
+        <div className="kodus-changelog-meta">
+            <span className="kodus-changelog-date">August 17, 2026</span>
+        </div>
+
+        <div className="kodus-changelog-content">
+            <div className="kodus-changelog-section">
+                <div role="heading" aria-level="2" className="kodus-changelog-section-label">Improvements</div>
+
+                <div className="kodus-changelog-item kodus-changelog-filterable filter-kody-rules filter-ai-engine">
+                    <div role="heading" aria-level="3" className="kodus-changelog-title">Support for Agent Rules in <code className="kodus-changelog-code">.agents/rules</code></div>
+                    <p className="kodus-changelog-copy">Some AI development tools let teams keep engineering instructions in the <code className="kodus-changelog-code">.agents/rules/</code> directory, including architecture standards, coding conventions, and constraints for changes to specific parts of a repository.</p>
+                    <p className="kodus-changelog-copy">We fixed how piku-cat discovers these files. Previously, rules stored in this format could be missed during import and would not appear as a source for Piku Rules. Piku now recognizes files under <code className="kodus-changelog-code">.agents/rules/**</code>, allowing these instructions to be discovered and used in the rules and review workflow.</p>
+                </div>
+            </div>
+
+            <div className="kodus-changelog-section">
+                <div role="heading" aria-level="2" className="kodus-changelog-section-label">Bug fixes</div>
+
+                <div className="kodus-changelog-fix-list">
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-byok filter-ai-engine">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Reasoning configuration for Anthropic BYOK models:</strong> we fixed compatibility between reasoning effort options and different generations of Anthropic models. The interface and runtime now apply only the settings supported by the selected model.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-kody-rules">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">More reliable Centralized Configuration:</strong> we fixed four scenarios related to syncing and exporting centralized configurations:</p>
+                        <ul className="kodus-changelog-list">
+                            <li>A missing configuration in a repository is no longer treated as if it had been deleted.</li>
+                            <li>Repositories whose configuration is organized entirely in directories now get the correct baseline, and configuration package downloads have been fixed.</li>
+                            <li>Rules are converted into plain objects before YAML generation, preventing incorrectly serialized content.</li>
+                            <li>Legacy scopes are now reconciled using ownership records already known by the system.</li>
+                        </ul>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-kody-rules filter-billing-licenses">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Plan-restricted rules update after an upgrade:</strong> when an organization changes plans, Piku Rules that were previously unavailable are recalculated and synced again. This ensures the status shown for each rule reflects the organization’s current eligibility.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-performance">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Protection against database connection pool exhaustion:</strong> we made several related fixes to reduce pressure on the database connection pool:</p>
+                        <ul className="kodus-changelog-list">
+                            <li>Concurrent queries and workflows now handle connections and locks more safely.</li>
+                            <li>Cron jobs that could trigger large numbers of simultaneous queries are now limited.</li>
+                            <li>Supporting indexes were added to the most critical paths.</li>
+                            <li>The Piku Learning cron no longer continuously consumes connections while it runs.</li>
+                        </ul>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-git-provider filter-performance">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Automatic retries when GitHub rate limits are reached:</strong> when a review hits the GitHub API rate limit, the job now fails as a transient error and is requeued for another attempt instead of waiting silently, making recovery more predictable.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-ai-engine filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Pull request cards refresh after suggestion validation:</strong> the “Needs attention” and “Awaiting” counters now update when suggestion implementation checks finish, so the interface no longer shows stale numbers until the next manual refresh.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-billing-licenses">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Seats from former members are removed correctly:</strong> we added cleanup for seats assigned to people who are no longer part of the organization. This keeps the license list and available seat count consistent.</p>
+                    </div>
+
+                    <div className="kodus-changelog-fix kodus-changelog-filterable filter-cli filter-ux-interface">
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">More actionable CLI errors:</strong> the CLI no longer shows only generic messages such as <code className="kodus-changelog-code">Request failed with status 403</code>. For permission errors, oversized payloads, or large reviews, it now explains the likely cause and suggests next steps, such as narrowing the scope or using <code className="kodus-changelog-code">--branch</code>, <code className="kodus-changelog-code">--commit</code>, or <code className="kodus-changelog-code">--fast</code>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p className="kodus-changelog-empty">No changelog entries for this filter yet.</p>
+        </div>
+    </div>
+
+    <div className="kodus-changelog-release">
+        <div className="kodus-changelog-meta">
             <span className="kodus-changelog-date">August 10, 2026</span>
         </div>
 
@@ -353,7 +644,7 @@ rss: true
                     </div>
 
                     <div className="kodus-changelog-fix kodus-changelog-filterable filter-ux-interface">
-                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Change <code className="kodus-changelog-code">@Piku resume</code> to <code className="kodus-changelog-code">@Piku start-review</code> in the Cadence Message:</strong> updated the cadence message to correctly instruct users to use <code className="kodus-changelog-code">@Piku start-review</code> instead of <code className="kodus-changelog-code">@Piku resume</code>. This reduces ambiguity and prevents incorrect commands from being suggested during the review flow.</p>
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">Change <code className="kodus-changelog-code">@piku resume</code> to <code className="kodus-changelog-code">@piku start-review</code> in the Cadence Message:</strong> updated the cadence message to correctly instruct users to use <code className="kodus-changelog-code">@piku start-review</code> instead of <code className="kodus-changelog-code">@piku resume</code>. This reduces ambiguity and prevents incorrect commands from being suggested during the review flow.</p>
                     </div>
 
                     <div className="kodus-changelog-fix kodus-changelog-filterable filter-git-provider filter-self-hosted">
@@ -497,16 +788,16 @@ rss: true
                 <div className="kodus-changelog-item kodus-changelog-filterable filter-ai-engine">
                     <div role="heading" aria-level="3" className="kodus-changelog-title">Steer a review with focus</div>
                     <p className="kodus-changelog-copy">You can now ask Piku to pay special attention to something specific during a review, without changing any configuration.</p>
-                    <p className="kodus-changelog-copy">In a PR, use <code className="kodus-changelog-code">@kody review &lt;directive&gt;</code>. In the CLI, use <code className="kodus-changelog-code">kodus review --focus</code>.</p>
+                    <p className="kodus-changelog-copy">In a PR, use <code className="kodus-changelog-code">@piku review &lt;directive&gt;</code>. In the CLI, use <code className="kodus-changelog-code">kodus review --focus</code>.</p>
                     <p className="kodus-changelog-copy">Examples:</p>
                     <ul className="kodus-changelog-list">
-                        <li><code className="kodus-changelog-code">@kody review focus on security</code></li>
-                        <li><code className="kodus-changelog-code">@kody review focus on performance</code></li>
+                        <li><code className="kodus-changelog-code">@piku review focus on security</code></li>
+                        <li><code className="kodus-changelog-code">@piku review focus on performance</code></li>
                         <li><code className="kodus-changelog-code">kodus review --focus "edge cases"</code></li>
                     </ul>
                     <p className="kodus-changelog-copy">This is especially useful for larger PRs or sensitive changes, where you want the review to go deeper on a specific area, such as security, performance, edge cases, a business rule, or a team standard.</p>
                     <p className="kodus-changelog-copy">Focus works as a priority, not a filter. Piku pays closer attention to the context you provide, but still reports other concrete issues it finds in the diff.</p>
-                    <p className="kodus-changelog-copy">Learn more in the <a className="kodus-changelog-link" href="https://docs.kodus.io/how_to_use/en/code_review/review_directive">Steer a Review (Focus)</a> documentation.</p>
+                    <p className="kodus-changelog-copy">Learn more in the <a className="kodus-changelog-link" href="https://docs.kodus.io/en/how_to_use/code_review/review_directive">Steer a Review (Focus)</a> documentation.</p>
                 </div>
 
                 <div className="kodus-changelog-item kodus-changelog-filterable filter-ai-engine filter-git-provider">
@@ -579,7 +870,7 @@ rss: true
                     </div>
 
                     <div className="kodus-changelog-fix kodus-changelog-filterable filter-ai-engine filter-git-provider">
-                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">@kody conversation crashing on JSON wrapped in prose:</strong> fixed a crash that happened when Piku responded to mentions and the output came back as text containing embedded JSON.</p>
+                        <p className="kodus-changelog-copy"><strong className="kodus-changelog-fix-label">@piku conversation crashing on JSON wrapped in prose:</strong> fixed a crash that happened when Piku responded to mentions and the output came back as text containing embedded JSON.</p>
                     </div>
 
                     <div className="kodus-changelog-fix kodus-changelog-filterable filter-kody-rules">
@@ -870,7 +1161,7 @@ rss: true
                     <div role="heading" aria-level="3" className="kodus-changelog-title">Moonshot Kimi support for BYOK</div>
                     <p className="kodus-changelog-copy">We added support for Moonshot as a provider, compatible with the Anthropic API.</p>
                     <p className="kodus-changelog-copy">You can now use the Kimi Coding Plan model in BYOK setups. To configure it, set the <code className="kodus-changelog-code">API_MOONSHOT_API_KEY</code> key and select the model in the organization preferences.</p>
-                    <p className="kodus-changelog-copy">See the <a className="kodus-changelog-link" href="https://docs.kodus.io/knowledge_base/en/how-to-use-moonshot-with-kodus">Moonshot (Kimi)</a> documentation for more setup details.</p>
+                    <p className="kodus-changelog-copy">See the <a className="kodus-changelog-link" href="https://docs.kodus.io/en/knowledge_base/how-to-use-moonshot-with-kodus">Moonshot (Kimi)</a> documentation for more setup details.</p>
                 </div>
 
                 <div className="kodus-changelog-item kodus-changelog-filterable filter-byok">
@@ -880,7 +1171,7 @@ rss: true
                     <video autoPlay loop muted playsInline preload="auto" className="kodus-changelog-video">
                         <source src="/videos/token-usage.mp4" type="video/mp4" />
                     </video>
-                    <p className="kodus-changelog-copy">See the <a className="kodus-changelog-link" href="https://docs.kodus.io/how_to_use/en/spend-limit">Monthly Spend Limit</a> documentation for more setup details.</p>
+                    <p className="kodus-changelog-copy">See the <a className="kodus-changelog-link" href="https://docs.kodus.io/en/how_to_use/spend-limit">Monthly Spend Limit</a> documentation for more setup details.</p>
                 </div>
             </div>
 
@@ -1199,15 +1490,15 @@ rss: true
     <Update label="July 6, 2026 - Steer a review with focus" tags={["AI Engine"]}>
         You can now ask Piku to pay special attention to something specific during a review, without changing any configuration.
 
-        In a PR, use @kody review &lt;directive&gt;. In the CLI, use kodus review --focus.
+        In a PR, use @piku review &lt;directive&gt;. In the CLI, use kodus review --focus.
 
-        Examples: @kody review focus on security. @kody review focus on performance. Or in the CLI: kodus review --focus "edge cases".
+        Examples: @piku review focus on security. @piku review focus on performance. Or in the CLI: kodus review --focus "edge cases".
 
         This is especially useful for larger PRs or sensitive changes, where you want the review to go deeper on a specific area, such as security, performance, edge cases, a business rule, or a team standard.
 
         Focus works as a priority, not a filter. Piku pays closer attention to the context you provide, but still reports other concrete issues it finds in the diff.
 
-        Learn more in the Steer a Review Focus documentation: https://docs.kodus.io/how_to_use/en/code_review/review_directive
+        Learn more in the Steer a Review Focus documentation: https://docs.kodus.io/en/how_to_use/code_review/review_directive
     </Update>
 
     <Update label="July 6, 2026 - Consolidate LLM prompts into a single comment" tags={["AI Engine", "GIT Provider"]}>
@@ -1260,7 +1551,7 @@ rss: true
         Standardized how author, reviewer, and assignee IDs are handled, preventing PRs from breaking because of type differences, such as string vs. number.
     </Update>
 
-    <Update label="July 6, 2026 - @kody conversation crashing on JSON wrapped in prose" tags={["AI Engine", "GIT Provider"]}>
+    <Update label="July 6, 2026 - @piku conversation crashing on JSON wrapped in prose" tags={["AI Engine", "GIT Provider"]}>
         Fixed a crash that happened when Piku responded to mentions and the output came back as text containing embedded JSON.
     </Update>
 
@@ -1463,7 +1754,7 @@ rss: true
 
         You can now use the Kimi Coding Plan model in BYOK setups. To configure it, set the API_MOONSHOT_API_KEY key and select the model in the organization preferences.
 
-        See the Moonshot Kimi documentation for more setup details: https://docs.kodus.io/knowledge_base/en/how-to-use-moonshot-with-kodus
+        See the Moonshot Kimi documentation for more setup details: https://docs.kodus.io/en/knowledge_base/how-to-use-moonshot-with-kodus
     </Update>
 
     <Update label="June 8, 2026 - Monthly token usage control" tags={["BYOK"]}>
@@ -1473,7 +1764,7 @@ rss: true
 
         Video: https://kodus.io/wp-content/uploads/2026/06/token-usage.mov
 
-        See the Monthly Spend Limit documentation for more setup details: https://docs.kodus.io/how_to_use/en/spend-limit
+        See the Monthly Spend Limit documentation for more setup details: https://docs.kodus.io/en/how_to_use/spend-limit
     </Update>
 
     <Update label="June 8, 2026 - More resilient review agent" tags={["AI Engine"]}>
