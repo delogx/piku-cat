@@ -3,6 +3,8 @@ import { AgentReviewStage } from './agent-review.stage';
 import { CodeReviewPipelineContext } from '../context/code-review-pipeline.context';
 import { LLM } from '@libs/llm/llm';
 import { hasManagedModelKey } from '@libs/llm/managed-slot';
+import { classifySeverity } from '@libs/code-review/infrastructure/agents/engine/classify-severity';
+import { formatSuggestionContent } from '@libs/code-review/infrastructure/agents/engine/format-suggestion-content';
 
 // The stage's post-orchestrator helpers (severity reclassification + content
 // formatter) each make their OWN model calls. They are irrelevant to the
@@ -158,6 +160,30 @@ afterEach(() => {
 // ════════════════════════════════════════════════════════════════════════════
 // A. Output-shape zoo — the orchestrator envelope is NOT the declared D
 // ════════════════════════════════════════════════════════════════════════════
+describe('secondary model routing', () => {
+    it.each([undefined, 'claude-opus-5-5'])('preserves the resolved model with legacy override %s', async (override) => {
+        const { stage, reviewOrchestrator } = makeStage();
+        reviewOrchestrator.execute.mockResolvedValue(happyEnvelope([sugg()]));
+        const resolvedModelSlot = {
+            provider: 'anthropic',
+            model: 'claude-opus-5',
+            apiKey: 'encrypted-test-key',
+            byokModelId: 'model-main',
+            credentialId: 'cred-main',
+        };
+        await run(stage, makeContext({
+            codeReviewConfig: {
+                reviewOptions: {},
+                resolvedModelSlot,
+                ...(override ? { byokModel: override } : {}),
+            },
+        }));
+        const expected = { ...resolvedModelSlot, model: override ?? resolvedModelSlot.model };
+        expect(jest.mocked(classifySeverity).mock.calls[0][2]).toEqual(expected);
+        expect(jest.mocked(formatSuggestionContent).mock.calls[0][1]?.byokConfig).toEqual(expected);
+    });
+});
+
 describe('A. orchestrator output-shape zoo', () => {
     // A1 — exact D, happy path: the finder's findings assemble into
     // validSuggestions + one fileAnalysisResults entry per changed file.

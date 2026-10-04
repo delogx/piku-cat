@@ -1121,7 +1121,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                         dedupedNonRules,
                         kodyRulesForDedup,
                         prNumber,
-                        context.codeReviewConfig?.byokConfig,
+                        effectiveSlot,
                         telemetryMeta,
                     );
             } catch (crossErr) {
@@ -1139,7 +1139,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
             // let the formatter LLM strip or reword the link when it
             // collapses WHAT/WHY/HOW into natural prose.
 
-            // Reclassify severity using dedicated criteria (Gemini Flash)
+            // Reclassify severity using the configured model and dedicated criteria.
             // The agent assigns rough severity during investigation; this step
             // applies the definitive criteria (default or client-custom) without
             // biasing the agent's bug-finding behavior.
@@ -1156,7 +1156,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                         improvedCode: s.improvedCode || '',
                     })),
                     context.codeReviewConfig?.v2PromptOverrides,
-                    context.codeReviewConfig?.byokConfig,
+                    effectiveSlot,
                     context.organizationAndTeamData?.organizationId,
                 );
                 for (let i = 0; i < deduped.length; i++) {
@@ -1254,7 +1254,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                         customWritingGuidelines:
                             context.codeReviewConfig?.v2PromptOverrides
                                 ?.generation?.main,
-                        byokConfig: context.codeReviewConfig?.byokConfig,
+                        byokConfig: effectiveSlot,
                         languageResultPrompt:
                             context.codeReviewConfig?.languageResultPrompt,
                         organizationId:
@@ -1333,9 +1333,7 @@ export class AgentReviewStage extends BasePipelineStage<CodeReviewPipelineContex
                             ...(draft.reviewWarnings ?? []),
                             buildBadFixDowngradedWarning({
                                 count: totalBadFix,
-                                modelName: getModelName(
-                                    context.codeReviewConfig?.byokConfig,
-                                ),
+                                modelName: getModelName(effectiveSlot),
                                 agentName: 'agent-review',
                             }),
                         ]);
